@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Advanced Fitness Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Montserrat for headings, Nunito for body -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#F8FAF9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Lifting Tracker">
+    <meta name="format-detection" content="telephone=no">
+    <style>
+        html { -webkit-text-size-adjust: 100%; }
+        :root {
+            --finisher-bg: #fff1f0;
+            --finisher-border: #f87171;
+            --finisher-text: #b91c1c;
+            --suggestion-red: #ef4444;
+            --background: #F8FAF9;
+            --surface-1: #FDFDFD;
+            --surface-2: #F3F4F6;
+            --primary: #475569; /* slate-600 */
+            --primary-light: #94a3b8; /* slate-400 */
+            --secondary: #64748b; /* slate-500 */
+            --accent: #a3e635; /* lime-400, subtle accent */
+            --text-on-bg: #23272A;
+            --text-on-surface: #23272A;
+            --text-muted: #6B7280;
+            --border-color: #E2E8F0;
+            --shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
+            --spacing-8: 8px;
+            --spacing-16: 16px;
+            --spacing-24: 24px;
+            --spacing-32: 32px;
+            --border-radius: 10px;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Nunito', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-on-bg);
+            line-height: 1.7;
+            margin: 0;
+            padding: var(--spacing-16);
+            padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-32);
+        }
+
+        header {
+            text-align: center;
+            border-bottom: none;
+            padding-bottom: var(--spacing-8);
+            margin-bottom: var(--spacing-8);
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        h1 {
+            font-family: 'Montserrat', Arial, sans-serif;
+            color: var(--primary);
+            margin: 0;
+            font-size: clamp(1.6rem, 4vw, 2.8rem);
+            font-weight: 900;
+            letter-spacing: 1px;
+            text-shadow: none;
+        }
+        h2 {
+            font-family: 'Montserrat', Arial, sans-serif;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: var(--spacing-8);
+            margin-top: 0;
+            font-size: clamp(1.2rem, 3.4vw, 2rem);
+            font-weight: 700;
+        }
+        h3 {
+            font-family: 'Montserrat', Arial, sans-serif;
+            margin: 0 0 var(--spacing-8) 0;
+            color: var(--primary);
+            font-size: clamp(1rem, 2.8vw, 1.2rem);
+            font-weight: 700;
+        }
+        p {
+            margin: 0 0 var(--spacing-8) 0;
+            color: var(--text-muted);
+            font-size: 1em;
+        }
+
+        .section {
+            background: var(--surface-1);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-32) var(--spacing-24);
+            border: 1px solid var(--border-color);
+            box-shadow: none;
+        }
+
+        .table-section {
+            margin-bottom: var(--spacing-32);
+        }
+
+        @media (min-width: 768px) {
+            .section { padding: var(--spacing-32) var(--spacing-32); }
+        }
+        @media (max-width: 767px) {
+            .section { padding: var(--spacing-16) var(--spacing-16); }
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: var(--spacing-24);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-size: 1em;
+            color: var(--primary);
+            margin-bottom: var(--spacing-8);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: var(--spacing-8) var(--spacing-16);
+            background-color: var(--surface-2);
+            border: 1px solid var(--border-color);
+            color: var(--text-on-bg);
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-family: 'Nunito', Arial, sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        input:focus, select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-light);
+            outline: none;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: var(--spacing-8) var(--spacing-16);
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s, box-shadow 0.2s;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.06);
+        }
+        .btn:hover {
+            background: var(--secondary);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(44, 62, 80, 0.08);
+        }
+
+        .btn-secondary {
+            background: var(--accent);
+            color: var(--primary);
+        }
+        .btn-secondary:hover {
+            background: #d9f99d;
+            color: var(--primary);
+        }
+
+        #measurements-section .btn { margin-top: var(--spacing-16); }
+
+        /* Remove old nav button styles for tab navigation */
+
+        /* Bottom tab bar styles */
+        .tab-bar {
+            position: fixed;
+            left: 0;
+            bottom: 0;
+            width: 100%;
+            background: var(--surface-2);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: calc(60px + env(safe-area-inset-bottom, 0px));
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+            z-index: 100;
+            box-shadow: 0 -2px 8px rgba(44,62,80,0.04);
+        }
+        .tab-bar-btn {
+            flex: 1;
+            text-align: center;
+            background: none;
+            border: none;
+            color: var(--primary);
+            font-family: 'Montserrat', Arial, sans-serif;
+            font-size: 1em;
+            font-weight: 700;
+            padding: 0;
+            cursor: pointer;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s;
+        }
+        .tab-bar-btn.active {
+            color: var(--accent);
+        }
+        .tab-bar-btn svg {
+            display: block;
+            margin: 0 auto 2px auto;
+            height: 24px;
+            width: 24px;
+        }
+        @media (min-width: 768px) {
+            .tab-bar { max-width: 900px; left: 50%; transform: translateX(-50%); }
+        }
+        .phase-content.active { display: block; }
+
+        .workout-day {
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-24);
+            background: var(--surface-1);
+            box-shadow: none;
+        }
+        .workout-day summary {
+            padding: var(--spacing-16);
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--primary);
+            font-family: 'Montserrat', Arial, sans-serif;
+        }
+        .workout-day[open] summary { border-bottom: 2px solid var(--primary); }
+        .workout-content {
+            padding: var(--spacing-16);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-16);
+        }
+
+        .exercise-card {
+            background: var(--surface-2);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-24);
+            box-shadow: none;
+        }
+        .exercise-card.finisher {
+            background: var(--finisher-bg);
+            border: 2px solid var(--finisher-border);
+            color: var(--finisher-text);
+        }
+
+        .suggestion {
+            font-size: 1em;
+            color: var(--suggestion-red);
+            margin-top: var(--spacing-8);
+            font-style: italic;
+            font-weight: 700;
+        }
+
+        #dashboard-section .chart-container { margin-top: var(--spacing-24); }
+        #dashboard-section label { margin-right: var(--spacing-8); }
+
+        /* Chart.js canvas tweaks */
+        canvas {
+            background: var(--surface-2);
+            border-radius: 8px;
+            box-shadow: none;
+            height: 220px;
+            width: 100%;
+        }
+        @media (max-width: 767px) {
+            canvas { height: 180px; }
+        }
+
+        /* Phase navigation: clearer active state */
+        .phase-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-8); margin: var(--spacing-16) 0; }
+        .phase-btn { background: var(--surface-2); color: var(--primary); border: 1px solid var(--border-color); border-radius: 10px; }
+    .phase-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* More noticeable pastel green backgrounds for phases */
+    #workout-section.phase-1 { background: #fafcf7; /* ultra subtle green tint */ }
+    #workout-section.phase-2 { background: #f7fcfa; /* ultra subtle mint tint */ }
+    #workout-section.phase-3 { background: #f7fbfc; /* ultra subtle aqua tint */ }
+
+        /* Mobile: allow tables to scroll horizontally */
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .table-scroll table { min-width: 640px; }
+        @media (max-width: 767px) {
+            .table-scroll table { font-size: 0.9em; }
+            .table-scroll th, .table-scroll td { padding: 4px 8px; }
+        }
+
+        /* Improve tap targets on mobile */
+        .btn, .tab-bar-btn, .phase-btn { min-height: 44px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+        input, select { min-height: 40px; }
+        /* Avoid content sitting under fixed tab bar */
+        #main-pastworkouts { padding-bottom: 80px; }
+        #main-dashboard { padding-bottom: 80px; }
+        body { overscroll-behavior-y: contain; }
+        summary { -webkit-tap-highlight-color: transparent; }
+    </style>
+</head>
+<body>
+    <div id="user-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1000;align-items:center;justify-content:center;">
+        <div style="background:#fff;padding:32px 24px;border-radius:12px;max-width:350px;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);">
+            <h2 style="color:var(--primary);margin-top:0;">Welcome!</h2>
+            <p style="color:var(--text-muted);margin-bottom:16px;">Let's get started on your fitness journey! Please tell us a bit about yourself so we can tailor your program to your goals and preferences.</p>
+            <form id="user-details-form">
+                <div class="input-group">
+                    <label for="user-name">Your Name</label>
+                    <input type="text" id="user-name" required placeholder="e.g., Alex" autocomplete="name" autocapitalize="words" enterkeyhint="next">
+                </div>
+                <div class="input-group">
+                    <label for="user-age">Age</label>
+                    <input type="number" id="user-age" min="10" max="120" required placeholder="e.g., 30" inputmode="numeric" step="1" enterkeyhint="next">
+                </div>
+                <div class="input-group">
+                    <label for="user-goal">Main Goal</label>
+                    <select id="user-goal" required enterkeyhint="done">
+                        <option value="">Select your main goal...</option>
+                        <option value="Build muscle">Build muscle</option>
+                        <option value="Lose fat">Lose fat</option>
+                        <option value="Increase strength">Increase strength</option>
+                        <option value="Improve endurance">Improve endurance</option>
+                        <option value="General fitness">General fitness</option>
+                        <option value="Rehabilitation">Rehabilitation</option>
+                        <option value="Athletic performance">Athletic performance</option>
+                        <option value="Healthy aging">Healthy aging</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <button class="btn" type="submit" style="margin-top:16px;width:100%;">Start Program</button>
+            </form>
+        </div>
+    </div>
+    <div class="container">
+        <header>
+            <h1>Fitness Dashboard</h1>
+        </header>
+        <!-- Bottom Tab Bar Navigation -->
+        <nav class="tab-bar">
+            <button class="tab-bar-btn" id="tab-workouts" onclick="showTab('workouts')" aria-label="Workouts">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 20v-9m10 9v-9M5 11V7a2 2 0 012-2h10a2 2 0 012 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Workouts
+            </button>
+            <button class="tab-bar-btn" id="tab-stats" onclick="showTab('stats')" aria-label="Stats">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17v-6a1 1 0 011-1h2a1 1 0 011 1v6m4 0V7a1 1 0 011-1h2a1 1 0 011 1v10m4 0v-3a1 1 0 00-1-1h-2a1 1 0 00-1 1v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Stats
+            </button>
+        </nav>
+        <div id="main-dashboard">
+            <section id="workout-section" class="section">
+                <div id="welcome-message" style="margin-bottom:32px;">
+                    <h2 id="welcome-title">Welcome to Your Lifting Program!</h2>
+                    <p id="welcome-motivation" style="font-size:1.15em;color:var(--primary);margin-bottom:8px;"></p>
+                </div>
+                <h2>Workout Plan</h2>
+                <nav class="phase-nav">
+                    <button class="phase-btn btn active" onclick="showPhase(1)">Phase 1 (Wks 1-4)</button>
+                    <button class="phase-btn btn" onclick="showPhase(2)">Phase 2 (Wks 5-8)</button>
+                    <button class="phase-btn btn" onclick="showPhase(3)">Phase 3 (Wks 9-12)</button>
+                </nav>
+                <main>
+                </main>
+            </section>
+        </div>
+        <div id="main-pastworkouts" style="display:none;">
+            <section class="section">
+                <div style="margin-bottom:24px;text-align:right;">
+                    <button class="btn" style="background:#ef4444;color:#fff;" onclick="clearAllData()">Clear All Data & Restart</button>
+                </div>
+                <h2>Stats</h2>
+                <div id="measurements-section" class="table-section">
+                    <h3>Track Your Measurements</h3>
+                    <div class="input-grid">
+                        <div class="input-group">
+                            <label for="body-weight">Body Weight (kg)</label>
+                            <input type="number" id="body-weight" placeholder="e.g., 95.5" inputmode="decimal" step="0.1" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="chest-measure">Chest (cm)</label>
+                            <input type="number" id="chest-measure" placeholder="e.g., 110" inputmode="decimal" step="0.1" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="waist-measure">Waist (cm)</label>
+                            <input type="number" id="waist-measure" placeholder="e.g., 90" inputmode="decimal" step="0.1" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="hips-measure">Hips (cm)</label>
+                            <input type="number" id="hips-measure" placeholder="e.g., 105" inputmode="decimal" step="0.1" min="0">
+                        </div>
+                    </div>
+                    <button class="btn" onclick="saveMeasurements()">Save Today's Measurements</button>
+                </div>
+                <div id="dashboard-section" class="table-section">
+                    <h3>Body Composition</h3>
+                    <div class="chart-container">
+                        <canvas id="bodyCompChart"></canvas>
+                    </div>
+                </div>
+                <div id="exercise-charts-container"></div>
+                <div id="past-workouts-table" class="table-scroll"></div>
+                <div id="weekly-strength-volume-table" class="table-section">
+                    <h3>Weekly Strength Volume</h3>
+                    <!-- Table will be rendered here by JS -->
+                </div>
+                <div id="measurements-history-section" class="table-section">
+                    <h3>Measurements & Body Weight History</h3>
+                    <div id="measurements-history-table" class="table-scroll"></div>
+                    <div class="chart-container">
+                        <canvas id="measurementsHistoryChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+<script>
+function clearAllData() {
+    localStorage.removeItem('userDetails');
+    localStorage.removeItem('bodyTrackerData');
+    localStorage.removeItem('workoutTrackerData');
+    location.reload();
+}
+const MOTIVATION_MESSAGES = [
+    "Every rep brings you closer to your goal.",
+    "Progress is progress, no matter how small.",
+    "Consistency beats intensity—show up for yourself!",
+    "Strong mind, strong body—let's get it!",
+    "You are stronger than you think.",
+    "The only bad workout is the one you didn’t do.",
+    "Push past your limits today.",
+    "Your future self will thank you.",
+    "Small steps lead to big changes.",
+    "Sweat is just fat crying.",
+    "Champions are made in the gym.",
+    "Don’t wish for it—work for it!",
+    "Strength grows in the moments you think you can’t go on but you keep going.",
+    "No excuses, just results.",
+    "You’re one workout away from a good mood.",
+    "The pain you feel today will be the strength you feel tomorrow.",
+    "Your only competition is yourself.",
+    "Success starts with self-discipline.",
+    "You don’t have to be extreme, just consistent.",
+    "Make yourself proud today.",
+    "The best project you’ll ever work on is you.",
+    "Don’t stop when you’re tired—stop when you’re done.",
+    "It’s not about being the best, it’s about being better than you were yesterday.",
+    "You’re building more than muscle—you’re building character.",
+    "The only way to finish is to start.",
+    "Your body can stand almost anything. It’s your mind you have to convince.",
+    "Push yourself, because no one else is going to do it for you.",
+    "Great things never come from comfort zones.",
+    "Don’t count the days—make the days count.",
+    "You’re not just working out, you’re working on yourself.",
+    "If it doesn’t challenge you, it won’t change you.",
+    "You’re capable of amazing things.",
+    "The difference between try and triumph is a little ‘umph’.",
+    "You didn’t come this far to only come this far.",
+    "Your only limit is you.",
+    "Success is the sum of small efforts repeated day in and day out.",
+    "Don’t let yesterday take up too much of today.",
+    "You are your only limit.",
+    "The harder you work, the luckier you get.",
+    "You’re not just lifting weights, you’re lifting yourself up.",
+    "The secret to getting ahead is getting started.",
+    "You’re stronger with every set.",
+    "Your journey is your strength.",
+    "You’re here to be awesome.",
+    "You’re unstoppable when you believe in yourself.",
+    "You’re not just training your body, you’re training your mind.",
+    "You’re one step closer to your goal.",
+    "You’re making progress every day.",
+    "You’re building a better you.",
+    "You’re crushing it!",
+    "You’re a warrior—keep fighting.",
+    "You’re rewriting your story with every workout.",
+    "You’re investing in yourself.",
+    "You’re proving to yourself what you’re capable of.",
+    "You’re inspiring others by showing up.",
+    "You’re making yourself proud.",
+    "You’re unstoppable.",
+    "You’re a champion in the making.",
+    "You’re stronger than your excuses.",
+    "You’re here to win.",
+    "You’re the author of your own success.",
+    "You’re turning dreams into reality.",
+    "You’re making it happen!",
+    "You’re the architect of your own destiny.",
+    "Every day is a new opportunity to improve.",
+    "Your effort today shapes your tomorrow.",
+    "You’re building habits that last a lifetime.",
+    "Success is earned, not given.",
+    "You’re one step closer to greatness.",
+    "Your journey is unique—embrace it.",
+    "You’re stronger with every challenge you overcome.",
+    "You’re unstoppable when you set your mind to it.",
+    "You’re making progress, even if it’s slow.",
+    "You’re the hero of your own story.",
+    "You’re creating a legacy of strength.",
+    "You’re proving that hard work pays off.",
+    "You’re inspiring yourself and others.",
+    "You’re making every day count.",
+    "You’re building resilience with every workout.",
+    "You’re turning obstacles into opportunities.",
+    "You’re mastering your mindset.",
+    "You’re pushing past your comfort zone.",
+    "You’re investing in your health and happiness.",
+    "You’re showing up for yourself, every day.",
+    "You’re making your dreams a reality.",
+    "You’re unstoppable when you believe in your potential.",
+    "You’re creating a future you’ll be proud of.",
+    "You’re building strength inside and out.",
+    "You’re making progress, one step at a time.",
+    "You’re proving that you’re capable of anything.",
+    "You’re making your mark on the world.",
+    "You’re building a foundation for success.",
+    "You’re showing the world what you’re made of.",
+    "You’re making every rep count.",
+    "You’re unstoppable when you set your sights high.",
+    "You’re creating a life you love.",
+    "You’re building momentum with every workout.",
+    "You’re proving that persistence pays off.",
+    "You’re making yourself proud, every day.",
+    "You’re unstoppable when you refuse to quit.",
+    "You’re building a better future for yourself.",
+    "You’re making progress, even when it’s tough.",
+    "You’re proving that you’re stronger than you think.",
+    "You’re making every moment count.",
+    "You’re unstoppable when you chase your dreams.",
+    "You’re building a legacy of greatness.",
+    "You’re making progress, no matter what.",
+    "You’re proving that you’re a force to be reckoned with.",
+    "You’re making every day a victory.",
+    "You’re unstoppable when you never give up.",
+    "You’re building a life of strength and purpose.",
+    "You’re making progress, one day at a time.",
+    "You’re proving that you’re unstoppable.",
+    "You’re making every workout count.",
+    "You’re unstoppable when you believe in yourself.",
+    "You’re building a future full of possibilities."
+];
+
+const workoutPlan = {
+    p1: {
+        title: 'Phase 1: Foundation & Form',
+        days: {
+            day1: {
+                title: 'Monday - Legs & Shoulders',
+                exercises: [
+                    { id: 'p1_leg_press', name: 'Leg Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p1_hamstring_curls', name: 'Hamstring Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p1_leg_extensions', name: 'Leg Extensions', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p1_db_shoulder_press', name: 'Seated DB Shoulder Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Shoulders' },
+                    { id: 'p1_lat_raises', name: 'Dumbbell Lateral Raises', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Shoulders' },
+                    { id: 'p1_face_pulls', name: 'Face Pulls', sets: 4, reps: '12', type: 'weight', muscleGroup: 'Shoulders' },
+                    { id: 'p1_plank', name: 'Plank', sets: 2, reps: '45s', type: 'time', muscleGroup: 'Core' },
+                    { id: 'p1_leg_raises', name: 'Lying Leg Raises', sets: 3, reps: '15', type: 'weight', muscleGroup: 'Core' },
+                    { id: 'p1_finisher_sled', name: 'Finisher: Sled Push', sets: 1, reps: '4 lengths', type: 'notes', muscleGroup: 'Finisher' },
+                ]
+            },
+            day2: {
+                title: 'Tuesday - Chest & Triceps',
+                exercises: [
+                    { id: 'p1_bench_press', name: 'Flat Barbell Bench Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
+                    { id: 'p1_incline_machine_press', name: 'Incline Machine Chest Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
+                    { id: 'p1_pec_deck', name: 'Pec Deck Machine Fly', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Chest' },
+                    { id: 'p1_tricep_pushdowns', name: 'Tricep Rope Pushdowns', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
+                    { id: 'p1_overhead_db_ext', name: 'Seated Overhead DB Extension', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
+                    { id: 'p1_bench_dips', name: 'Bench Dips', sets: 4, reps: 'Failure', type: 'weight', muscleGroup: 'Triceps' },
+                    { id: 'p1_plank_2', name: 'Plank', sets: 2, reps: '45s', type: 'time', muscleGroup: 'Core' },
+                    { id: 'p1_russian_twists', name: 'Russian Twists', sets: 3, reps: '12/side', type: 'weight', muscleGroup: 'Core' },
+                    { id: 'p1_finisher_ropes', name: 'Finisher: Battle Ropes', sets: 1, reps: '4x30s', type: 'notes', muscleGroup: 'Finisher' },
+                ]
+            },
+            day3: {
+                title: 'Thursday - Back & Biceps',
+                exercises: [
+                    { id: 'p1_lat_pulldown', name: 'Lat Pulldown (wide grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
+                    { id: 'p1_seated_row', name: 'Seated Cable Row (close grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
+                    { id: 'p1_glute_bridges', name: 'Glute Bridges', sets: 4, reps: '12-15', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p1_db_curls', name: 'Standing Dumbbell Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
+                    { id: 'p1_hammer_curls', name: 'Hammer Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
+                    { id: 'p1_db_preacher', name: 'Dumbbell Preacher Curls', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Biceps' },
+                    { id: 'p1_plank_3', name: 'Plank', sets: 2, reps: '45s', type: 'time', muscleGroup: 'Core' },
+                    { id: 'p1_bird_dog', name: 'Bird-Dog', sets: 3, reps: '10/side', type: 'weight', muscleGroup: 'Core' },
+                    { id: 'p1_finisher_kettlebell', name: 'Finisher: Kettlebell Swings', sets: 1, reps: '4x15', type: 'notes', muscleGroup: 'Finisher' },
+                ]
+            },
+        }
+    },
+    p2: {
+        title: 'Phase 2: Progression & Variation',
+        days: {
+            day1: {
+                title: 'Monday - Legs & Shoulders',
+                exercises: [
+                    { id: 'p2_squat', name: 'Barbell Squat', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p2_leg_press', name: 'Leg Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p2_leg_extensions', name: 'Leg Extensions', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p2_oh_press', name: 'Overhead Barbell Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Shoulders' },
+                    { id: 'p2_lateral_raise', name: 'Lateral Raise', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Shoulders' },
+                    { id: 'p2_face_pull', name: 'Face Pull', sets: 4, reps: '12', type: 'weight', muscleGroup: 'Shoulders' },
+                    { id: 'p2_plank', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
+                    { id: 'p2_leg_raises', name: 'Lying Leg Raises', sets: 3, reps: '15', type: 'weight', muscleGroup: 'Core' },
+                    { id: 'p2_finisher_sled', name: 'Finisher: Sled Push', sets: 1, reps: '4 lengths', type: 'notes', muscleGroup: 'Finisher' },
+                ]
+            },
+            day2: {
+                title: 'Tuesday - Chest & Triceps',
+                exercises: [
+                    { id: 'p2_bench_press', name: 'Flat Barbell Bench Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
+                    { id: 'p2_incline_press', name: 'Incline Dumbbell Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
+                    { id: 'p2_pec_deck', name: 'Pec Deck Machine Fly', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Chest' },
+                    { id: 'p2_tricep_pushdowns', name: 'Tricep Rope Pushdowns', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
+                    { id: 'p2_overhead_db_ext', name: 'Seated Overhead DB Extension', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
+                    { id: 'p2_bench_dips', name: 'Bench Dips', sets: 4, reps: 'Failure', type: 'weight', muscleGroup: 'Triceps' },
+                    { id: 'p2_plank_2', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
+                    { id: 'p2_russian_twists', name: 'Russian Twists', sets: 3, reps: '12/side', type: 'weight', muscleGroup: 'Core' },
+                    { id: 'p2_finisher_ropes', name: 'Finisher: Battle Ropes', sets: 1, reps: '4x30s', type: 'notes', muscleGroup: 'Finisher' },
+                ]
+            },
+            day3: {
+                title: 'Thursday - Back & Biceps',
+                exercises: [
+                    { id: 'p2_lat_pulldown', name: 'Lat Pulldown (wide grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
+                    { id: 'p2_seated_row', name: 'Seated Cable Row (close grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
+                    { id: 'p2_glute_bridges', name: 'Glute Bridges', sets: 4, reps: '12-15', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p2_db_curls', name: 'Standing Dumbbell Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
+                    { id: 'p2_hammer_curls', name: 'Hammer Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
+                    { id: 'p2_db_preacher', name: 'Dumbbell Preacher Curls', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Biceps' },
+                    { id: 'p2_plank_3', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
+                    { id: 'p2_bird_dog', name: 'Bird-Dog', sets: 3, reps: '10/side', type: 'weight', muscleGroup: 'Core' },
+                    { id: 'p2_finisher_kettlebell', name: 'Finisher: Kettlebell Swings', sets: 1, reps: '4x15', type: 'notes', muscleGroup: 'Finisher' },
+                ]
+            },
+        }
+    },
+    p3: {
+        title: 'Phase 3: Intensity & Consolidation',
+        days: {
+            day1: {
+                title: 'Monday - Legs & Shoulders',
+                exercises: [
+                    { id: 'p3_deadlift', name: 'Barbell Deadlift', sets: 4, reps: '6-10', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p3_leg_press', name: 'Leg Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p3_leg_extensions', name: 'Leg Extensions', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p3_oh_press', name: 'Overhead Barbell Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Shoulders' },
+                    { id: 'p3_lateral_raise', name: 'Lateral Raise', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Shoulders' },
+                    { id: 'p3_face_pull', name: 'Face Pull', sets: 4, reps: '12', type: 'weight', muscleGroup: 'Shoulders' },
+                    { id: 'p3_plank', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
+                    { id: 'p3_leg_raises', name: 'Lying Leg Raises', sets: 3, reps: '15', type: 'weight', muscleGroup: 'Core' },
+                    { id: 'p3_finisher_sled', name: 'Finisher: Sled Push', sets: 1, reps: '4 lengths', type: 'notes', muscleGroup: 'Finisher' },
+                ]
+            },
+            day2: {
+                title: 'Tuesday - Chest & Triceps',
+                exercises: [
+                    { id: 'p3_bench_press', name: 'Flat Barbell Bench Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
+                    { id: 'p3_incline_press', name: 'Incline Dumbbell Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
+                    { id: 'p3_pec_deck', name: 'Pec Deck Machine Fly', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Chest' },
+                    { id: 'p3_tricep_pushdowns', name: 'Tricep Rope Pushdowns', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
+                    { id: 'p3_overhead_db_ext', name: 'Seated Overhead DB Extension', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
+                    { id: 'p3_bench_dips', name: 'Bench Dips', sets: 4, reps: 'Failure', type: 'weight', muscleGroup: 'Triceps' },
+                    { id: 'p3_plank_2', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
+                    { id: 'p3_russian_twists', name: 'Russian Twists', sets: 3, reps: '12/side', type: 'weight', muscleGroup: 'Core' },
+                    { id: 'p3_finisher_ropes', name: 'Finisher: Battle Ropes', sets: 1, reps: '4x30s', type: 'notes', muscleGroup: 'Finisher' },
+                ]
+            },
+            day3: {
+                title: 'Thursday - Back & Biceps',
+                exercises: [
+                    { id: 'p3_lat_pulldown', name: 'Lat Pulldown (wide grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
+                    { id: 'p3_seated_row', name: 'Seated Cable Row (close grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
+                    { id: 'p3_glute_bridges', name: 'Glute Bridges', sets: 4, reps: '12-15', type: 'weight', muscleGroup: 'Legs' },
+                    { id: 'p3_db_curls', name: 'Standing Dumbbell Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
+                    { id: 'p3_hammer_curls', name: 'Hammer Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
+                    { id: 'p3_db_preacher', name: 'Dumbbell Preacher Curls', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Biceps' },
+                    { id: 'p3_plank_3', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
+                    { id: 'p3_bird_dog', name: 'Bird-Dog', sets: 3, reps: '10/side', type: 'weight', muscleGroup: 'Core' },
+                    { id: 'p3_finisher_kettlebell', name: 'Finisher: Kettlebell Swings', sets: 1, reps: '4x15', type: 'notes', muscleGroup: 'Finisher' },
+                ]
+            },
+        }
+    }
+};
+
+let workoutData = {};
+let bodyData = [];
+let bodyCompChart, strengthVolumeChart;
+
+function createExerciseHTML(exercise) {
+    let inputsHTML = '';
+    const placeholder = exercise.type === 'time' ? 'seconds' : 'kg/lbs';
+    const inputType = exercise.type === 'notes' ? 'text' : 'number';
+
+    if (exercise.type === 'notes') {
+        inputsHTML = `
+            <div class="input-group">
+                <label for="${exercise.id}-notes">Performance Notes</label>
+                <input type="${inputType}" id="${exercise.id}-notes" placeholder="e.g., time, rounds, weight">
+            </div>
+        `;
+    } else {
+        for (let i = 1; i <= exercise.sets; i++) {
+            inputsHTML += `
+                <div class="input-group">
+                    <label for="${exercise.id}-set${i}">Set ${i}</label>
+                    <input type="${inputType}" id="${exercise.id}-set${i}" placeholder="${placeholder}" ${exercise.type === 'time' ? 'inputmode="numeric" step="1" min="0" enterkeyhint="next"' : 'inputmode="decimal" step="0.5" min="0" enterkeyhint="next"'}>
+                </div>
+            `;
+        }
+    }
+    
+    const finisherClass = exercise.muscleGroup === 'Finisher' ? 'finisher' : '';
+    return `
+        <div class="exercise-card ${finisherClass}" data-exercise-id="${exercise.id}" data-exercise-type="${exercise.type}">
+            <h3>${exercise.name}</h3>
+            <p><strong>Target:</strong> ${exercise.sets} sets of ${exercise.reps} reps</p>
+            <div class="input-grid">${inputsHTML}</div>
+            ${exercise.type === 'weight' ? `<p class="suggestion" id="suggestion-${exercise.id}"></p>` : ''}
+        </div>
+    `;
+}
+
+function renderPhase(phaseNum) {
+    const phaseKey = `p${phaseNum}`;
+    const phase = workoutPlan[phaseKey];
+    const mainContainer = document.querySelector('#workout-section main');
+    
+    if (!phase.days || Object.keys(phase.days).length === 0) {
+        mainContainer.innerHTML = `<p>Workout plan for Phase ${phaseNum} has not been added yet.</p>`;
+        return;
+    }
+
+    let phaseHTML = '';
+    for (const dayKey in phase.days) {
+        const day = phase.days[dayKey];
+        phaseHTML += `
+            <details class="workout-day">
+                <summary>${day.title}</summary>
+                <div class="workout-content" id="${phaseKey}-${dayKey}">
+                    ${day.exercises.map(createExerciseHTML).join('')}
+                    <button class="btn btn-secondary" onclick="saveWorkout('${phaseKey}-${dayKey}')">Save Workout</button>
+                </div>
+            </details>
+        `;
+    }
+    mainContainer.innerHTML = phaseHTML;
+    updateSuggestions();
+}
+
+function saveMeasurements() {
+    const weight = document.getElementById('body-weight').value;
+    const chest = document.getElementById('chest-measure').value;
+    const waist = document.getElementById('waist-measure').value;
+    const hips = document.getElementById('hips-measure').value;
+
+    if (!weight) {
+        alert('Please enter at least your body weight.');
+        return;
+    }
+
+    bodyData.push({
+        date: new Date().toISOString().split('T')[0],
+        weight: parseFloat(weight) || null,
+        chest: parseFloat(chest) || null,
+        waist: parseFloat(waist) || null,
+        hips: parseFloat(hips) || null,
+    });
+    
+    // Keep data sorted by date
+    bodyData.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    localStorage.setItem('bodyTrackerData', JSON.stringify(bodyData));
+    alert('Measurements saved!');
+    updateBodyCompChart();
+}
+
+function saveWorkout(dayContainerId) {
+    const dayContainer = document.getElementById(dayContainerId);
+    let workoutLogged = false;
+
+    dayContainer.querySelectorAll('.exercise-card').forEach(card => {
+        const exerciseId = card.dataset.exerciseId;
+        const exerciseType = card.dataset.exerciseType;
+        const values = [];
+        let hasValue = false;
+        
+        const inputs = card.querySelectorAll('input');
+        inputs.forEach(input => {
+            const value = exerciseType === 'notes' ? input.value : (parseFloat(input.value) || 0);
+            values.push(value);
+            if (value && value !== 0) {
+                hasValue = true;
+            }
+        });
+
+        if (hasValue) {
+            if (!workoutData[exerciseId]) workoutData[exerciseId] = [];
+            workoutData[exerciseId].push({
+                date: new Date().toISOString().split('T')[0],
+                values: values
+            });
+            workoutLogged = true;
+        }
+        inputs.forEach(input => input.value = '');
+    });
+
+    if (workoutLogged) {
+        localStorage.setItem('workoutTrackerData', JSON.stringify(workoutData));
+        alert('Workout saved!');
+        updateSuggestions();
+        updateStrengthVolumeChart();
+        renderExerciseProgressCharts();
+    } else {
+        alert('Please enter data for at least one set/field to save.');
+    }
+}
+
+function updateSuggestions() {
+    document.querySelectorAll('.exercise-card[data-exercise-type="weight"]').forEach(card => {
+        const exerciseId = card.dataset.exerciseId;
+        const suggestionEl = document.getElementById(`suggestion-${exerciseId}`);
+        const history = workoutData[exerciseId];
+
+        if (history && history.length > 0) {
+            const lastSession = history[history.length - 1];
+            const validWeights = lastSession.values.filter(w => w > 0);
+            if (validWeights.length > 0) {
+                const maxWeight = Math.max(...validWeights);
+                const suggestedWeight = maxWeight + 2.5;
+                suggestionEl.textContent = `Suggestion: Last max was ${maxWeight}. Try for ${suggestedWeight}.`;
+            }
+        } else if (suggestionEl) {
+            suggestionEl.textContent = 'Log a workout to get suggestions.';
+        }
+    });
+}
+
+function showPhase(phaseNum) {
+    document.querySelectorAll('.phase-btn').forEach((btn, idx) => {
+        const isActive = (idx + 1) === phaseNum;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+    const ws = document.getElementById('workout-section');
+    ws.classList.remove('phase-1', 'phase-2', 'phase-3');
+    ws.classList.add(`phase-${phaseNum}`);
+    renderPhase(phaseNum);
+}
+
+// --- CHARTING FUNCTIONS ---
+let exerciseCharts = {};
+
+function getAllExercises() {
+    // Collect all unique exercises from all phases
+    const exercises = {};
+    for (const phaseKey in workoutPlan) {
+        const phase = workoutPlan[phaseKey];
+        if (!phase.days) continue;
+        for (const dayKey in phase.days) {
+            phase.days[dayKey].exercises.forEach(ex => {
+                if (!exercises[ex.id]) {
+                    exercises[ex.id] = {
+                        ...ex,
+                        label: `${ex.name} (${phase.title})`
+                    };
+                }
+            });
+        }
+    }
+    return exercises;
+}
+
+function renderExerciseProgressCharts() {
+    const container = document.getElementById('exercise-charts-container');
+    if (!container) return;
+    container.innerHTML = '';
+    const exercises = getAllExercises();
+    // Only include exercises with logged data
+    const loggedExercises = Object.values(exercises).filter(ex => workoutData[ex.id] && workoutData[ex.id].length > 0);
+    if (loggedExercises.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted);">Log some workouts to see progress charts.</p>';
+        return;
+    }
+    // Section heading
+    const heading = document.createElement('h3');
+    heading.textContent = 'Exercise Progress Chart';
+    heading.style.marginBottom = '12px';
+    heading.style.marginTop = '32px';
+    container.appendChild(heading);
+
+    // Create dropdown
+    const selectLabel = document.createElement('label');
+    selectLabel.textContent = 'Select Exercise:';
+    selectLabel.setAttribute('for', 'exercise-chart-select');
+    selectLabel.style.display = 'block';
+    selectLabel.style.marginBottom = '8px';
+    selectLabel.style.fontWeight = '600';
+    selectLabel.style.color = 'var(--primary)';
+    container.appendChild(selectLabel);
+
+    const select = document.createElement('select');
+    select.style.marginBottom = '24px';
+    select.style.padding = '8px';
+    select.style.fontSize = '1em';
+    select.id = 'exercise-chart-select';
+    loggedExercises.forEach(ex => {
+        const option = document.createElement('option');
+        option.value = ex.id;
+        option.textContent = ex.name;
+        select.appendChild(option);
+    });
+    container.appendChild(select);
+
+    // Chart container
+    const chartDiv = document.createElement('div');
+    chartDiv.id = 'exercise-chart-tab';
+    chartDiv.style.marginTop = '8px';
+    chartDiv.innerHTML = `<h4 id="exercise-chart-title" style="margin-bottom:12px;margin-top:0;"></h4><canvas id="exercise-chart-canvas"></canvas>`;
+    container.appendChild(chartDiv);
+
+    // Render initial chart
+    function showSelectedChart() {
+        const selectedId = select.value;
+        const ex = exercises[selectedId];
+        document.getElementById('exercise-chart-title').textContent = ex.name;
+        renderExerciseChart(ex, 'exercise-chart-canvas');
+    }
+    select.onchange = showSelectedChart;
+    showSelectedChart();
+}
+
+function renderExerciseChart(ex, chartId) {
+    const ctx = document.getElementById(chartId).getContext('2d');
+    if (exerciseCharts[chartId]) exerciseCharts[chartId].destroy();
+    const history = workoutData[ex.id];
+    if (!history || history.length === 0) return;
+    // For each session, get the max value (weight or time)
+    const labels = history.map(h => new Date(h.date).toLocaleDateString());
+    let data;
+    if (ex.type === 'weight') {
+        data = history.map(h => Math.max(...h.values.filter(v => typeof v === 'number' && v > 0)));
+    } else if (ex.type === 'time') {
+        data = history.map(h => Math.max(...h.values.filter(v => typeof v === 'number' && v > 0)));
+    } else {
+        // For notes, just count entries
+        data = history.map(h => h.values.filter(v => v).length);
+    }
+    exerciseCharts[chartId] = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: ex.type === 'weight' ? 'Max Weight' : (ex.type === 'time' ? 'Max Time (s)' : 'Entries'),
+                data: data,
+                borderColor: 'rgba(163, 230, 53, 1)',
+                backgroundColor: 'rgba(163, 230, 53, 0.2)',
+                pointRadius: 4,
+                pointBackgroundColor: 'rgba(100, 116, 139, 1)',
+                tension: 0.2
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                title: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: ex.type === 'weight' ? 'Weight' : (ex.type === 'time' ? 'Seconds' : 'Entries') } },
+                x: { title: { display: true, text: 'Date' } }
+            }
+        }
+    });
+}
+
+function updateBodyCompChart() {
+    const ctx = document.getElementById('bodyCompChart').getContext('2d');
+    if (bodyCompChart) bodyCompChart.destroy();
+    
+    if (bodyData.length === 0) return;
+
+    const labels = bodyData.map(d => new Date(d.date).toLocaleDateString());
+
+    bodyCompChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Body Weight (kg)',
+                    data: bodyData.map(d => d.weight),
+                    borderColor: 'rgba(124, 58, 237, 1)',
+                    yAxisID: 'y',
+                },
+                {
+                    label: 'Waist (cm)',
+                    data: bodyData.map(d => d.waist),
+                    borderColor: 'rgba(20, 184, 166, 1)',
+                    yAxisID: 'y1',
+                    hidden: true // Hidden by default to keep it clean
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { position: 'left', title: { display: true, text: 'Weight (kg)' } },
+                y1: { position: 'right', title: { display: true, text: 'Measurement (cm)' }, grid: { drawOnChartArea: false } }
+            }
+        }
+    });
+}
+
+function updateStrengthVolumeChart() {
+    const canvas = document.getElementById('strengthVolumeChart');
+    if (!canvas) return; // guard: chart not present in DOM
+    const ctx = canvas.getContext('2d');
+    if (strengthVolumeChart) strengthVolumeChart.destroy();
+
+    const selectedGroup = window.selectedStrengthTab || 'Legs';
+    const dailyVolumes = {};
+
+    // Find all exercises for the selected muscle group
+    for (const phaseKey in workoutPlan) {
+        const phase = workoutPlan[phaseKey];
+        if (!phase.days) continue;
+        for (const dayKey in phase.days) {
+            phase.days[dayKey].exercises.forEach(ex => {
+                if (ex.muscleGroup === selectedGroup && ex.type === 'weight') {
+                    const history = workoutData[ex.id];
+                    if (history) {
+                        history.forEach(session => {
+                            const sessionVolume = session.values.reduce((sum, val) => sum + (val || 0), 0);
+                            dailyVolumes[session.date] = (dailyVolumes[session.date] || 0) + sessionVolume;
+                        });
+                    }
+                }
+            });
+        }
+    }
+
+    const sortedDates = Object.keys(dailyVolumes).sort((a,b) => new Date(a) - new Date(b));
+
+    if (sortedDates.length === 0) {
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        return;
+    }
+
+    const labels = sortedDates.map(date => new Date(date).toLocaleDateString());
+    const data = sortedDates.map(date => dailyVolumes[date]);
+
+    strengthVolumeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: `${selectedGroup} Total Volume (kg/lbs)`,
+                data: data,
+                backgroundColor: 'rgba(20, 184, 166, 0.7)',
+                borderColor: 'rgba(20, 184, 166, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Total Weight Lifted' } } }
+        }
+    });
+}
+
+function showStrengthTab(tab) {
+    window.selectedStrengthTab = tab;
+    // Highlight active tab
+    ['Legs','Shoulders','Chest','Triceps','Back','Biceps'].forEach(group => {
+        const btn = document.getElementById('tab-' + group);
+        if (btn) btn.classList.toggle('active', group === tab);
+    });
+    updateStrengthVolumeChart();
+}
+
+
+// --- INITIALIZATION ---
+function showTab(tab) {
+    document.getElementById('main-dashboard').style.display = tab === 'workouts' ? '' : 'none';
+    document.getElementById('main-pastworkouts').style.display = tab === 'stats' ? '' : 'none';
+    // Tab bar active state
+    document.getElementById('tab-workouts').classList.toggle('active', tab === 'workouts');
+    document.getElementById('tab-stats').classList.toggle('active', tab === 'stats');
+    if (tab === 'stats') {
+        renderPastWorkoutsTable();
+        renderWeeklyStrengthVolumeTable();
+        renderMeasurementsHistoryTableAndChart();
+        renderExerciseProgressCharts();
+        updateBodyCompChart();
+    }
+}
+
+function renderPastWorkoutsTable() {
+    const tableDiv = document.getElementById('past-workouts-table');
+    if (!tableDiv) return;
+    let html = '<table style="width:100%;border-collapse:collapse;">';
+    html += '<thead><tr style="background:#f3f4f6;"><th style="padding:8px;border:1px solid #e2e8f0;">Date</th><th style="padding:8px;border:1px solid #e2e8f0;">Exercise</th><th style="padding:8px;border:1px solid #e2e8f0;">Type</th><th style="padding:8px;border:1px solid #e2e8f0;">Values</th></tr></thead><tbody>';
+    const exercises = getAllExercises();
+    // Gather all workout entries
+    let rows = [];
+    for (const exId in workoutData) {
+        const ex = exercises[exId] || { name: exId, type: 'weight' };
+        workoutData[exId].forEach(entry => {
+            rows.push({
+                date: entry.date,
+                exercise: ex.name,
+                type: ex.type,
+                values: entry.values
+            });
+        });
+    }
+    // Sort by date descending
+    rows.sort((a,b) => new Date(b.date) - new Date(a.date));
+    rows.forEach(row => {
+        html += `<tr>
+            <td style="padding:8px;border:1px solid #e2e8f0;">${row.date}</td>
+            <td style="padding:8px;border:1px solid #e2e8f0;">${row.exercise}</td>
+            <td style="padding:8px;border:1px solid #e2e8f0;">${row.type}</td>
+            <td style="padding:8px;border:1px solid #e2e8f0;">${row.values.map(v => v ? v : '-').join(', ')}</td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    tableDiv.innerHTML = html;
+}
+
+window.onload = () => {
+    // Load data from localStorage
+    const savedWorkoutData = localStorage.getItem('workoutTrackerData');
+    if (savedWorkoutData) workoutData = JSON.parse(savedWorkoutData);
+
+    const savedBodyData = localStorage.getItem('bodyTrackerData');
+    if (savedBodyData) bodyData = JSON.parse(savedBodyData);
+
+    // User details logic
+    const userDetails = localStorage.getItem('userDetails');
+    function setWelcomeMessage() {
+        let name = '', goal = '';
+        if (userDetails) {
+            try {
+                const details = JSON.parse(localStorage.getItem('userDetails'));
+                name = details.name || '';
+                goal = details.goal || '';
+            } catch {}
+        }
+        document.getElementById('welcome-title').textContent = name ? `Welcome to Your Lifting Program, ${name}!` : 'Welcome to Your Lifting Program!';
+        // Pick a random motivational message each time
+        const msg = MOTIVATION_MESSAGES[Math.floor(Math.random() * MOTIVATION_MESSAGES.length)];
+        document.getElementById('welcome-motivation').textContent = name && goal
+            ? `Hey ${name}, your goal is "${goal}". ${msg}`
+            : msg;
+    }
+
+    if (!userDetails) {
+        document.getElementById('user-modal').style.display = 'flex';
+        document.querySelector('.container').style.filter = 'blur(2px)';
+        document.getElementById('user-details-form').onsubmit = function(e) {
+            e.preventDefault();
+            const name = document.getElementById('user-name').value.trim();
+            const age = document.getElementById('user-age').value.trim();
+            const goal = document.getElementById('user-goal').value.trim();
+            if (!name || !age || !goal) return;
+            localStorage.setItem('userDetails', JSON.stringify({ name, age, goal }));
+            document.getElementById('user-modal').style.display = 'none';
+            document.querySelector('.container').style.filter = '';
+            setWelcomeMessage();
+            showPhase(1);
+            updateBodyCompChart();
+            renderExerciseProgressCharts();
+            showTab('workouts');
+            renderWeeklyStrengthVolumeTable();
+            renderMeasurementsHistoryTableAndChart();
+        };
+        return;
+    }
+
+    setWelcomeMessage();
+    // Easter egg: 10% chance to change title
+    if (Math.random() < 0.1) {
+        document.querySelector('h1').textContent = 'Fitness dis dick in your mouth dashboard';
+    }
+
+    // Initial chart renders
+    updateBodyCompChart();
+    renderExerciseProgressCharts();
+    showTab('workouts');
+    renderWeeklyStrengthVolumeTable();
+    renderMeasurementsHistoryTableAndChart();
+};
+
+// Register Service Worker for PWA (if supported)
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    });
+}
+
+function renderWeeklyStrengthVolumeTable() {
+    const tableDiv = document.getElementById('weekly-strength-volume-table');
+    if (!tableDiv) return;
+    // Aggregate volume by week and muscle group
+    const weekVolume = {};
+    const exercises = getAllExercises();
+    for (const exId in workoutData) {
+        const ex = exercises[exId];
+        if (!ex || ex.type !== 'weight') continue;
+        workoutData[exId].forEach(entry => {
+            const week = getWeek(entry.date);
+            if (!weekVolume[week]) weekVolume[week] = {};
+            if (!weekVolume[week][ex.muscleGroup]) weekVolume[week][ex.muscleGroup] = 0;
+            // Sum all weights for this entry
+            weekVolume[week][ex.muscleGroup] += entry.values.reduce((sum, v) => sum + (typeof v === 'number' && v > 0 ? v : 0), 0);
+        });
+    }
+    // Build table
+    let html = '<table style="width:100%;border-collapse:collapse;">';
+    html += '<thead><tr style="background:#f3f4f6;"><th style="padding:8px;border:1px solid #e2e8f0;">Week</th>';
+    const muscleGroups = ['Legs','Shoulders','Chest','Triceps','Back','Biceps','Core','Finisher'];
+    muscleGroups.forEach(mg => {
+        html += `<th style="padding:8px;border:1px solid #e2e8f0;">${mg}</th>`;
+    });
+    html += '</tr></thead><tbody>';
+    const sortedWeeks = Object.keys(weekVolume).sort();
+    sortedWeeks.forEach(week => {
+        html += `<tr><td style="padding:8px;border:1px solid #e2e8f0;">${week}</td>`;
+        muscleGroups.forEach(mg => {
+            html += `<td style="padding:8px;border:1px solid #e2e8f0;">${weekVolume[week][mg] ? weekVolume[week][mg] : '-'}</td>`;
+        });
+        html += '</tr>';
+    });
+    html += '</tbody></table>';
+    tableDiv.innerHTML = html;
+}
+
+function getWeek(dateStr) {
+    // Returns YYYY-WW (ISO week)
+    const date = new Date(dateStr);
+    const jan1 = new Date(date.getFullYear(), 0, 1);
+    const days = Math.floor((date - jan1) / (24 * 60 * 60 * 1000));
+    const week = Math.ceil((days + jan1.getDay() + 1) / 7);
+    return `${date.getFullYear()}-W${week.toString().padStart(2,'0')}`;
+}
+
+function renderMeasurementsHistoryTableAndChart() {
+    const tableDiv = document.getElementById('measurements-history-table');
+    const chartCanvas = document.getElementById('measurementsHistoryChart');
+    if (!tableDiv || !chartCanvas) return;
+    // Only keep the latest entry per day
+    const latestPerDay = {};
+    bodyData.forEach(row => {
+        latestPerDay[row.date] = row; // Overwrite, so last entry for the day remains
+    });
+    // Sort by date ascending
+    const sortedRows = Object.values(latestPerDay).sort((a, b) => new Date(a.date) - new Date(b.date));
+    // Table
+    let html = '<table style="width:100%;border-collapse:collapse;">';
+    html += '<thead><tr style="background:#f3f4f6;"><th style="padding:8px;border:1px solid #e2e8f0;">Date</th><th style="padding:8px;border:1px solid #e2e8f0;">Weight (kg)</th><th style="padding:8px;border:1px solid #e2e8f0;">Chest (cm)</th><th style="padding:8px;border:1px solid #e2e8f0;">Waist (cm)</th><th style="padding:8px;border:1px solid #e2e8f0;">Hips (cm)</th></tr></thead><tbody>';
+    sortedRows.forEach(row => {
+        html += `<tr>
+            <td style="padding:8px;border:1px solid #e2e8f0;">${row.date}</td>
+            <td style="padding:8px;border:1px solid #e2e8f0;">${row.weight ?? '-'}</td>
+            <td style="padding:8px;border:1px solid #e2e8f0;">${row.chest ?? '-'}</td>
+            <td style="padding:8px;border:1px solid #e2e8f0;">${row.waist ?? '-'}</td>
+            <td style="padding:8px;border:1px solid #e2e8f0;">${row.hips ?? '-'}</td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    tableDiv.innerHTML = html;
+    // Chart
+    if (window.measurementsHistoryChartObj) window.measurementsHistoryChartObj.destroy();
+    if (sortedRows.length === 0) return;
+    const labels = sortedRows.map(d => new Date(d.date).toLocaleDateString());
+    window.measurementsHistoryChartObj = new Chart(chartCanvas.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Body Weight (kg)',
+                    data: sortedRows.map(d => d.weight),
+                    borderColor: 'rgba(124, 58, 237, 1)',
+                    yAxisID: 'y',
+                },
+                {
+                    label: 'Chest (cm)',
+                    data: sortedRows.map(d => d.chest),
+                    borderColor: 'rgba(239, 68, 68, 1)',
+                    yAxisID: 'y1',
+                },
+                {
+                    label: 'Waist (cm)',
+                    data: sortedRows.map(d => d.waist),
+                    borderColor: 'rgba(20, 184, 166, 1)',
+                    yAxisID: 'y2',
+                },
+                {
+                    label: 'Hips (cm)',
+                    data: sortedRows.map(d => d.hips),
+                    borderColor: 'rgba(163, 230, 53, 1)',
+                    yAxisID: 'y3',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { position: 'left', title: { display: true, text: 'Weight (kg)' } },
+                y1: { position: 'right', title: { display: true, text: 'Chest (cm)' }, grid: { drawOnChartArea: false } },
+                y2: { position: 'right', title: { display: true, text: 'Waist (cm)' }, grid: { drawOnChartArea: false } },
+                y3: { position: 'right', title: { display: true, text: 'Hips (cm)' }, grid: { drawOnChartArea: false } }
+            }
+        }
+    });
+}
+</script>
+</body>
+</html>
