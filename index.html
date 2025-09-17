@@ -324,6 +324,23 @@
     </style>
 </head>
 <body>
+    <!-- Create Workout Plan Modal -->
+    <div id="create-plan-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1001;align-items:center;justify-content:center;">
+        <div style="background:#fff;padding:32px 24px;border-radius:12px;max-width:350px;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);">
+            <h2 style="color:var(--primary);margin-top:0;">Create Workout Plan</h2>
+            <form id="create-plan-form">
+                <div class="input-group">
+                    <label for="plan-day">Day</label>
+                    <input type="text" id="plan-day" required placeholder="e.g., Monday">
+                </div>
+                <div id="exercises-list"></div>
+                <button type="button" class="btn btn-secondary" onclick="addExerciseField()">Add Exercise</button>
+                <button class="btn" type="submit" style="margin-top:16px;width:100%;">Save Day</button>
+                <button class="btn btn-secondary" type="button" style="margin-top:8px;width:100%;" onclick="closeCreatePlanModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+    <button id="create-plan-btn" onclick="openCreatePlanModal()" style="position:fixed;bottom:150px;right:24px;z-index:1002;background:var(--primary);color:#fff;border:none;border-radius:50%;width:60px;height:60px;box-shadow:0 4px 16px rgba(44,62,80,0.12);font-size:1.5em;display:flex;align-items:center;justify-content:center;cursor:pointer;">📝</button>
     <div id="user-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1000;align-items:center;justify-content:center;">
         <div style="background:#fff;padding:32px 24px;border-radius:12px;max-width:350px;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);">
             <h2 style="color:var(--primary);margin-top:0;">Welcome!</h2>
@@ -356,6 +373,38 @@
             </form>
         </div>
     </div>
+
+    <!-- Quick Log Modal -->
+    <div id="quick-log-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1001;align-items:center;justify-content:center;">
+        <div style="background:#fff;padding:32px 24px;border-radius:12px;max-width:350px;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);">
+            <h2 style="color:var(--primary);margin-top:0;">Quick Log</h2>
+            <form id="quick-log-form">
+                <div class="input-group">
+                    <label for="quick-exercise">Exercise</label>
+                    <select id="quick-exercise" required></select>
+                </div>
+                <div class="input-group">
+                    <label for="quick-sets">Sets</label>
+                    <input type="number" id="quick-sets" min="1" max="10" required placeholder="e.g., 3">
+                </div>
+                <div class="input-group">
+                    <label for="quick-reps">Reps</label>
+                    <input type="number" id="quick-reps" min="1" max="50" required placeholder="e.g., 10">
+                </div>
+                <div class="input-group">
+                    <label for="quick-weight">Weight</label>
+                    <input type="number" id="quick-weight" min="0" step="0.5" required placeholder="e.g., 50">
+                </div>
+                <button class="btn" type="submit" style="margin-top:16px;width:100%;">Save Quick Log</button>
+                <button class="btn btn-secondary" type="button" style="margin-top:8px;width:100%;" onclick="closeQuickLogModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Quick Log Button -->
+    <button id="quick-log-btn" onclick="openQuickLogModal()" style="position:fixed;bottom:80px;right:24px;z-index:1002;background:var(--accent);color:var(--primary);border:none;border-radius:50%;width:60px;height:60px;box-shadow:0 4px 16px rgba(44,62,80,0.12);font-size:2em;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+        &#43;
+    </button>
     <div class="container">
         <header>
             <h1>Fitness Dashboard</h1>
@@ -563,149 +612,139 @@ const MOTIVATION_MESSAGES = [
     "You’re building a future full of possibilities."
 ];
 
-const workoutPlan = {
-    p1: {
-        title: 'Phase 1: Foundation & Form',
-        days: {
-            day1: {
-                title: 'Monday - Legs & Shoulders',
-                exercises: [
-                    { id: 'p1_leg_press', name: 'Leg Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p1_hamstring_curls', name: 'Hamstring Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p1_leg_extensions', name: 'Leg Extensions', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p1_db_shoulder_press', name: 'Seated DB Shoulder Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Shoulders' },
-                    { id: 'p1_lat_raises', name: 'Dumbbell Lateral Raises', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Shoulders' },
-                    { id: 'p1_face_pulls', name: 'Face Pulls', sets: 4, reps: '12', type: 'weight', muscleGroup: 'Shoulders' },
-                    { id: 'p1_plank', name: 'Plank', sets: 2, reps: '45s', type: 'time', muscleGroup: 'Core' },
-                    { id: 'p1_leg_raises', name: 'Lying Leg Raises', sets: 3, reps: '15', type: 'weight', muscleGroup: 'Core' },
-                    { id: 'p1_finisher_sled', name: 'Finisher: Sled Push', sets: 1, reps: '4 lengths', type: 'notes', muscleGroup: 'Finisher' },
-                ]
-            },
-            day2: {
-                title: 'Tuesday - Chest & Triceps',
-                exercises: [
-                    { id: 'p1_bench_press', name: 'Flat Barbell Bench Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
-                    { id: 'p1_incline_machine_press', name: 'Incline Machine Chest Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
-                    { id: 'p1_pec_deck', name: 'Pec Deck Machine Fly', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Chest' },
-                    { id: 'p1_tricep_pushdowns', name: 'Tricep Rope Pushdowns', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
-                    { id: 'p1_overhead_db_ext', name: 'Seated Overhead DB Extension', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
-                    { id: 'p1_bench_dips', name: 'Bench Dips', sets: 4, reps: 'Failure', type: 'weight', muscleGroup: 'Triceps' },
-                    { id: 'p1_plank_2', name: 'Plank', sets: 2, reps: '45s', type: 'time', muscleGroup: 'Core' },
-                    { id: 'p1_russian_twists', name: 'Russian Twists', sets: 3, reps: '12/side', type: 'weight', muscleGroup: 'Core' },
-                    { id: 'p1_finisher_ropes', name: 'Finisher: Battle Ropes', sets: 1, reps: '4x30s', type: 'notes', muscleGroup: 'Finisher' },
-                ]
-            },
-            day3: {
-                title: 'Thursday - Back & Biceps',
-                exercises: [
-                    { id: 'p1_lat_pulldown', name: 'Lat Pulldown (wide grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
-                    { id: 'p1_seated_row', name: 'Seated Cable Row (close grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
-                    { id: 'p1_glute_bridges', name: 'Glute Bridges', sets: 4, reps: '12-15', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p1_db_curls', name: 'Standing Dumbbell Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
-                    { id: 'p1_hammer_curls', name: 'Hammer Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
-                    { id: 'p1_db_preacher', name: 'Dumbbell Preacher Curls', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Biceps' },
-                    { id: 'p1_plank_3', name: 'Plank', sets: 2, reps: '45s', type: 'time', muscleGroup: 'Core' },
-                    { id: 'p1_bird_dog', name: 'Bird-Dog', sets: 3, reps: '10/side', type: 'weight', muscleGroup: 'Core' },
-                    { id: 'p1_finisher_kettlebell', name: 'Finisher: Kettlebell Swings', sets: 1, reps: '4x15', type: 'notes', muscleGroup: 'Finisher' },
-                ]
-            },
+// --- Quick Log Modal Logic ---
+function openQuickLogModal() {
+    document.getElementById('quick-log-modal').style.display = 'flex';
+    populateQuickExerciseOptions();
+}
+
+function closeQuickLogModal() {
+    document.getElementById('quick-log-modal').style.display = 'none';
+    document.getElementById('quick-log-form').reset();
+}
+
+function populateQuickExerciseOptions() {
+    const select = document.getElementById('quick-exercise');
+    select.innerHTML = '';
+    const exercises = getAllExercises();
+    for (const id in exercises) {
+        const ex = exercises[id];
+        const option = document.createElement('option');
+        option.value = id;
+        option.textContent = ex.name;
+        select.appendChild(option);
+    }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('quick-log-form').onsubmit = function(e) {
+        e.preventDefault();
+        const exId = document.getElementById('quick-exercise').value;
+        const sets = parseInt(document.getElementById('quick-sets').value);
+        const reps = parseInt(document.getElementById('quick-reps').value);
+        const weight = parseFloat(document.getElementById('quick-weight').value);
+        if (!exId || !sets || !reps || isNaN(weight)) {
+            alert('Please fill out all fields.');
+            return;
         }
-    },
-    p2: {
-        title: 'Phase 2: Progression & Variation',
-        days: {
-            day1: {
-                title: 'Monday - Legs & Shoulders',
-                exercises: [
-                    { id: 'p2_squat', name: 'Barbell Squat', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p2_leg_press', name: 'Leg Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p2_leg_extensions', name: 'Leg Extensions', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p2_oh_press', name: 'Overhead Barbell Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Shoulders' },
-                    { id: 'p2_lateral_raise', name: 'Lateral Raise', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Shoulders' },
-                    { id: 'p2_face_pull', name: 'Face Pull', sets: 4, reps: '12', type: 'weight', muscleGroup: 'Shoulders' },
-                    { id: 'p2_plank', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
-                    { id: 'p2_leg_raises', name: 'Lying Leg Raises', sets: 3, reps: '15', type: 'weight', muscleGroup: 'Core' },
-                    { id: 'p2_finisher_sled', name: 'Finisher: Sled Push', sets: 1, reps: '4 lengths', type: 'notes', muscleGroup: 'Finisher' },
-                ]
-            },
-            day2: {
-                title: 'Tuesday - Chest & Triceps',
-                exercises: [
-                    { id: 'p2_bench_press', name: 'Flat Barbell Bench Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
-                    { id: 'p2_incline_press', name: 'Incline Dumbbell Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
-                    { id: 'p2_pec_deck', name: 'Pec Deck Machine Fly', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Chest' },
-                    { id: 'p2_tricep_pushdowns', name: 'Tricep Rope Pushdowns', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
-                    { id: 'p2_overhead_db_ext', name: 'Seated Overhead DB Extension', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
-                    { id: 'p2_bench_dips', name: 'Bench Dips', sets: 4, reps: 'Failure', type: 'weight', muscleGroup: 'Triceps' },
-                    { id: 'p2_plank_2', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
-                    { id: 'p2_russian_twists', name: 'Russian Twists', sets: 3, reps: '12/side', type: 'weight', muscleGroup: 'Core' },
-                    { id: 'p2_finisher_ropes', name: 'Finisher: Battle Ropes', sets: 1, reps: '4x30s', type: 'notes', muscleGroup: 'Finisher' },
-                ]
-            },
-            day3: {
-                title: 'Thursday - Back & Biceps',
-                exercises: [
-                    { id: 'p2_lat_pulldown', name: 'Lat Pulldown (wide grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
-                    { id: 'p2_seated_row', name: 'Seated Cable Row (close grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
-                    { id: 'p2_glute_bridges', name: 'Glute Bridges', sets: 4, reps: '12-15', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p2_db_curls', name: 'Standing Dumbbell Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
-                    { id: 'p2_hammer_curls', name: 'Hammer Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
-                    { id: 'p2_db_preacher', name: 'Dumbbell Preacher Curls', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Biceps' },
-                    { id: 'p2_plank_3', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
-                    { id: 'p2_bird_dog', name: 'Bird-Dog', sets: 3, reps: '10/side', type: 'weight', muscleGroup: 'Core' },
-                    { id: 'p2_finisher_kettlebell', name: 'Finisher: Kettlebell Swings', sets: 1, reps: '4x15', type: 'notes', muscleGroup: 'Finisher' },
-                ]
-            },
-        }
-    },
-    p3: {
-        title: 'Phase 3: Intensity & Consolidation',
-        days: {
-            day1: {
-                title: 'Monday - Legs & Shoulders',
-                exercises: [
-                    { id: 'p3_deadlift', name: 'Barbell Deadlift', sets: 4, reps: '6-10', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p3_leg_press', name: 'Leg Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p3_leg_extensions', name: 'Leg Extensions', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p3_oh_press', name: 'Overhead Barbell Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Shoulders' },
-                    { id: 'p3_lateral_raise', name: 'Lateral Raise', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Shoulders' },
-                    { id: 'p3_face_pull', name: 'Face Pull', sets: 4, reps: '12', type: 'weight', muscleGroup: 'Shoulders' },
-                    { id: 'p3_plank', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
-                    { id: 'p3_leg_raises', name: 'Lying Leg Raises', sets: 3, reps: '15', type: 'weight', muscleGroup: 'Core' },
-                    { id: 'p3_finisher_sled', name: 'Finisher: Sled Push', sets: 1, reps: '4 lengths', type: 'notes', muscleGroup: 'Finisher' },
-                ]
-            },
-            day2: {
-                title: 'Tuesday - Chest & Triceps',
-                exercises: [
-                    { id: 'p3_bench_press', name: 'Flat Barbell Bench Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
-                    { id: 'p3_incline_press', name: 'Incline Dumbbell Press', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Chest' },
-                    { id: 'p3_pec_deck', name: 'Pec Deck Machine Fly', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Chest' },
-                    { id: 'p3_tricep_pushdowns', name: 'Tricep Rope Pushdowns', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
-                    { id: 'p3_overhead_db_ext', name: 'Seated Overhead DB Extension', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Triceps' },
-                    { id: 'p3_bench_dips', name: 'Bench Dips', sets: 4, reps: 'Failure', type: 'weight', muscleGroup: 'Triceps' },
-                    { id: 'p3_plank_2', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
-                    { id: 'p3_russian_twists', name: 'Russian Twists', sets: 3, reps: '12/side', type: 'weight', muscleGroup: 'Core' },
-                    { id: 'p3_finisher_ropes', name: 'Finisher: Battle Ropes', sets: 1, reps: '4x30s', type: 'notes', muscleGroup: 'Finisher' },
-                ]
-            },
-            day3: {
-                title: 'Thursday - Back & Biceps',
-                exercises: [
-                    { id: 'p3_lat_pulldown', name: 'Lat Pulldown (wide grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
-                    { id: 'p3_seated_row', name: 'Seated Cable Row (close grip)', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Back' },
-                    { id: 'p3_glute_bridges', name: 'Glute Bridges', sets: 4, reps: '12-15', type: 'weight', muscleGroup: 'Legs' },
-                    { id: 'p3_db_curls', name: 'Standing Dumbbell Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
-                    { id: 'p3_hammer_curls', name: 'Hammer Curls', sets: 4, reps: '8-12', type: 'weight', muscleGroup: 'Biceps' },
-                    { id: 'p3_db_preacher', name: 'Dumbbell Preacher Curls', sets: 4, reps: '10-12', type: 'weight', muscleGroup: 'Biceps' },
-                    { id: 'p3_plank_3', name: 'Plank', sets: 2, reps: '60s', type: 'time', muscleGroup: 'Core' },
-                    { id: 'p3_bird_dog', name: 'Bird-Dog', sets: 3, reps: '10/side', type: 'weight', muscleGroup: 'Core' },
-                    { id: 'p3_finisher_kettlebell', name: 'Finisher: Kettlebell Swings', sets: 1, reps: '4x15', type: 'notes', muscleGroup: 'Finisher' },
-                ]
-            },
+        if (!workoutData[exId]) workoutData[exId] = [];
+        workoutData[exId].push({
+            date: new Date().toISOString().split('T')[0],
+            values: [weight],
+            sets: sets,
+            reps: reps
+        });
+        localStorage.setItem('workoutTrackerData', JSON.stringify(workoutData));
+        alert('Quick log saved!');
+        closeQuickLogModal();
+        updateSuggestions();
+        updateStrengthVolumeChart();
+        renderExerciseProgressCharts();
+    };
+});
+
+let workoutPlan = JSON.parse(localStorage.getItem('workoutPlan')) || {};
+// --- Create Workout Plan Modal Logic ---
+function openCreatePlanModal() {
+    document.getElementById('create-plan-modal').style.display = 'flex';
+    document.getElementById('create-plan-form').reset();
+    document.getElementById('exercises-list').innerHTML = '';
+    addExerciseField();
+}
+
+function closeCreatePlanModal() {
+    document.getElementById('create-plan-modal').style.display = 'none';
+}
+
+function addExerciseField() {
+    const container = document.getElementById('exercises-list');
+    const idx = container.children.length;
+    const div = document.createElement('div');
+    div.className = 'input-group';
+    div.innerHTML = `
+        <label>Exercise Name</label>
+        <input type="text" name="exercise-name-${idx}" required placeholder="e.g., Bench Press">
+        <label>Sets</label>
+        <input type="number" name="exercise-sets-${idx}" min="1" max="10" required placeholder="e.g., 3">
+        <label>Reps</label>
+        <input type="number" name="exercise-reps-${idx}" min="1" max="50" required placeholder="e.g., 10">
+        <label>Weight (optional)</label>
+        <input type="number" name="exercise-weight-${idx}" min="0" step="0.5" placeholder="e.g., 50">
+    `;
+    container.appendChild(div);
+}
+
+document.getElementById('create-plan-form').onsubmit = function(e) {
+    e.preventDefault();
+    const day = document.getElementById('plan-day').value.trim();
+    const exercises = [];
+    const container = document.getElementById('exercises-list');
+    for (let i = 0; i < container.children.length; i++) {
+        const group = container.children[i];
+        const name = group.querySelector(`[name='exercise-name-${i}']`).value.trim();
+        const sets = parseInt(group.querySelector(`[name='exercise-sets-${i}']`).value);
+        const reps = parseInt(group.querySelector(`[name='exercise-reps-${i}']`).value);
+        const weight = parseFloat(group.querySelector(`[name='exercise-weight-${i}']`).value) || null;
+        if (name && sets && reps) {
+            exercises.push({ name, sets, reps, weight });
         }
     }
+    if (!day || exercises.length === 0) {
+        alert('Please enter a day and at least one exercise.');
+        return;
+    }
+    workoutPlan[day] = exercises;
+    localStorage.setItem('workoutPlan', JSON.stringify(workoutPlan));
+    closeCreatePlanModal();
+    renderUserWorkoutPlan();
 };
+
+function renderUserWorkoutPlan() {
+    const mainContainer = document.querySelector('#workout-section main');
+    if (!workoutPlan || Object.keys(workoutPlan).length === 0) {
+        mainContainer.innerHTML = `<p>No workout plan found. Click 📝 to create one!</p>`;
+        return;
+    }
+    let planHTML = '';
+    for (const day in workoutPlan) {
+        planHTML += `
+            <details class="workout-day">
+                <summary>${day}</summary>
+                <div class="workout-content">
+                    ${workoutPlan[day].map(ex => `
+                        <div class="exercise-card">
+                            <h3>${ex.name}</h3>
+                            <p><strong>Target:</strong> ${ex.sets} sets of ${ex.reps} reps${ex.weight ? ` @ ${ex.weight}` : ''}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            </details>
+        `;
+    }
+    mainContainer.innerHTML = planHTML;
+}
+
+window.addEventListener('DOMContentLoaded', renderUserWorkoutPlan);
 
 let workoutData = {};
 let bodyData = [];
