@@ -1,7 +1,7 @@
 {
   "name": "Lifting Tracker",
   "short_name": "Lifts",
-  "start_url": "/Lifting-Tracker/",
+  "start_url": "/LIfting-Tracker/",
   "scope": "/Lifting-Tracker/",
   "display": "standalone",
   "background_color": "#F8FAF9",
