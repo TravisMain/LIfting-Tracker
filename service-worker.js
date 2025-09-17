@@ -2,7 +2,7 @@ const CACHE_NAME = 'lifting-tracker-v1';
 const ASSETS = [
   './',
   './index.html',
-  'https://cdn.jsdelivr.net/npm/chart.js'
+  './manifest.webmanifest'
 ];
 
 self.addEventListener('install', (event) => {
