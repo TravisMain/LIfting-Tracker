@@ -1,16 +1,16 @@
 {
   "name": "Lifting Tracker",
   "short_name": "Lifts",
-  "start_url": "https://travismain.github.io/Lifting-Tracker/index.html",
-  "scope": "/Lifting-Tracker/",
+  "start_url": "https://travismain.github.io/LIfting-Tracker/index.html",
+  "scope": "/LIfting-Tracker/",
   "display": "standalone",
   "background_color": "#F8FAF9",
   "theme_color": "#F8FAF9",
   "description": "Track workouts, measurements, and progress on your phone.",
   "icons": [
-    { "src": "https://travismain.github.io/Lifting-Tracker/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "https://travismain.github.io/Lifting-Tracker/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "https://travismain.github.io/Lifting-Tracker/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
-    { "src": "https://travismain.github.io/Lifting-Tracker/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    { "src": "https://travismain.github.io/LIfting-Tracker/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "https://travismain.github.io/LIfting-Tracker/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "https://travismain.github.io/LIfting-Tracker/icons/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "https://travismain.github.io/LIfting-Tracker/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
