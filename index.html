@@ -54,6 +54,72 @@
             margin: 0;
         }
 
+        /* Recommended Plans: visually smaller, less prominent */
+        #recommended-plans {
+            background: var(--surface-2);
+            border: 1px dashed var(--border-color);
+            border-radius: 8px;
+            margin: 12px 0 0 0;
+            box-shadow: none;
+            opacity: 0.85;
+        }
+        #recommended-plans summary {
+            font-size: 1em;
+            font-weight: 600;
+            color: var(--primary-light);
+            padding: 10px 16px;
+        }
+        #recommended-content {
+            font-size: 0.95em;
+            color: var(--text-muted);
+        }
+
+        /* Quick Log Modal: scrollable for mobile */
+        #quick-log-modal .modal-scroll {
+            max-height: 80vh;
+            overflow-y: auto;
+            padding-bottom: 8px;
+        }
+        @media (max-width: 480px) {
+            #quick-log-modal .modal-scroll { max-height: 70vh; }
+        }
+
+        /* What's New Modal Styles */
+        #whats-new-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.25);
+            z-index: 2000;
+            align-items: flex-end;
+            justify-content: center;
+        }
+        #whats-new-modal .modal-content {
+            background: #fff;
+            padding: 20px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+            border-radius: 14px 14px 0 0;
+            max-width: 640px;
+            width: 100vw;
+            margin: 0;
+            box-shadow: 0 -6px 24px rgba(44,62,80,0.16);
+            text-align: left;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        #whats-new-modal h2 {
+            margin-top: 0;
+            color: var(--primary);
+            font-size: 1.35em;
+        }
+        #whats-new-modal ul {
+            margin: 16px 0 0 0;
+            padding-left: 20px;
+        }
+        #whats-new-modal button {
+            margin-top: 24px;
+            width: 100%;
+        }
+
         /* Base layout */
         .container {
             max-width: 960px;
@@ -61,7 +127,13 @@
             padding: 16px;
         }
         header {
+            position: sticky;
+            top: 0;
+            z-index: 1100;
             padding: 8px 0 0 0;
+            background: var(--surface-1);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(44,62,80,0.05);
         }
         header h1 {
             font-family: 'Montserrat', Arial, sans-serif;
@@ -150,7 +222,7 @@
 
         /* Remove old nav button styles for tab navigation */
 
-        /* Bottom tab bar styles */
+    /* Bottom tab bar styles */
         .tab-bar {
             position: fixed;
             left: 0;
@@ -266,15 +338,25 @@
         #dashboard-section label { margin-right: var(--spacing-8); }
 
         /* Chart.js canvas tweaks */
+        .chart-container {
+            width: 100%;
+            max-width: 100vw;
+            min-width: 0;
+            overflow-x: auto;
+            padding: 0 4px;
+        }
         canvas {
             background: var(--surface-2);
             border-radius: 8px;
             box-shadow: none;
-            height: 220px;
-            width: 100%;
+            width: 100% !important;
+            height: 220px !important;
+            max-width: 100vw;
+            min-width: 0;
         }
         @media (max-width: 767px) {
-            canvas { height: 180px; }
+            .chart-container { padding: 0 2px; }
+            canvas { height: 160px !important; }
         }
 
         /* Phase navigation: clearer active state */
@@ -298,17 +380,30 @@
         /* Improve tap targets on mobile */
         .btn, .tab-bar-btn, .phase-btn { min-height: 44px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         input, select { min-height: 40px; }
-        /* Avoid content sitting under fixed tab bar */
-        #main-pastworkouts { padding-bottom: 80px; }
-        #main-dashboard { padding-bottom: 80px; }
+    /* Avoid content sitting under fixed tab bar */
+    #main-pastworkouts { padding-bottom: 92px; }
+    #main-dashboard { padding-bottom: 92px; }
         body { overscroll-behavior-y: contain; }
         summary { -webkit-tap-highlight-color: transparent; }
     </style>
 </head>
 <body>
-    <!-- Exercise Picker Modal -->
-    <div id="exercise-picker-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1002;align-items:center;justify-content:center;">
-        <div style="background:#fff;padding:32px 24px;border-radius:12px;max-width:400px;width:90vw;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);">
+
+    <!-- What's New Modal -->
+    <div id="whats-new-modal">
+        <div class="modal-content">
+            <h2>What's New (v2)</h2>
+            <ul>
+                <li><strong>QR Share & Scan:</strong> Instantly share your workout plan offline via QR code, or scan a friend's plan to import.</li>
+                <li><strong>Style Restored:</strong> Layout, cards, and mobile-friendly design are back and better than ever.</li>
+                <li><strong>Cache Refresh:</strong> Updates now reach all users reliably—no more stale assets.</li>
+            </ul>
+            <button class="btn" id="whats-new-close">Got it!</button>
+        </div>
+    </div>
+    <!-- Exercise Picker Modal (Bottom Sheet) -->
+    <div id="exercise-picker-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1002;align-items:flex-end;justify-content:center;">
+        <div style="background:#fff;padding:20px 16px calc(16px + env(safe-area-inset-bottom, 0px));border-radius:14px 14px 0 0;max-width:640px;width:100vw;margin:0;box-shadow:0 -6px 24px rgba(44,62,80,0.16);max-height:90vh;overflow-y:auto;">
             <h2 style="color:var(--primary);margin-top:0;margin-bottom:12px;">Select Exercise</h2>
             <div style="margin-bottom:12px;">
                 <label for="muscle-filter" style="font-weight:600;color:#2e7d32;">Filter by Muscle Group:</label>
@@ -318,12 +413,15 @@
             </div>
             <input type="text" id="exercise-search" placeholder="Search exercises..." style="width:100%;margin-bottom:12px;padding:8px 12px;border-radius:8px;border:1px solid #E2E8F0;font-size:1em;">
             <div id="exercise-list" style="max-height:320px;overflow-y:auto;"></div>
+            <div id="exercise-attrib" style="margin-top:8px;color:var(--text-muted);font-size:0.85em;">
+                Exercise data may include contributions from the Exercemus dataset (CC BY-SA).
+            </div>
             <button class="btn btn-secondary" type="button" id="exercise-picker-cancel" style="margin-top:16px;width:100%;">Cancel</button>
         </div>
     </div>
-    <!-- Create Workout Plan Modal -->
-    <div id="create-plan-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1001;align-items:center;justify-content:center;">
-        <div style="background:#fff;padding:36px 28px;border-radius:12px;max-width:500px;width:90vw;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);max-height:90vh;overflow-y:auto;">
+    <!-- Create Workout Plan Modal (Bottom Sheet) -->
+    <div id="create-plan-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1001;align-items:flex-end;justify-content:center;">
+        <div style="background:#fff;padding:20px 16px calc(16px + env(safe-area-inset-bottom, 0px));border-radius:14px 14px 0 0;max-width:640px;width:100vw;margin:0;box-shadow:0 -6px 24px rgba(44,62,80,0.16);max-height:90vh;overflow-y:auto;">
             <h2 style="color:var(--primary);margin-top:0;margin-bottom:18px;">Create Workout Plan</h2>
             <form id="create-plan-form">
                 <div class="input-group" style="margin-bottom:18px;">
@@ -332,7 +430,15 @@
                 </div>
                 <hr style="border:none;border-top:1px solid #E2E8F0;margin:12px 0;">
                 <div id="exercise-fields"></div>
-                <button type="button" class="btn btn-secondary" id="add-exercise-btn" style="margin-bottom:16px;">+ Add Exercise</button>
+                                <button type="button" class="btn btn-secondary" id="add-exercise-btn" title="Add Exercise" style="margin-bottom:16px;display:flex;align-items:center;justify-content:center;padding:6px 10px;">
+                                    <span style="display:inline-block;width:1.5em;height:1.5em;">
+                                        <!-- Plus/Add SVG icon -->
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%" aria-hidden="true">
+                                            <rect x="11" y="4" width="2" height="16" rx="1"/>
+                                            <rect x="4" y="11" width="16" height="2" rx="1"/>
+                                        </svg>
+                                    </span>
+                                </button>
                 <div id="plan-summary" style="margin-bottom:18px;"></div>
                 <div style="display:flex;flex-direction:column;gap:12px;margin-top:24px;">
                     <button class="btn" type="submit" style="font-size:1.15em;">Save Day</button>
@@ -341,7 +447,19 @@
             </form>
         </div>
     </div>
-    <button id="create-plan-btn" style="position:fixed;bottom:150px;right:24px;z-index:1002;background:var(--primary);color:#fff;border:none;border-radius:50%;width:60px;height:60px;box-shadow:0 4px 16px rgba(44,62,80,0.12);font-size:1.5em;display:flex;align-items:center;justify-content:center;cursor:pointer;">📝</button>
+    <button id="create-plan-btn" style="position:fixed;bottom:calc(156px + env(safe-area-inset-bottom, 0px));right:20px;z-index:1002;background:var(--primary);color:#fff;border:none;border-radius:50%;width:60px;height:60px;box-shadow:0 4px 16px rgba(44,62,80,0.12);font-size:1.5em;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="Create Workout Plan">
+            <span style="display:inline-block;width:2em;height:2em;">
+                <!-- Calendar Plus SVG icon -->
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%" aria-hidden="true">
+                    <rect x="3" y="4" width="18" height="18" rx="4"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <line x1="12" y1="14" x2="12" y2="18"/>
+                    <line x1="10" y1="16" x2="14" y2="16"/>
+                </svg>
+            </span>
+        </button>
     <div id="user-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1000;align-items:center;justify-content:center;">
         <div style="background:#fff;padding:32px 24px;border-radius:12px;max-width:350px;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);">
             <h2 style="color:var(--primary);margin-top:0;">Welcome!</h2>
@@ -375,48 +493,70 @@
         </div>
     </div>
 
-    <!-- Quick Log Modal -->
-    <div id="quick-log-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1001;align-items:center;justify-content:center;">
-        <div style="background:#fff;padding:32px 24px;border-radius:12px;max-width:380px;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);">
+    <!-- Quick Log Modal (Bottom Sheet) -->
+
+    <div id="quick-log-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1001;align-items:flex-end;justify-content:center;">
+        <div style="background:#fff;padding:20px 16px calc(16px + env(safe-area-inset-bottom, 0px));border-radius:14px 14px 0 0;max-width:640px;width:100vw;margin:0;box-shadow:0 -6px 24px rgba(44,62,80,0.16);display:flex;flex-direction:column;max-height:90vh;overflow-y:auto;">
             <h2 style="color:var(--primary);margin-top:0;">Quick Log</h2>
-            <form id="quick-log-form">
-                <div class="input-group" style="margin-bottom:8px;">
-                    <label for="quick-exercise-input">Exercise</label>
-                    <input type="text" id="quick-exercise-input" required placeholder="Select or type exercise..." style="background:#f3f4f6;cursor:pointer;" autocomplete="off">
-                    <button type="button" class="btn btn-secondary" style="margin-top:4px;" id="quick-choose-exercise-btn">Choose</button>
-                </div>
-                <p id="quick-suggestion" style="color:var(--text-muted);margin:4px 0 12px 0;"></p>
-                <div class="input-group">
-                    <label for="quick-sets">Sets</label>
-                    <input type="number" id="quick-sets" min="1" max="10" required placeholder="e.g., 3" value="3">
-                </div>
-                <div id="quick-set-inputs-container" class="input-grid" style="margin-top:8px;"></div>
-                <div class="input-group" style="margin-top:8px;">
-                    <label for="quick-reps">Reps</label>
-                    <input type="number" id="quick-reps" min="1" max="50" required placeholder="e.g., 10" value="10">
-                </div>
-                <button class="btn" type="submit" style="margin-top:16px;width:100%;">Save Quick Log</button>
-                <button class="btn btn-secondary" type="button" style="margin-top:8px;width:100%;" onclick="closeQuickLogModal()">Cancel</button>
-            </form>
+            <div class="modal-scroll">
+                <form id="quick-log-form">
+                    <div class="input-group" style="margin-bottom:8px;">
+                        <label for="quick-exercise-input">Exercise</label>
+                        <input type="text" id="quick-exercise-input" required placeholder="Select or type exercise..." style="background:#f3f4f6;cursor:pointer;" autocomplete="off">
+                        <button type="button" class="btn btn-secondary" style="margin-top:4px;" id="quick-choose-exercise-btn">Choose</button>
+                    </div>
+                    <p id="quick-suggestion" style="color:var(--text-muted);margin:4px 0 12px 0;"></p>
+                    <div class="input-group">
+                        <label for="quick-sets">Sets</label>
+                        <input type="number" id="quick-sets" min="1" max="10" required placeholder="e.g., 3" value="3">
+                    </div>
+                    <div id="quick-set-inputs-container" class="input-grid" style="margin-top:8px;"></div>
+                    <div class="input-group" style="margin-top:8px;">
+                        <label for="quick-reps">Reps</label>
+                        <input type="number" id="quick-reps" min="1" max="50" required placeholder="e.g., 10" value="10">
+                    </div>
+                    <button class="btn" type="submit" style="margin-top:16px;width:100%;">Save Quick Log</button>
+                    <button class="btn btn-secondary" type="button" style="margin-top:8px;width:100%;" onclick="closeQuickLogModal()">Cancel</button>
+                </form>
+            </div>
         </div>
     </div>
 
     <!-- Floating Quick Log Button -->
-    <button id="quick-log-btn" style="position:fixed;bottom:80px;right:24px;z-index:1002;background:var(--accent);color:var(--primary);border:none;border-radius:50%;width:60px;height:60px;box-shadow:0 4px 16px rgba(44,62,80,0.12);font-size:2em;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-        &#43;
+    <button id="quick-log-btn" style="position:fixed;bottom:calc(96px + env(safe-area-inset-bottom, 0px));right:92px;z-index:1002;background:var(--accent);color:var(--primary);border:none;border-radius:50%;width:60px;height:60px;box-shadow:0 4px 16px rgba(44,62,80,0.12);font-size:2em;display:flex;align-items:center;justify-content:center;cursor:pointer;">
+            <span style="display:inline-block;width:2em;height:2em;">
+                <!-- Lightning Bolt SVG icon -->
+                <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%" aria-hidden="true">
+                    <path d="M13 2L3 14h7v8l8-12h-7V2z"/>
+                </svg>
+            </span>
     </button>
     <div class="container">
         <header>
-            <h1>Fitness Dashboard</h1>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <img src="icons/icon-192.png" alt="App Icon" style="width:36px;height:36px;border-radius:8px;object-fit:cover;flex:0 0 auto;" />
+                <h1 style="margin:0;">Fitness Dashboard</h1>
+            </div>
         </header>
         <!-- Bottom Tab Bar Navigation -->
         <nav class="tab-bar">
             <button class="tab-bar-btn" id="tab-workouts" aria-label="Workouts">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 20v-9m10 9v-9M5 11V7a2 2 0 012-2h10a2 2 0 012 2v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="7" width="3" height="10" rx="1"/>
+                    <rect x="19" y="7" width="3" height="10" rx="1"/>
+                    <rect x="7" y="9" width="10" height="6" rx="1"/>
+                    <line x1="5" y1="12" x2="7" y2="12"/>
+                    <line x1="17" y1="12" x2="19" y2="12"/>
+                </svg>
                 Workouts
             </button>
             <button class="tab-bar-btn" id="tab-stats" aria-label="Stats">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 17v-6a1 1 0 011-1h2a1 1 0 011 1v6m4 0V7a1 1 0 011-1h2a1 1 0 011 1v10m4 0v-3a1 1 0 00-1-1h-2a1 1 0 00-1 1v3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="3" y1="20" x2="21" y2="20"/>
+                    <rect x="5" y="12" width="3" height="8" rx="1"/>
+                    <rect x="11" y="8" width="3" height="12" rx="1"/>
+                    <rect x="17" y="4" width="3" height="16" rx="1"/>
+                </svg>
                 Stats
             </button>
         </nav>
@@ -427,11 +567,32 @@
                     <p id="welcome-motivation" style="font-size:1.15em;color:var(--primary);margin-bottom:8px;"></p>
                 </div>
                 <h2 style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                    <span>Workout Plan</span>
-                    <span style="display:flex;gap:8px;">
-                        <button id="qr-share-btn" class="btn btn-secondary" type="button" title="Show plan as QR">Share QR</button>
-                        <button id="qr-scan-btn" class="btn" type="button" title="Scan a plan QR">Scan QR</button>
-                    </span>
+                                        <span>Workout Plan</span>
+                                        <span style="display:flex;gap:8px;">
+                                                <button id="qr-share-btn" class="btn btn-secondary" type="button" title="Show plan as QR">
+                                                                                <span style="vertical-align:middle;display:inline-block;width:1.6em;height:1.6em;">
+                                                                                    <!-- QR code SVG icon -->
+                                                                                    <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%" aria-hidden="true">
+                                                                                        <rect x="2" y="2" width="6" height="6" rx="1.5"/>
+                                                                                        <rect x="16" y="2" width="6" height="6" rx="1.5"/>
+                                                                                        <rect x="2" y="16" width="6" height="6" rx="1.5"/>
+                                                                                        <rect x="10" y="10" width="4" height="4" rx="1"/>
+                                                                                        <rect x="16" y="16" width="2" height="2" rx="0.5"/>
+                                                                                        <rect x="20" y="20" width="2" height="2" rx="0.5"/>
+                                                                                    </svg>
+                                                                                </span>
+                                                </button>
+                                                <button id="qr-scan-btn" class="btn" type="button" title="Scan a plan QR">
+                                                                                <span style="vertical-align:middle;display:inline-block;width:1.6em;height:1.6em;">
+                                                                                    <!-- Camera/Scan SVG icon -->
+                                                                                    <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%" aria-hidden="true">
+                                                                                        <rect x="4" y="7" width="16" height="12" rx="2"/>
+                                                                                        <circle cx="12" cy="13" r="3"/>
+                                                                                        <rect x="9" y="3" width="6" height="3" rx="1"/>
+                                                                                    </svg>
+                                                                                </span>
+                                                </button>
+                                        </span>
                 </h2>
                 <main>
                 </main>
@@ -492,7 +653,15 @@
                                 <input type="number" id="hips-measure" placeholder="e.g., 105" inputmode="decimal" step="0.1" min="0">
                             </div>
                         </div>
-                        <button class="btn" style="width:100%;margin-top:16px;" onclick="saveMeasurements()">Save Today's Measurements</button>
+                                                <button class="btn" style="width:100%;margin-top:16px;display:flex;align-items:center;justify-content:center;" onclick="saveMeasurements()" title="Save Today's Measurements">
+                                                    <span style="display:inline-block;width:1.7em;height:1.7em;">
+                                                        <!-- Save/Checkmark SVG icon -->
+                                                        <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%" aria-hidden="true">
+                                                            <path d="M5 13l4 4L19 7" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                                                            <rect x="3" y="3" width="18" height="18" rx="4" fill="currentColor" opacity="0.2"/>
+                                                        </svg>
+                                                    </span>
+                                                </button>
                     </div>
                 </details>
 
@@ -530,18 +699,51 @@
                     <summary>Measurements & Body Weight History</summary>
                     <div class="section-body">
                         <div id="measurements-history-table" class="table-scroll"></div>
-                        <div class="chart-container">
-                            <canvas id="measurementsHistoryChart"></canvas>
-                        </div>
                     </div>
                 </details>
             </section>
         </div>
     </div>
 <script>
+// What's New Modal Logic
+const WHATS_NEW_VERSION = 'v2';
+function showWhatsNewModal() {
+    const modal = document.getElementById('whats-new-modal');
+    if (modal) modal.style.display = 'flex';
+}
+function closeWhatsNewModal() {
+    const modal = document.getElementById('whats-new-modal');
+    if (modal) modal.style.display = 'none';
+    localStorage.setItem('whatsNewDismissed', WHATS_NEW_VERSION);
+}
+window.addEventListener('DOMContentLoaded', function() {
+    // Load external exercise dataset in background and refresh related UI
+    loadExternalExerciseLibrary().then(loaded => {
+        if (!loaded) return;
+        try {
+            // Refresh recommended plans (pools), and any open picker
+            renderRecommendedPlans();
+            // If picker open, rerender its filters and list
+            const picker = document.getElementById('exercise-picker-modal');
+            if (picker && picker.style.display === 'flex') {
+                const filter = document.getElementById('muscle-filter');
+                const muscles = Array.from(new Set(EXERCISE_LIBRARY.map(ex => ex.muscle))).sort();
+                filter.innerHTML = '<option value="">All</option>' + muscles.map(m => `<option value="${m}">${m}</option>`).join('');
+                resetExerciseListLimit();
+                renderExerciseList(document.getElementById('exercise-search').value || '');
+            }
+        } catch (e) { console.warn('Post-load refresh error', e); }
+    });
+    if (localStorage.getItem('whatsNewDismissed') !== WHATS_NEW_VERSION) {
+        setTimeout(showWhatsNewModal, 600);
+    }
+    const closeBtn = document.getElementById('whats-new-close');
+    if (closeBtn) closeBtn.onclick = closeWhatsNewModal;
+});
 console.log('Lifting Tracker script started');
 // --- Exercise Picker Modal Logic ---
-const EXERCISE_LIBRARY = [
+// Fallback inline library; will be expanded by external dataset loader.
+let EXERCISE_LIBRARY = [
     // Chest
     { name: 'Bench Press', muscle: 'Chest', demo: 'https://www.youtube.com/watch?v=gRVjAtPip0Y' },
     { name: 'Incline Bench Press', muscle: 'Chest', demo: 'https://www.youtube.com/watch?v=SrqOu55lrYU' },
@@ -768,6 +970,89 @@ const EXERCISE_LIBRARY = [
     { name: 'Weighted Clamshell', muscle: 'Glutes', demo: 'https://www.youtube.com/watch?v=QOVaHwm-Q6U' },
     { name: 'Weighted Monster Walk', muscle: 'Glutes', demo: 'https://www.youtube.com/watch?v=QOVaHwm-Q6U' }
 ];
+
+// External dataset loader: fetches and caches a 500+ exercise list
+const EXTERNAL_EXERCISE_URL = 'https://raw.githubusercontent.com/exercemus/exercises/minified/minified-exercises.json';
+const EXTERNAL_EXERCISE_CACHE_KEY = 'exerciseLibraryV1';
+const EXTERNAL_EXERCISE_CACHE_TS = 'exerciseLibraryV1_ts';
+const EXTERNAL_EXERCISE_TTL_MS = 1000 * 60 * 60 * 24 * 14; // 14 days
+
+function mapPrimaryToCategory(primary, category) {
+    const p = (primary || '').toLowerCase();
+    const cat = (category || '').toLowerCase();
+    if (cat === 'cardio') return 'Cardio';
+    if (cat === 'stretching') return 'Mobility';
+    if (cat === 'olympic weightlifting' || cat === 'crossfit') return 'Full Body';
+    if (cat === 'strongman' || cat === 'plyometrics') return 'Specialty';
+    if (['chest','serratus anterior'].includes(p)) return 'Chest';
+    if (['shoulders'].includes(p)) return 'Shoulders';
+    if (['lats','middle back','lower back','traps','neck'].includes(p)) return 'Back';
+    if (['biceps','forearms','brachialis'].includes(p)) return 'Biceps';
+    if (['triceps'].includes(p)) return 'Triceps';
+    if (['glutes'].includes(p)) return 'Glutes';
+    if (['abs','obliques'].includes(p)) return 'Core';
+    if (['quads','hamstrings','adductors','abductors','calves','soleus'].includes(p)) return 'Legs';
+    return 'Specialty';
+}
+
+function normalizeExternalExercises(json) {
+    try {
+        const arr = Array.isArray(json?.exercises) ? json.exercises : [];
+        const out = [];
+        const seen = new Set();
+        for (const ex of arr) {
+            const name = (ex?.name || '').trim();
+            if (!name || seen.has(name)) continue;
+            const primary = Array.isArray(ex.primary_muscles) && ex.primary_muscles.length ? ex.primary_muscles[0] : '';
+            const muscle = mapPrimaryToCategory(primary, ex.category);
+            const demo = typeof ex.video === 'string' && ex.video.startsWith('http') ? ex.video : '';
+            out.push({ name, muscle, demo });
+            seen.add(name);
+        }
+        return out;
+    } catch (e) {
+        console.warn('Failed to normalize external exercises', e);
+        return [];
+    }
+}
+
+async function fetchExternalExerciseLibrary() {
+    const ts = parseInt(localStorage.getItem(EXTERNAL_EXERCISE_CACHE_TS) || '0', 10) || 0;
+    const cached = localStorage.getItem(EXTERNAL_EXERCISE_CACHE_KEY);
+    const now = Date.now();
+    if (cached && now - ts < EXTERNAL_EXERCISE_TTL_MS) {
+        try {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length >= 400) return parsed;
+        } catch {}
+    }
+    try {
+        const resp = await fetch(EXTERNAL_EXERCISE_URL, { cache: 'no-cache' });
+        if (!resp.ok) throw new Error('Network error: ' + resp.status);
+        const json = await resp.json();
+        const list = normalizeExternalExercises(json);
+        if (list.length >= 400) {
+            localStorage.setItem(EXTERNAL_EXERCISE_CACHE_KEY, JSON.stringify(list));
+            localStorage.setItem(EXTERNAL_EXERCISE_CACHE_TS, String(Date.now()));
+            return list;
+        }
+    } catch (e) {
+        console.warn('External exercise fetch failed', e);
+    }
+    return [];
+}
+
+async function loadExternalExerciseLibrary() {
+    const ext = await fetchExternalExerciseLibrary();
+    if (!ext.length) return false;
+    const byName = new Map();
+    // Merge inline and external, external wins on duplicates
+    [...EXERCISE_LIBRARY, ...ext].forEach(ex => {
+        if (ex && ex.name) byName.set(ex.name, { name: ex.name, muscle: ex.muscle, demo: ex.demo || '' });
+    });
+    EXERCISE_LIBRARY = Array.from(byName.values());
+    return true;
+}
 let exercisePickerCallback = null;
 function openExercisePickerModal(onSelect) {
     exercisePickerCallback = onSelect;
@@ -777,6 +1062,7 @@ function openExercisePickerModal(onSelect) {
     const filter = document.getElementById('muscle-filter');
     const muscles = Array.from(new Set(EXERCISE_LIBRARY.map(ex => ex.muscle))).sort();
     filter.innerHTML = '<option value="">All</option>' + muscles.map(m => `<option value="${m}">${m}</option>`).join('');
+    resetExerciseListLimit();
     renderExerciseList('', '');
 }
 
@@ -785,6 +1071,8 @@ function closeExercisePickerModal() {
     exercisePickerCallback = null;
 }
 
+let EXERCISE_RENDER_LIMIT = 50;
+function resetExerciseListLimit() { EXERCISE_RENDER_LIMIT = 50; }
 function renderExerciseList(filter) {
     const listDiv = document.getElementById('exercise-list');
     const searchValue = typeof filter === 'string' ? filter : '';
@@ -795,16 +1083,31 @@ function renderExerciseList(filter) {
         (muscleFilter ? ex.muscle === muscleFilter : true)
     );
     // Always show full list if filter is empty and no muscle filter
-    if (searchValue.length === 0 && !muscleFilter) filtered = EXERCISE_LIBRARY;
-    listDiv.innerHTML = filtered.length === 0 ? '<p style="color:var(--text-muted);">No exercises found.</p>' :
-        filtered.map(ex => `
+    if (searchValue.length === 0 && !muscleFilter) filtered = EXERCISE_LIBRARY.slice();
+    const total = filtered.length;
+    const slice = filtered.slice(0, EXERCISE_RENDER_LIMIT);
+    let html = '';
+    if (slice.length === 0) {
+        html = '<p style="color:var(--text-muted);">No exercises found.</p>';
+    } else {
+        html = slice.map(ex => `
             <div style="padding:8px 0;border-bottom:1px solid #E2E8F0;display:flex;justify-content:space-between;align-items:center;">
                 <div>
                     <strong>${ex.name}</strong> <span style="color:#888;">(${ex.muscle})</span>
                 </div>
-                <button class="btn" style="padding:4px 12px;font-size:0.95em;min-width:0;" onclick="selectExerciseFromPicker('${ex.name.replace(/'/g, "\'")}')">Select</button>
+                <button class="btn" style="padding:4px 12px;font-size:0.95em;min-width:0;" onclick="selectExerciseFromPicker('${ex.name.replace(/'/g, "\\'")}')">Select</button>
             </div>
         `).join('');
+        if (EXERCISE_RENDER_LIMIT < total) {
+            const remaining = total - EXERCISE_RENDER_LIMIT;
+            html += `
+                <div style="text-align:center;padding:10px;">
+                    <button class="btn btn-secondary" type="button" onclick="(function(){ EXERCISE_RENDER_LIMIT += 50; renderExerciseList('${searchValue.replace(/'/g, "\\'")}'); })()">Load more (${remaining} more)</button>
+                </div>
+            `;
+        }
+    }
+    listDiv.innerHTML = html;
 }
 
 function selectExerciseFromPicker(name) {
@@ -813,10 +1116,15 @@ function selectExerciseFromPicker(name) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Debounced search for large libraries
+    let t = null;
     document.getElementById('exercise-search').addEventListener('input', function(e) {
-        renderExerciseList(e.target.value);
+        const val = e.target.value;
+        if (t) clearTimeout(t);
+        t = setTimeout(() => { resetExerciseListLimit(); renderExerciseList(val); }, 200);
     });
     document.getElementById('muscle-filter').addEventListener('change', function() {
+        resetExerciseListLimit();
         renderExerciseList(document.getElementById('exercise-search').value);
     });
     document.getElementById('exercise-picker-cancel').addEventListener('click', closeExercisePickerModal);
@@ -962,8 +1270,16 @@ function openQuickLogModal() {
     const input = document.getElementById('quick-exercise-input');
     const chooseBtn = document.getElementById('quick-choose-exercise-btn');
     const setsEl = document.getElementById('quick-sets');
+    const repsEl = document.getElementById('quick-reps');
     const setContainer = document.getElementById('quick-set-inputs-container');
     const suggestionEl = document.getElementById('quick-suggestion');
+
+    // Restore saved state if present
+    const saved = localStorage.getItem('quickLogDraft');
+    let draft = saved ? JSON.parse(saved) : {};
+    input.value = draft.exercise || '';
+    setsEl.value = draft.sets || 3;
+    repsEl.value = draft.reps || 10;
 
     function buildQuickSetInputs() {
         setContainer.innerHTML = '';
@@ -981,17 +1297,35 @@ function openQuickLogModal() {
             const div = document.createElement('div');
             div.className = 'input-group';
             const id = `quick-set-${i+1}`;
+            let value = '';
+            if (draft.weights && typeof draft.weights[i] !== 'undefined') value = draft.weights[i];
+            else if (lastMax != null) value = lastMax;
             div.innerHTML = `
                 <label for="${id}">Set ${i+1} Weight</label>
-                <input type="number" id="${id}" min="0" step="0.5" placeholder="kg/lbs" ${lastMax != null ? `value="${lastMax}"` : ''}>
+                <input type="number" id="${id}" min="0" step="0.5" placeholder="kg/lbs" value="${value}">
             `;
             setContainer.appendChild(div);
         }
     }
 
+    function saveDraft() {
+        const weights = [];
+        for (let i = 0; i < Math.max(1, Math.min(10, parseInt(setsEl.value) || 1)); i++) {
+            const v = document.getElementById(`quick-set-${i+1}`)?.value;
+            weights.push(v);
+        }
+        localStorage.setItem('quickLogDraft', JSON.stringify({
+            exercise: input.value,
+            sets: setsEl.value,
+            reps: repsEl.value,
+            weights
+        }));
+    }
+
     function openPicker() {
         openExercisePickerModal(function(name){
             input.value = name;
+            saveDraft();
             buildQuickSetInputs();
         });
     }
@@ -999,9 +1333,13 @@ function openQuickLogModal() {
     // Wire once per open (idempotent listeners)
     input.onclick = openPicker;
     chooseBtn.onclick = openPicker;
-    setsEl.oninput = buildQuickSetInputs;
+    setsEl.oninput = function() { buildQuickSetInputs(); saveDraft(); };
+    repsEl.oninput = saveDraft;
+    input.oninput = function() { saveDraft(); buildQuickSetInputs(); };
+    setContainer.oninput = saveDraft;
     // Initial render
     buildQuickSetInputs();
+    saveDraft();
 }
 
 function closeQuickLogModal() {
@@ -1012,6 +1350,8 @@ function closeQuickLogModal() {
     if (setContainer) setContainer.innerHTML = '';
     const suggestionEl = document.getElementById('quick-suggestion');
     if (suggestionEl) suggestionEl.textContent = '';
+    // Clear draft ONLY on cancel
+    localStorage.removeItem('quickLogDraft');
 }
 
 window.addEventListener('DOMContentLoaded', function() {
@@ -1039,6 +1379,8 @@ window.addEventListener('DOMContentLoaded', function() {
         });
         localStorage.setItem('workoutTrackerData', JSON.stringify(workoutData));
         alert('Quick log saved!');
+        // Clear draft ONLY on save
+        localStorage.removeItem('quickLogDraft');
         closeQuickLogModal();
         updateSuggestions();
         updateStrengthVolumeChart();
@@ -1061,46 +1403,66 @@ window.editPlan = function(day) {
     console.log('exercisesToEdit:', exercisesToEdit);
     if (Array.isArray(exercisesToEdit) && exercisesToEdit.length > 0) {
         exercisesToEdit.forEach((ex, idx) => {
-            console.log('Populating exercise:', ex);
-            const div = document.createElement('div');
-            div.className = 'exercise-block';
-            div.style.marginBottom = '18px';
-            div.innerHTML = `
-                <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-                    <label style="font-weight:700;">Exercise ${idx + 1}</label>
-                    <button type="button" class="btn btn-secondary" style="padding:2px 10px;font-size:0.9em;min-width:0;" onclick="this.parentElement.parentElement.remove();updatePlanSummary();">Remove</button>
-                </div>
-                <div class="input-group" style="margin-bottom:8px;">
-                    <label>Exercise</label>
-                    <input type="text" name="exercise-${idx}" required placeholder="Select or type exercise..." style="background:#f3f4f6;cursor:pointer;" autocomplete="off" value="${ex.name}">
-                    <button type="button" class="btn btn-secondary" style="margin-top:4px;" id="choose-exercise-btn-${idx}">Choose</button>
-                </div>
-                <div class="input-group" style="margin-bottom:8px;">
-                    <label>Sets</label>
-                    <input type="number" name="sets-${idx}" min="1" max="10" value="${ex.sets}" required>
-                </div>
-                <div class="input-group" style="margin-bottom:8px;">
-                    <label>Reps</label>
-                    <input type="number" name="reps-${idx}" min="1" max="50" value="${ex.reps}" required>
-                </div>
-                <div class="input-group" style="margin-bottom:8px;">
-                    <label>Weight (optional)</label>
-                    <input type="number" name="weight-${idx}" min="0" step="0.5" value="${ex.weight ? ex.weight : ''}">
-                </div>
-            `;
-            setTimeout(() => {
-                const input = div.querySelector(`[name='exercise-${idx}']`);
-                const btn = div.querySelector(`#choose-exercise-btn-${idx}`);
-                function openPicker() {
-                    openExercisePickerModal(function(name){
-                        input.value = name;
-                        updatePlanSummary();
-                    });
-                }
-                input.onclick = openPicker;
-                btn.onclick = openPicker;
-            }, 0);
-            container.appendChild(div);
+                        console.log('Populating exercise:', ex);
+                        const div = document.createElement('div');
+                        div.className = 'exercise-block';
+                        div.style.marginBottom = '12px';
+                        div.innerHTML = `
+                            <details style="border:1px solid #e2e8f0;border-radius:8px;padding:0 0 8px 0;background:#fafbfc;">
+                                <summary style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;user-select:none;">
+                                    <span style="font-weight:700;" id="exercise-label-${idx}">${ex.name ? ex.name : `Exercise ${idx + 1}`}</span>
+                                    <button type="button" class="btn btn-secondary" title="Remove Exercise" style="padding:2px 10px;font-size:1em;min-width:0;display:flex;align-items:center;justify-content:center;margin-left:auto;" onclick="this.parentElement.parentElement.remove();updatePlanSummary();event.stopPropagation();">
+                                        <span style="display:inline-block;width:1.3em;height:1.3em;">
+                                            <!-- Trash/Delete SVG icon -->
+                                            <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%" aria-hidden="true">
+                                                <path d="M3 6h18v2H3V6zm2 3h14v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9zm3 2v8h2v-8H8zm4 0v8h2v-8h-2z"/>
+                                            </svg>
+                                        </span>
+                                    </button>
+                                </summary>
+                                <div class="input-group" style="margin-bottom:8px;margin-top:8px;">
+                                    <label>Exercise</label>
+                                    <input type="text" name="exercise-${idx}" required placeholder="Select or type exercise..." style="background:#f3f4f6;cursor:pointer;" autocomplete="off" value="${ex.name}">
+                                    <button type="button" class="btn btn-secondary" style="margin-top:4px;" id="choose-exercise-btn-${idx}">Choose</button>
+                                </div>
+                                <div class="input-group" style="margin-bottom:8px;">
+                                    <label>Sets</label>
+                                    <input type="number" name="sets-${idx}" min="1" max="10" value="${ex.sets}" required>
+                                </div>
+                                <div class="input-group" style="margin-bottom:8px;">
+                                    <label>Reps</label>
+                                    <input type="number" name="reps-${idx}" min="1" max="50" value="${ex.reps}" required>
+                                </div>
+                                <div class="input-group" style="margin-bottom:8px;">
+                                    <label>Weight (optional)</label>
+                                    <input type="number" name="weight-${idx}" min="0" step="0.5" value="${ex.weight ? ex.weight : ''}">
+                                </div>
+                            </details>
+                        `;
+                        setTimeout(() => {
+                                const input = div.querySelector(`[name='exercise-${idx}']`);
+                                const btn = div.querySelector(`#choose-exercise-btn-${idx}`);
+                                const label = div.querySelector(`#exercise-label-${idx}`);
+                                const details = div.querySelector('details');
+                                function updateLabel() {
+                                        label.textContent = input.value ? input.value : `Exercise ${idx + 1}`;
+                                }
+                                function openPicker() {
+                                        openExercisePickerModal(function(name){
+                                                input.value = name;
+                                                updateLabel();
+                                                updatePlanSummary();
+                                        });
+                                }
+                                input.addEventListener('input', updateLabel);
+                                input.onclick = openPicker;
+                                btn.onclick = openPicker;
+                                label.onclick = function() {
+                                        if (details) details.open = true;
+                                };
+                                updateLabel();
+                        }, 0);
+                        container.appendChild(div);
         });
     } else {
         // If no exercises, add a blank field
@@ -1126,43 +1488,61 @@ function closeCreatePlanModal() {
 // Helper to create exercise field block
 function createExerciseField(idx) {
     const div = document.createElement('div');
-    div.className = 'exercise-block';
-    div.style.marginBottom = '18px';
-    div.innerHTML = `
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-            <label style="font-weight:700;">Exercise ${idx + 1}</label>
-            <button type="button" class="btn btn-secondary" style="padding:2px 10px;font-size:0.9em;min-width:0;" onclick="this.parentElement.parentElement.remove();updatePlanSummary();">Remove</button>
-        </div>
-        <div class="input-group" style="margin-bottom:8px;">
-            <label>Exercise</label>
-            <input type="text" name="exercise-${idx}" required placeholder="Select or type exercise..." style="background:#f3f4f6;cursor:pointer;" autocomplete="off">
-            <button type="button" class="btn btn-secondary" style="margin-top:4px;" id="choose-exercise-btn-${idx}">Choose</button>
-        </div>
-        <div class="input-group" style="margin-bottom:8px;">
-            <label>Sets</label>
-            <input type="number" name="sets-${idx}" min="1" max="10" value="3" required>
-        </div>
-        <div class="input-group" style="margin-bottom:8px;">
-            <label>Reps</label>
-            <input type="number" name="reps-${idx}" min="1" max="50" value="10" required>
-        </div>
-        <div class="input-group" style="margin-bottom:8px;">
-            <label>Weight (optional)</label>
-            <input type="number" name="weight-${idx}" min="0" step="0.5">
-        </div>
-    `;
+        div.className = 'exercise-block';
+        div.style.marginBottom = '12px';
+        div.innerHTML = `
+            <details open style="border:1px solid #e2e8f0;border-radius:8px;padding:0 0 8px 0;background:#fafbfc;">
+                <summary style="display:flex;align-items:center;gap:8px;padding:8px 12px;cursor:pointer;user-select:none;">
+                    <span style="font-weight:700;" id="exercise-label-${idx}">Exercise ${idx + 1}</span>
+                    <button type="button" class="btn btn-secondary" title="Remove Exercise" style="padding:2px 10px;font-size:1em;min-width:0;display:flex;align-items:center;justify-content:center;margin-left:auto;" onclick="this.parentElement.parentElement.remove();updatePlanSummary();event.stopPropagation();">
+                        <span style="display:inline-block;width:1.3em;height:1.3em;">
+                            <!-- Trash/Delete SVG icon -->
+                            <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%" aria-hidden="true">
+                                <path d="M3 6h18v2H3V6zm2 3h14v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9zm3 2v8h2v-8H8zm4 0v8h2v-8h-2z"/>
+                            </svg>
+                        </span>
+                    </button>
+                </summary>
+                <div class="input-group" style="margin-bottom:8px;margin-top:8px;">
+                    <label>Exercise</label>
+                    <input type="text" name="exercise-${idx}" required placeholder="Select or type exercise..." style="background:#f3f4f6;cursor:pointer;" autocomplete="off">
+                    <button type="button" class="btn btn-secondary" style="margin-top:4px;" id="choose-exercise-btn-${idx}">Choose</button>
+                </div>
+                <div class="input-group" style="margin-bottom:8px;">
+                    <label>Sets</label>
+                    <input type="number" name="sets-${idx}" min="1" max="10" value="3" required>
+                </div>
+                <div class="input-group" style="margin-bottom:8px;">
+                    <label>Reps</label>
+                    <input type="number" name="reps-${idx}" min="1" max="50" value="10" required>
+                </div>
+                <div class="input-group" style="margin-bottom:8px;">
+                    <label>Weight (optional)</label>
+                    <input type="number" name="weight-${idx}" min="0" step="0.5">
+                </div>
+            </details>
+        `;
     // Attach picker logic after element is added to DOM
     setTimeout(() => {
         const input = div.querySelector(`[name='exercise-${idx}']`);
         const btn = div.querySelector(`#choose-exercise-btn-${idx}`);
+        const label = div.querySelector(`#exercise-label-${idx}`);
+        const details = div.querySelector('details');
+        function updateLabel() {
+            label.textContent = input.value ? input.value : `Exercise ${idx + 1}`;
+        }
         function openPicker() {
             openExercisePickerModal(function(name){
                 input.value = name;
+                updateLabel();
                 updatePlanSummary();
             });
         }
+        input.addEventListener('input', updateLabel);
         input.onclick = openPicker;
         btn.onclick = openPicker;
+        label.onclick = function() { if (details) details.open = true; };
+        updateLabel();
     }, 0);
     return div;
 }
@@ -1171,7 +1551,19 @@ function createExerciseField(idx) {
 function addExerciseField() {
     const container = document.getElementById('exercise-fields');
     const idx = container.children.length;
-    container.appendChild(createExerciseField(idx));
+    // Collapse all previous exercise blocks (details)
+    for (let i = 0; i < idx; i++) {
+        const block = container.children[i];
+        if (block) {
+            const details = block.querySelector('details');
+            if (details) details.open = false;
+        }
+    }
+    // Add and expand the new exercise block
+    const newBlock = createExerciseField(idx);
+    const details = newBlock.querySelector('details');
+    if (details) details.open = true;
+    container.appendChild(newBlock);
     updatePlanSummary();
 }
 
@@ -1182,7 +1574,8 @@ function updatePlanSummary() {
     let html = '<strong>Planned Exercises:</strong><ul style="margin:8px 0 0 0;padding-left:18px;">';
     for (let i = 0; i < container.children.length; i++) {
         const block = container.children[i];
-        const ex = block.querySelector(`select[name='exercise-${i}']`);
+        // Get exercise name from input[type=text]
+        const ex = block.querySelector(`input[name='exercise-${i}']`);
         const sets = block.querySelector(`input[name='sets-${i}']`);
         const reps = block.querySelector(`input[name='reps-${i}']`);
         const weight = block.querySelector(`input[name='weight-${i}']`);
@@ -1233,7 +1626,16 @@ function renderUserWorkoutPlan() {
     let planHTML = '';
     const hasPlan = workoutPlan && Object.keys(workoutPlan).length > 0;
     if (!hasPlan) {
-        planHTML += `<p>No workout plan found. Click 📝 to create one!</p>`;
+                planHTML += `<p>No workout plan found. Click <span style="display:inline-block;vertical-align:middle;width:1.5em;height:1.5em;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%" aria-hidden="true">
+                        <rect x="3" y="4" width="18" height="18" rx="4"/>
+                        <line x1="16" y1="2" x2="16" y2="6"/>
+                        <line x1="8" y1="2" x2="8" y2="6"/>
+                        <line x1="3" y1="10" x2="21" y2="10"/>
+                        <line x1="12" y1="14" x2="12" y2="18"/>
+                        <line x1="10" y1="16" x2="14" y2="16"/>
+                    </svg>
+                </span> to create one!</p>`;
     }
     for (const day in workoutPlan) {
         const idPrefix = slugifyId(day);
@@ -1242,8 +1644,22 @@ function renderUserWorkoutPlan() {
                 <summary style="display:flex;align-items:center;gap:12px;">
                     <span>${day}</span>
                     <div style="display:flex;gap:8px;align-items:center;">
-                        <button class="btn btn-secondary edit-plan-btn" type="button" data-day="${day}" style="font-size:0.9em;padding:4px 12px;">Edit Plan</button>
-                        <button class="btn btn-secondary delete-plan-btn" type="button" data-day="${day}" style="font-size:0.9em;padding:4px 12px;background:#ef4444;color:#fff;border-color:#ef4444;">Delete Plan</button>
+                                                <button class="btn btn-secondary edit-plan-btn" type="button" data-day="${day}" title="Edit Plan" style="font-size:1em;padding:4px 10px;display:flex;align-items:center;justify-content:center;">
+                                                    <span style="display:inline-block;width:1.4em;height:1.4em;">
+                                                        <!-- Pencil/Edit SVG icon -->
+                                                        <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%" aria-hidden="true">
+                                                            <path d="M3 17.25V21h3.75l11.06-11.06-3.75-3.75L3 17.25zM20.71 7.04a1.003 1.003 0 0 0 0-1.42l-2.34-2.34a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.82z"/>
+                                                        </svg>
+                                                    </span>
+                                                </button>
+                                                <button class="btn btn-secondary delete-plan-btn" type="button" data-day="${day}" title="Delete Plan" style="font-size:1em;padding:4px 10px;background:#ef4444;color:#fff;border-color:#ef4444;display:flex;align-items:center;justify-content:center;">
+                                                    <span style="display:inline-block;width:1.4em;height:1.4em;">
+                                                        <!-- Trash/Delete SVG icon -->
+                                                        <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%" aria-hidden="true">
+                                                            <path d="M3 6h18v2H3V6zm2 3h14v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V9zm3 2v8h2v-8H8zm4 0v8h2v-8h-2z"/>
+                                                        </svg>
+                                                    </span>
+                                                </button>
                     </div>
                 </summary>
                 <div class="workout-content" id="workout-content-${idPrefix}">
@@ -1439,7 +1855,15 @@ function renderRecommendedPlans() {
                 <ul style="margin:8px 0 12px 16px;">
                     ${shown.map(ex => `<li>${ex.name}: ${ex.sets} x ${ex.reps}</li>`).join('')}
                 </ul>
-                <button class="btn btn-secondary add-recommended-btn" type="button" data-day="${day}">Add This Day</button>
+                                <button class="btn btn-secondary add-recommended-btn" type="button" data-day="${day}" title="Add This Day" style="padding:6px 10px;display:flex;align-items:center;justify-content:center;">
+                                    <span style="display:inline-block;width:1.5em;height:1.5em;">
+                                        <!-- Plus/Add SVG icon -->
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%" aria-hidden="true">
+                                            <rect x="11" y="4" width="2" height="16" rx="1"/>
+                                            <rect x="4" y="11" width="16" height="2" rx="1"/>
+                                        </svg>
+                                    </span>
+                                </button>
             </div>
         `;
     });
@@ -1608,10 +2032,10 @@ function updateSuggestions() {
             if (validWeights.length > 0) {
                 const maxWeight = Math.max(...validWeights);
                 const suggestedWeight = maxWeight + 2.5;
-                suggestionEl.textContent = `Suggestion: Last max was ${maxWeight}. Try for ${suggestedWeight}.`;
+                if (suggestionEl) suggestionEl.textContent = `Suggestion: Last max was ${maxWeight}. Try for ${suggestedWeight}.`;
             }
-        } else if (suggestionEl) {
-            suggestionEl.textContent = 'Log a workout to get suggestions.';
+        } else {
+            if (suggestionEl) suggestionEl.textContent = 'Log a workout to get suggestions.';
         }
     });
 }
@@ -1749,14 +2173,35 @@ function updateBodyCompChart() {
                     borderColor: 'rgba(20, 184, 166, 1)',
                     yAxisID: 'y1',
                     hidden: true // Hidden by default to keep it clean
+                },
+                {
+                    label: 'Chest (cm)',
+                    data: bodyData.map(d => d.chest),
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    yAxisID: 'y1',
+                    hidden: true // Hidden by default
+                },
+                {
+                    label: 'Hips (cm)',
+                    data: bodyData.map(d => d.hips),
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    yAxisID: 'y1',
+                    hidden: true // Hidden by default
                 }
             ]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { labels: { font: { size: 12 } } },
+                tooltip: { enabled: true }
+            },
+            layout: { padding: { left: 0, right: 0, top: 8, bottom: 8 } },
             scales: {
-                y: { position: 'left', title: { display: true, text: 'Weight (kg)' } },
-                y1: { position: 'right', title: { display: true, text: 'Measurement (cm)' }, grid: { drawOnChartArea: false } }
+                x: { ticks: { font: { size: 11 }, maxRotation: 45, minRotation: 0 } },
+                y: { position: 'left', title: { display: true, text: 'Weight (kg)' }, ticks: { font: { size: 12 } } },
+                y1: { position: 'right', title: { display: true, text: 'Measurement (cm)' }, grid: { drawOnChartArea: false }, ticks: { font: { size: 12 } } }
             }
         }
     });
@@ -1866,8 +2311,13 @@ window.showTab = showTab;
 function renderPastWorkoutsTable() {
     const tableDiv = document.getElementById('past-workouts-table');
     if (!tableDiv) return;
-    let html = '<table style="width:100%;border-collapse:collapse;">';
-    html += '<thead><tr style="background:#f3f4f6;"><th style="padding:8px;border:1px solid #e2e8f0;">Date</th><th style="padding:8px;border:1px solid #e2e8f0;">Exercise</th><th style="padding:8px;border:1px solid #e2e8f0;">Type</th><th style="padding:8px;border:1px solid #e2e8f0;">Values</th></tr></thead><tbody>';
+    let html = `<table class="mobile-pastworkouts-table" style="width:100%;border-collapse:collapse;font-size:0.95em;min-width:520px;">`;
+    html += `<thead><tr style="background:#f3f4f6;">
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Date</th>
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:100px;">Exercise</th>
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:60px;">Type</th>
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:120px;">Values</th>
+    </tr></thead><tbody>`;
     const exercises = getAllExercises();
     // Gather all workout entries
     let rows = [];
@@ -1886,11 +2336,11 @@ function renderPastWorkoutsTable() {
     // Sort by date descending
     rows.sort((a,b) => new Date(b.date) - new Date(a.date));
     rows.forEach(row => {
-        html += `<tr>
-            <td style="padding:8px;border:1px solid #e2e8f0;">${row.date}</td>
-            <td style="padding:8px;border:1px solid #e2e8f0;">${row.exercise}</td>
-            <td style="padding:8px;border:1px solid #e2e8f0;">${row.type}</td>
-            <td style="padding:8px;border:1px solid #e2e8f0;">${row.values.map(v => v ? v : '-').join(', ')}</td>
+        html += `<tr style="background:#fff;">
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:keep-all;white-space:nowrap;font-size:0.98em;">${row.date}</td>
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:120px;overflow:hidden;text-overflow:ellipsis;">${row.exercise}</td>
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:keep-all;white-space:nowrap;">${row.type}</td>
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:160px;overflow:hidden;text-overflow:ellipsis;">${row.values.map(v => v ? v : '-').join(', ')}</td>
         </tr>`;
     });
     html += '</tbody></table>';
@@ -2204,18 +2654,20 @@ function renderWeeklyStrengthVolumeTable() {
         });
     }
     // Build table
-    let html = '<table style="width:100%;border-collapse:collapse;">';
-    html += '<thead><tr style="background:#f3f4f6;"><th style="padding:8px;border:1px solid #e2e8f0;">Week</th>';
+    let html = `<table class="mobile-weeklystrength-table" style="width:100%;border-collapse:collapse;font-size:0.95em;min-width:520px;">`;
+    html += `<thead><tr style="background:#f3f4f6;">
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Week</th>`;
     const muscleGroups = ['Legs','Shoulders','Chest','Triceps','Back','Biceps','Core','Finisher'];
     muscleGroups.forEach(mg => {
-        html += `<th style="padding:8px;border:1px solid #e2e8f0;">${mg}</th>`;
+        html += `<th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:60px;">${mg}</th>`;
     });
     html += '</tr></thead><tbody>';
     const sortedWeeks = Object.keys(weekVolume).sort();
     sortedWeeks.forEach(week => {
-        html += `<tr><td style="padding:8px;border:1px solid #e2e8f0;">${week}</td>`;
+        html += `<tr style="background:#fff;">
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:keep-all;white-space:nowrap;font-size:0.98em;">${week}</td>`;
         muscleGroups.forEach(mg => {
-            html += `<td style="padding:8px;border:1px solid #e2e8f0;">${weekVolume[week][mg] ? weekVolume[week][mg] : '-'}</td>`;
+            html += `<td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${weekVolume[week][mg] ? weekVolume[week][mg] : '-'}</td>`;
         });
         html += '</tr>';
     });
@@ -2234,74 +2686,29 @@ function getWeek(dateStr) {
 
 function renderMeasurementsHistoryTableAndChart() {
     const tableDiv = document.getElementById('measurements-history-table');
-    const chartCanvas = document.getElementById('measurementsHistoryChart');
-    if (!tableDiv || !chartCanvas) return;
-    // Only keep the latest entry per day
+    if (!tableDiv) return;
     const latestPerDay = {};
-    bodyData.forEach(row => {
-        latestPerDay[row.date] = row; // Overwrite, so last entry for the day remains
-    });
-    // Sort by date ascending
-    const sortedRows = Object.values(latestPerDay).sort((a, b) => new Date(a.date) - new Date(b.date));
-    // Table
-    let html = '<table style="width:100%;border-collapse:collapse;">';
-    html += '<thead><tr style="background:#f3f4f6;"><th style="padding:8px;border:1px solid #e2e8f0;">Date</th><th style="padding:8px;border:1px solid #e2e8f0;">Weight (kg)</th><th style="padding:8px;border:1px solid #e2e8f0;">Chest (cm)</th><th style="padding:8px;border:1px solid #e2e8f0;">Waist (cm)</th><th style="padding:8px;border:1px solid #e2e8f0;">Hips (cm)</th></tr></thead><tbody>';
+    bodyData.forEach(row => { latestPerDay[row.date] = row; });
+    const sortedRows = Object.values(latestPerDay).sort((a,b) => new Date(b.date) - new Date(a.date));
+    let html = `<table class="mobile-measurements-table" style="width:100%;border-collapse:collapse;font-size:0.95em;min-width:420px;">`;
+    html += `<thead><tr style="background:#f3f4f6;">
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Date</th>
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Weight (kg)</th>
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Chest (cm)</th>
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Waist (cm)</th>
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Hips (cm)</th>
+    </tr></thead><tbody>`;
     sortedRows.forEach(row => {
-        html += `<tr>
-            <td style="padding:8px;border:1px solid #e2e8f0;">${row.date}</td>
-            <td style="padding:8px;border:1px solid #e2e8f0;">${row.weight ?? '-'}</td>
-            <td style="padding:8px;border:1px solid #e2e8f0;">${row.chest ?? '-'}</td>
-            <td style="padding:8px;border:1px solid #e2e8f0;">${row.waist ?? '-'}</td>
-            <td style="padding:8px;border:1px solid #e2e8f0;">${row.hips ?? '-'}</td>
+        html += `<tr style="background:#fff;">
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:keep-all;white-space:nowrap;font-size:0.98em;">${row.date}</td>
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.weight ?? '-'}</td>
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.chest ?? '-'}</td>
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.waist ?? '-'}</td>
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.hips ?? '-'}</td>
         </tr>`;
     });
     html += '</tbody></table>';
     tableDiv.innerHTML = html;
-    // Chart
-    if (window.measurementsHistoryChartObj) window.measurementsHistoryChartObj.destroy();
-    if (sortedRows.length === 0) return;
-    const labels = sortedRows.map(d => new Date(d.date).toLocaleDateString());
-    window.measurementsHistoryChartObj = new Chart(chartCanvas.getContext('2d'), {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Body Weight (kg)',
-                    data: sortedRows.map(d => d.weight),
-                    borderColor: 'rgba(124, 58, 237, 1)',
-                    yAxisID: 'y',
-                },
-                {
-                    label: 'Chest (cm)',
-                    data: sortedRows.map(d => d.chest),
-                    borderColor: 'rgba(239, 68, 68, 1)',
-                    yAxisID: 'y1',
-                },
-                {
-                    label: 'Waist (cm)',
-                    data: sortedRows.map(d => d.waist),
-                    borderColor: 'rgba(20, 184, 166, 1)',
-                    yAxisID: 'y2',
-                },
-                {
-                    label: 'Hips (cm)',
-                    data: sortedRows.map(d => d.hips),
-                    borderColor: 'rgba(163, 230, 53, 1)',
-                    yAxisID: 'y3',
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: { position: 'left', title: { display: true, text: 'Weight (kg)' } },
-                y1: { position: 'right', title: { display: true, text: 'Chest (cm)' }, grid: { drawOnChartArea: false } },
-                y2: { position: 'right', title: { display: true, text: 'Waist (cm)' }, grid: { drawOnChartArea: false } },
-                y3: { position: 'right', title: { display: true, text: 'Hips (cm)' }, grid: { drawOnChartArea: false } }
-            }
-        }
-    });
 }
 </script>
 <script>
