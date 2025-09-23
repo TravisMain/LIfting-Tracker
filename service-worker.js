@@ -7,21 +7,29 @@ const ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(
-      keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))
-    ))
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)));
+      await self.clients.claim();
+      const clients = await self.clients.matchAll({ includeUncontrolled: true, type: 'window' });
+      for (const client of clients) {
+        try { client.postMessage({ type: 'SW_UPDATED' }); } catch {}
+      }
+    })()
   );
 });
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+  const EXTERNAL_EXERCISE_HOST = 'raw.githubusercontent.com';
+  const EXTERNAL_EXERCISE_PATH_CONTAINS = '/exercemus/exercises/minified/minified-exercises.json';
 
   // Handle Web Share Target POST
   if (request.method === 'POST' && url.pathname.endsWith('/Lifting-Tracker/share-target')) {
@@ -47,11 +55,33 @@ self.addEventListener('fetch', (event) => {
   }
 
   if (request.method !== 'GET') return;
+
+  // Special handling for the external exercise dataset: network-first, fallback to cache
+  if (url.host === EXTERNAL_EXERCISE_HOST && url.pathname.indexOf(EXTERNAL_EXERCISE_PATH_CONTAINS) !== -1) {
+    event.respondWith((async () => {
+      try {
+        const netResp = await fetch(request);
+        if (netResp && netResp.ok) {
+          const cache = await caches.open(CACHE_NAME);
+          cache.put(request, netResp.clone()).catch(() => {});
+          return netResp;
+        }
+      } catch (e) {
+        // network failed, fall through to cache
+      }
+      const cached = await caches.match(request);
+      if (cached) return cached;
+      // If nothing, return a 503 Response
+      return new Response(JSON.stringify({ error: 'Offline and no cached exercise data' }), { status: 503, headers: { 'Content-Type': 'application/json' } });
+    })());
+    return;
+  }
+
+  // Default: cache-first with network fallback and cache population for same-origin
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
       return fetch(request).then((response) => {
-        // Only cache same-origin GETs
         try {
           const reqUrl = new URL(request.url);
           if (reqUrl.origin === location.origin) {

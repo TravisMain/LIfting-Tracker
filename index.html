@@ -90,7 +90,7 @@
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0,0,0,0.25);
-            z-index: 2000;
+            z-index: 2100;
             align-items: flex-end;
             justify-content: center;
         }
@@ -127,13 +127,11 @@
             padding: 16px;
         }
         header {
-            position: sticky;
-            top: 0;
-            z-index: 1100;
-            padding: 8px 0 0 0;
+            position: static;
+            padding: 12px 16px;
             background: var(--surface-1);
             border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 2px 8px rgba(44,62,80,0.05);
+            box-shadow: none;
         }
         header h1 {
             font-family: 'Montserrat', Arial, sans-serif;
@@ -265,9 +263,13 @@
             height: 24px;
             width: 24px;
         }
+        /* Increase tap target for bottom nav on phones */
+        .tab-bar-btn { min-height: 56px; }
         @media (min-width: 768px) {
             .tab-bar { max-width: 900px; left: 50%; transform: translateX(-50%); }
         }
+
+        /* (Removed) Bottom Action Bar styles */
         .phase-content.active { display: block; }
 
         .workout-day {
@@ -372,6 +374,21 @@
         /* Mobile: allow tables to scroll horizontally */
         .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .table-scroll table { min-width: 640px; }
+        /* Mobile card styles for small screens */
+        .mobile-pw-card, .mobile-measure-card {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .mobile-pw-card .pw-top { display:flex;justify-content:space-between;align-items:center;gap:8px; }
+        .mobile-pw-card .pw-meta { display:flex;gap:8px;flex-wrap:wrap;color:var(--text-muted);font-size:0.95em }
+        .mobile-measure-card .measure-grid { display:flex;gap:8px;flex-wrap:wrap; }
         @media (max-width: 767px) {
             .table-scroll table { font-size: 0.9em; }
             .table-scroll th, .table-scroll td { padding: 4px 8px; }
@@ -381,6 +398,7 @@
         .btn, .tab-bar-btn, .phase-btn { min-height: 44px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         input, select { min-height: 40px; }
     /* Avoid content sitting under fixed tab bar */
+    /* Ensure content does not sit behind action + tab bars */
     #main-pastworkouts { padding-bottom: 92px; }
     #main-dashboard { padding-bottom: 92px; }
         body { overscroll-behavior-y: contain; }
@@ -388,6 +406,13 @@
     </style>
 </head>
 <body>
+
+    <!-- Update Snackbar (non-blocking) -->
+    <div id="update-snackbar" style="display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:80px;background:#111;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:2200;align-items:center;gap:8px;">
+        <span id="update-msg">A new version is available.</span>
+        <button id="update-reload" class="btn" style="margin-left:10px;">Reload</button>
+        <button id="update-dismiss" class="btn btn-secondary" style="margin-left:6px;">Dismiss</button>
+    </div>
 
     <!-- What's New Modal -->
     <div id="whats-new-modal">
@@ -402,7 +427,7 @@
         </div>
     </div>
     <!-- Exercise Picker Modal (Bottom Sheet) -->
-    <div id="exercise-picker-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1002;align-items:flex-end;justify-content:center;">
+    <div id="exercise-picker-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2002;align-items:flex-end;justify-content:center;">
         <div style="background:#fff;padding:20px 16px calc(16px + env(safe-area-inset-bottom, 0px));border-radius:14px 14px 0 0;max-width:640px;width:100vw;margin:0;box-shadow:0 -6px 24px rgba(44,62,80,0.16);max-height:90vh;overflow-y:auto;">
             <h2 style="color:var(--primary);margin-top:0;margin-bottom:12px;">Select Exercise</h2>
             <div style="margin-bottom:12px;">
@@ -420,7 +445,7 @@
         </div>
     </div>
     <!-- Create Workout Plan Modal (Bottom Sheet) -->
-    <div id="create-plan-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1001;align-items:flex-end;justify-content:center;">
+    <div id="create-plan-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2001;align-items:flex-end;justify-content:center;">
         <div style="background:#fff;padding:20px 16px calc(16px + env(safe-area-inset-bottom, 0px));border-radius:14px 14px 0 0;max-width:640px;width:100vw;margin:0;box-shadow:0 -6px 24px rgba(44,62,80,0.16);max-height:90vh;overflow-y:auto;">
             <h2 style="color:var(--primary);margin-top:0;margin-bottom:18px;">Create Workout Plan</h2>
             <form id="create-plan-form">
@@ -447,20 +472,8 @@
             </form>
         </div>
     </div>
-    <button id="create-plan-btn" style="position:fixed;bottom:calc(156px + env(safe-area-inset-bottom, 0px));right:20px;z-index:1002;background:var(--primary);color:#fff;border:none;border-radius:50%;width:60px;height:60px;box-shadow:0 4px 16px rgba(44,62,80,0.12);font-size:1.5em;display:flex;align-items:center;justify-content:center;cursor:pointer;" title="Create Workout Plan">
-            <span style="display:inline-block;width:2em;height:2em;">
-                <!-- Calendar Plus SVG icon -->
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%" aria-hidden="true">
-                    <rect x="3" y="4" width="18" height="18" rx="4"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                    <line x1="12" y1="14" x2="12" y2="18"/>
-                    <line x1="10" y1="16" x2="14" y2="16"/>
-                </svg>
-            </span>
-        </button>
-    <div id="user-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1000;align-items:center;justify-content:center;">
+    
+    <div id="user-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2000;align-items:center;justify-content:center;">
         <div style="background:#fff;padding:32px 24px;border-radius:12px;max-width:350px;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);">
             <h2 style="color:var(--primary);margin-top:0;">Welcome!</h2>
             <p style="color:var(--text-muted);margin-bottom:16px;">Let's get started on your fitness journey! Please tell us a bit about yourself so we can tailor your program to your goals and preferences.</p>
@@ -495,7 +508,7 @@
 
     <!-- Quick Log Modal (Bottom Sheet) -->
 
-    <div id="quick-log-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1001;align-items:flex-end;justify-content:center;">
+    <div id="quick-log-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2001;align-items:flex-end;justify-content:center;">
         <div style="background:#fff;padding:20px 16px calc(16px + env(safe-area-inset-bottom, 0px));border-radius:14px 14px 0 0;max-width:640px;width:100vw;margin:0;box-shadow:0 -6px 24px rgba(44,62,80,0.16);display:flex;flex-direction:column;max-height:90vh;overflow-y:auto;">
             <h2 style="color:var(--primary);margin-top:0;">Quick Log</h2>
             <div class="modal-scroll">
@@ -522,18 +535,10 @@
         </div>
     </div>
 
-    <!-- Floating Quick Log Button -->
-    <button id="quick-log-btn" style="position:fixed;bottom:calc(96px + env(safe-area-inset-bottom, 0px));right:92px;z-index:1002;background:var(--accent);color:var(--primary);border:none;border-radius:50%;width:60px;height:60px;box-shadow:0 4px 16px rgba(44,62,80,0.12);font-size:2em;display:flex;align-items:center;justify-content:center;cursor:pointer;">
-            <span style="display:inline-block;width:2em;height:2em;">
-                <!-- Lightning Bolt SVG icon -->
-                <svg viewBox="0 0 24 24" fill="currentColor" width="100%" height="100%" aria-hidden="true">
-                    <path d="M13 2L3 14h7v8l8-12h-7V2z"/>
-                </svg>
-            </span>
-    </button>
+    <!-- Floating Quick Log Button removed in favor of action bar -->
     <div class="container">
         <header>
-            <div style="display:flex;align-items:center;gap:10px;">
+            <div style="display:flex;align-items:center;gap:12px;">
                 <img src="icons/icon-192.png" alt="App Icon" style="width:36px;height:36px;border-radius:8px;object-fit:cover;flex:0 0 auto;" />
                 <h1 style="margin:0;">Fitness Dashboard</h1>
             </div>
@@ -549,6 +554,23 @@
                     <line x1="17" y1="12" x2="19" y2="12"/>
                 </svg>
                 Workouts
+            </button>
+            <button class="tab-bar-btn" id="tab-quick" aria-label="Quick Log">
+                <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 2L3 14h7v8l8-12h-7V2z"/>
+                </svg>
+                Quick
+            </button>
+            <button class="tab-bar-btn" id="tab-create" aria-label="Create Plan">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3" y="4" width="18" height="18" rx="4"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <line x1="12" y1="14" x2="12" y2="18"/>
+                    <line x1="10" y1="16" x2="14" y2="16"/>
+                </svg>
+                Create
             </button>
             <button class="tab-bar-btn" id="tab-stats" aria-label="Stats">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
@@ -599,7 +621,7 @@
             </section>
         </div>
         <!-- QR Share Modal -->
-        <div id="qr-share-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1003;align-items:center;justify-content:center;">
+    <div id="qr-share-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2003;align-items:center;justify-content:center;">
             <div style="background:#fff;padding:24px;border-radius:12px;max-width:420px;width:90vw;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);text-align:center;">
                 <h2 style="margin-top:0;color:var(--primary);">Scan This QR</h2>
                 <p style="color:var(--text-muted);margin:0 0 12px 0;">Shares your current workout plan offline.</p>
@@ -611,7 +633,7 @@
             </div>
         </div>
         <!-- QR Scan Modal -->
-        <div id="qr-scan-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:1003;align-items:center;justify-content:center;">
+    <div id="qr-scan-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2003;align-items:center;justify-content:center;">
             <div style="background:#fff;padding:24px;border-radius:12px;max-width:480px;width:92vw;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);">
                 <h2 style="margin-top:0;color:var(--primary);">Scan Plan QR</h2>
                 <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
@@ -734,6 +756,12 @@ window.addEventListener('DOMContentLoaded', function() {
             }
         } catch (e) { console.warn('Post-load refresh error', e); }
     });
+    // Show loading indicator briefly if dataset is being fetched
+    const picker = document.getElementById('exercise-picker-modal');
+    if (picker) {
+        const list = document.getElementById('exercise-list');
+        if (list) list.innerHTML = '<p style="color:var(--text-muted);">Loading exercise data…</p>';
+    }
     if (localStorage.getItem('whatsNewDismissed') !== WHATS_NEW_VERSION) {
         setTimeout(showWhatsNewModal, 600);
     }
@@ -1071,10 +1099,45 @@ function closeExercisePickerModal() {
     exercisePickerCallback = null;
 }
 
-let EXERCISE_RENDER_LIMIT = 50;
+// Virtualized exercise list parameters
+let EXERCISE_RENDER_LIMIT = 50; // kept for compatibility
+const VIRT_ITEM_HEIGHT = 56; // px per item
+const VIRT_BUFFER = 6; // items above/below viewport to render
+let CURRENT_FILTERED_EXERCISES = [];
+
 function resetExerciseListLimit() { EXERCISE_RENDER_LIMIT = 50; }
+
+function setupVirtualExerciseList() {
+    const listDiv = document.getElementById('exercise-list');
+    if (!listDiv || listDiv._virtInitialized) return;
+    listDiv.style.position = 'relative';
+    listDiv.style.willChange = 'transform';
+
+    // Handle clicks on the Select buttons using delegation (avoids inline onclick escaping)
+    listDiv.addEventListener('click', (ev) => {
+        const btn = ev.target.closest && ev.target.closest('[data-action="select-exercise"]');
+        if (btn) {
+            const name = btn.dataset && btn.dataset.name;
+            if (name) selectExerciseFromPicker(name);
+        }
+    });
+
+    // Re-render visible window on scroll (throttled via requestAnimationFrame)
+    let raf = null;
+    listDiv.addEventListener('scroll', () => {
+        if (raf) cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+            // keep current filter text
+            const txt = document.getElementById('exercise-search')?.value || '';
+            renderExerciseList(txt);
+        });
+    });
+    listDiv._virtInitialized = true;
+}
+
 function renderExerciseList(filter) {
     const listDiv = document.getElementById('exercise-list');
+    if (!listDiv) return;
     const searchValue = typeof filter === 'string' ? filter : '';
     const muscleFilter = document.getElementById('muscle-filter') ? document.getElementById('muscle-filter').value : '';
     const filterLower = searchValue.toLowerCase();
@@ -1082,31 +1145,44 @@ function renderExerciseList(filter) {
         (ex.name.toLowerCase().includes(filterLower) || ex.muscle.toLowerCase().includes(filterLower)) &&
         (muscleFilter ? ex.muscle === muscleFilter : true)
     );
-    // Always show full list if filter is empty and no muscle filter
     if (searchValue.length === 0 && !muscleFilter) filtered = EXERCISE_LIBRARY.slice();
+
+    CURRENT_FILTERED_EXERCISES = filtered;
     const total = filtered.length;
-    const slice = filtered.slice(0, EXERCISE_RENDER_LIMIT);
-    let html = '';
-    if (slice.length === 0) {
-        html = '<p style="color:var(--text-muted);">No exercises found.</p>';
-    } else {
-        html = slice.map(ex => `
-            <div style="padding:8px 0;border-bottom:1px solid #E2E8F0;display:flex;justify-content:space-between;align-items:center;">
-                <div>
-                    <strong>${ex.name}</strong> <span style="color:#888;">(${ex.muscle})</span>
-                </div>
-                <button class="btn" style="padding:4px 12px;font-size:0.95em;min-width:0;" onclick="selectExerciseFromPicker('${ex.name.replace(/'/g, "\\'")}')">Select</button>
-            </div>
-        `).join('');
-        if (EXERCISE_RENDER_LIMIT < total) {
-            const remaining = total - EXERCISE_RENDER_LIMIT;
-            html += `
-                <div style="text-align:center;padding:10px;">
-                    <button class="btn btn-secondary" type="button" onclick="(function(){ EXERCISE_RENDER_LIMIT += 50; renderExerciseList('${searchValue.replace(/'/g, "\\'")}'); })()">Load more (${remaining} more)</button>
-                </div>
-            `;
-        }
+
+    // If very small, render simple list
+    if (total === 0) {
+        listDiv.innerHTML = '<p style="color:var(--text-muted);padding:8px;">No exercises found.</p>';
+        return;
     }
+
+    const itemH = VIRT_ITEM_HEIGHT;
+    const viewH = listDiv.clientHeight || 320;
+    const itemsPerView = Math.ceil(viewH / itemH);
+    const scrollTop = listDiv.scrollTop || 0;
+    const startIndex = Math.max(0, Math.floor(scrollTop / itemH) - VIRT_BUFFER);
+    const endIndex = Math.min(total, startIndex + itemsPerView + VIRT_BUFFER * 2);
+
+    const topSpacer = startIndex * itemH;
+    const bottomSpacer = Math.max(0, (total - endIndex) * itemH);
+
+    // Build minimal DOM via innerHTML (keeps code footprint small)
+    let html = '';
+    html += `<div style="height:${topSpacer}px"></div>`;
+    for (let i = startIndex; i < endIndex; i++) {
+        const ex = filtered[i];
+        const nameAttr = (ex.name || '').replace(/"/g, '&quot;');
+        html += `
+            <div style="height:${itemH}px;display:flex;align-items:center;justify-content:space-between;padding:8px;border-bottom:1px solid #E2E8F0;">
+                <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">
+                    <strong style="display:block;">${ex.name}</strong>
+                    <span style="color:#888;font-size:0.9em">(${ex.muscle})</span>
+                </div>
+                <button class="btn" data-action="select-exercise" data-name="${nameAttr}" style="padding:6px 12px;font-size:0.95em;min-width:0;">Select</button>
+            </div>
+        `;
+    }
+    html += `<div style="height:${bottomSpacer}px"></div>`;
     listDiv.innerHTML = html;
 }
 
@@ -1118,15 +1194,25 @@ function selectExerciseFromPicker(name) {
 document.addEventListener('DOMContentLoaded', function() {
     // Debounced search for large libraries
     let t = null;
-    document.getElementById('exercise-search').addEventListener('input', function(e) {
-        const val = e.target.value;
-        if (t) clearTimeout(t);
-        t = setTimeout(() => { resetExerciseListLimit(); renderExerciseList(val); }, 200);
-    });
-    document.getElementById('muscle-filter').addEventListener('change', function() {
-        resetExerciseListLimit();
-        renderExerciseList(document.getElementById('exercise-search').value);
-    });
+    const exerciseSearch = document.getElementById('exercise-search');
+    const muscleFilterEl = document.getElementById('muscle-filter');
+    if (exerciseSearch) {
+        exerciseSearch.addEventListener('input', function(e) {
+            const val = e.target.value;
+            if (t) clearTimeout(t);
+            t = setTimeout(() => { resetExerciseListLimit(); renderExerciseList(val); }, 200);
+        });
+    }
+    if (muscleFilterEl) {
+        muscleFilterEl.addEventListener('change', function() {
+            resetExerciseListLimit();
+            renderExerciseList(document.getElementById('exercise-search').value);
+        });
+    }
+    // Initialize virtualized list when DOM ready
+    setupVirtualExerciseList();
+    // Initial render
+    setTimeout(() => renderExerciseList(document.getElementById('exercise-search')?.value || ''), 0);
     document.getElementById('exercise-picker-cancel').addEventListener('click', closeExercisePickerModal);
 });
 function clearAllData() {
@@ -1477,7 +1563,7 @@ window.editPlan = function(day) {
 function openCreatePlanModal() {
     document.getElementById('create-plan-modal').style.display = 'flex';
     document.getElementById('create-plan-form').reset();
-    document.getElementById('exercises-list').innerHTML = '';
+    document.getElementById('exercise-fields').innerHTML = '';
     addExerciseField();
 }
 
@@ -1709,38 +1795,47 @@ function renderUserWorkoutPlan() {
     `;
     mainContainer.innerHTML = planHTML;
     console.log('Injected workout plan HTML:', planHTML);
-    // Attach event listeners for Edit/Delete Plan buttons after DOM update
-    setTimeout(() => {
-        console.log('Attaching Edit Plan button event listeners...');
-        mainContainer.querySelectorAll('.edit-plan-btn').forEach(btn => {
-            btn.onclick = function() {
-                console.log('Edit Plan button clicked for day:', btn.getAttribute('data-day'));
-                if (typeof window.editPlan === 'function') {
-                    window.editPlan(btn.getAttribute('data-day'));
-                } else {
-                    console.error('editPlan function not found on window');
-                }
-            };
-        });
-        console.log('Attaching Delete Plan button event listeners...');
-        mainContainer.querySelectorAll('.delete-plan-btn').forEach(btn => {
-            btn.onclick = function() {
-                const day = btn.getAttribute('data-day');
-                if (typeof window.deletePlan === 'function') {
-                    window.deletePlan(day);
-                }
-            };
-        });
-    }, 0);
+    // Event delegation is handled globally; no per-button wiring needed here
     // Render recommended plans content
     setTimeout(renderRecommendedPlans, 0);
 }
 
 window.addEventListener('DOMContentLoaded', renderUserWorkoutPlan);
 
+// Global delegated listeners for Edit/Delete inside <summary>, using capture
+document.addEventListener('DOMContentLoaded', function() {
+    if (!window._wiredPlanDelegation) {
+        const handler = function(e) {
+            const deleteBtn = e.target.closest && e.target.closest('.delete-plan-btn');
+            if (deleteBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const day = deleteBtn.getAttribute('data-day');
+                if (typeof window.deletePlan === 'function') window.deletePlan(day);
+                return;
+            }
+            const editBtn = e.target.closest && e.target.closest('.edit-plan-btn');
+            if (editBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const day = editBtn.getAttribute('data-day');
+                if (typeof window.editPlan === 'function') window.editPlan(day);
+            }
+        };
+        document.addEventListener('click', handler, true);
+        document.addEventListener('pointerdown', handler, true);
+        window._wiredPlanDelegation = true;
+    }
+});
+
 // Delete Plan handler
 window.deletePlan = function(day) {
-    if (!day || !workoutPlan || !workoutPlan[day]) return;
+    if (!day) return;
+    if (!workoutPlan || !workoutPlan[day]) {
+        // Nothing to delete; re-render to be safe
+        try { renderUserWorkoutPlan(); } catch {}
+        return;
+    }
     const confirmed = confirm(`Delete the workout plan for "${day}"? This cannot be undone.`);
     if (!confirmed) return;
     try {
@@ -2054,6 +2149,7 @@ function showPhase(phaseNum) {
 
 // --- CHARTING FUNCTIONS ---
 let exerciseCharts = {};
+let _chartsInitialized = false;
 
 function getAllExercises() {
     const exercises = {};
@@ -2289,12 +2385,14 @@ function showTab(tab) {
     if (tabWorkouts) tabWorkouts.classList.toggle('active', tab === 'workouts');
     if (tabStats) tabStats.classList.toggle('active', tab === 'stats');
     if (tab === 'stats') {
-        // Defensive: call all stats rendering functions if elements exist
-        if (typeof renderPastWorkoutsTable === 'function') renderPastWorkoutsTable();
-        if (typeof renderWeeklyStrengthVolumeTable === 'function') renderWeeklyStrengthVolumeTable();
-        if (typeof renderMeasurementsHistoryTableAndChart === 'function') renderMeasurementsHistoryTableAndChart();
-        if (typeof renderExerciseProgressCharts === 'function') renderExerciseProgressCharts();
-        if (typeof updateBodyCompChart === 'function') updateBodyCompChart();
+        if (!_chartsInitialized) {
+            _chartsInitialized = true;
+            if (typeof renderPastWorkoutsTable === 'function') renderPastWorkoutsTable();
+            if (typeof renderWeeklyStrengthVolumeTable === 'function') renderWeeklyStrengthVolumeTable();
+            if (typeof renderMeasurementsHistoryTableAndChart === 'function') renderMeasurementsHistoryTableAndChart();
+            if (typeof renderExerciseProgressCharts === 'function') renderExerciseProgressCharts();
+            if (typeof updateBodyCompChart === 'function') updateBodyCompChart();
+        }
     }
     // Always close any open modals when switching tabs to avoid overlays blocking clicks
     const modals = ['create-plan-modal','quick-log-modal','exercise-picker-modal','user-modal','qr-share-modal','qr-scan-modal'];
@@ -2311,6 +2409,31 @@ window.showTab = showTab;
 function renderPastWorkoutsTable() {
     const tableDiv = document.getElementById('past-workouts-table');
     if (!tableDiv) return;
+    const isNarrow = window.innerWidth < 640;
+    if (isNarrow) {
+        // Render stacked cards for mobile
+        const exercises = getAllExercises();
+        let rows = [];
+        for (const exId in workoutData) {
+            const ex = exercises[exId] || { name: exId, type: 'weight' };
+            workoutData[exId].forEach(entry => {
+                const mergedValues = (entry.weights && entry.weights.length ? entry.weights : (entry.values || []));
+                rows.push({ date: entry.date, exercise: ex.name, type: ex.type, values: mergedValues });
+            });
+        }
+        rows.sort((a,b) => new Date(b.date) - new Date(a.date));
+        let cards = '';
+        rows.forEach(row => {
+            cards += `
+                <div class="mobile-pw-card">
+                    <div class="pw-top"><strong>${row.exercise}</strong><span style="font-size:0.92em;color:var(--text-muted);">${row.date}</span></div>
+                    <div class="pw-meta"><span>${row.type}</span><span>${row.values.map(v => v ? v : '-').join(', ')}</span></div>
+                </div>
+            `;
+        });
+        tableDiv.innerHTML = cards || '<p style="color:var(--text-muted);">No workout history available.</p>';
+        return;
+    }
     let html = `<table class="mobile-pastworkouts-table" style="width:100%;border-collapse:collapse;font-size:0.95em;min-width:520px;">`;
     html += `<thead><tr style="background:#f3f4f6;">
         <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Date</th>
@@ -2434,9 +2557,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Tab navigation
     // Tab button event listeners will be attached at the end of the file for reliability
 
-    // Floating buttons
-    document.getElementById('create-plan-btn').addEventListener('click', openCreatePlanModal);
-    document.getElementById('quick-log-btn').addEventListener('click', openQuickLogModal);
+    // Floating buttons removed; actions moved to tab bar
 
     // Share/Import buttons removed; using QR only
 
@@ -2615,6 +2736,18 @@ document.addEventListener('DOMContentLoaded', function() {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('service-worker.js').catch(() => {});
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event && event.data && event.data.type === 'SW_UPDATED') {
+                try {
+                    const sb = document.getElementById('update-snackbar');
+                    if (sb) sb.style.display = 'flex';
+                    const reloadBtn = document.getElementById('update-reload');
+                    const dismissBtn = document.getElementById('update-dismiss');
+                    if (reloadBtn) reloadBtn.onclick = () => window.location.reload();
+                    if (dismissBtn) dismissBtn.onclick = () => { if (sb) sb.style.display = 'none'; };
+                } catch (e) { console.warn('Failed to show update snackbar', e); }
+            }
+        });
     });
 }
 
@@ -2687,9 +2820,30 @@ function getWeek(dateStr) {
 function renderMeasurementsHistoryTableAndChart() {
     const tableDiv = document.getElementById('measurements-history-table');
     if (!tableDiv) return;
+    const isNarrow = window.innerWidth < 640;
     const latestPerDay = {};
     bodyData.forEach(row => { latestPerDay[row.date] = row; });
     const sortedRows = Object.values(latestPerDay).sort((a,b) => new Date(b.date) - new Date(a.date));
+    if (isNarrow) {
+        let cards = '';
+        sortedRows.forEach(row => {
+            cards += `
+                <div class="mobile-measure-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                        <strong>${row.date}</strong>
+                        <span style="color:var(--text-muted);font-size:0.95em;">${row.weight ?? '-'} kg</span>
+                    </div>
+                    <div class="measure-grid">
+                        <div><small>Chest</small><div>${row.chest ?? '-'}</div></div>
+                        <div><small>Waist</small><div>${row.waist ?? '-'}</div></div>
+                        <div><small>Hips</small><div>${row.hips ?? '-'}</div></div>
+                    </div>
+                </div>
+            `;
+        });
+        tableDiv.innerHTML = cards || '<p style="color:var(--text-muted);">No measurements recorded yet.</p>';
+        return;
+    }
     let html = `<table class="mobile-measurements-table" style="width:100%;border-collapse:collapse;font-size:0.95em;min-width:420px;">`;
     html += `<thead><tr style="background:#f3f4f6;">
         <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Date</th>
@@ -2717,6 +2871,8 @@ window.addEventListener('load', function() {
     console.log('window.load event fired, attaching tab button listeners...');
     const tabWorkoutsBtn = document.getElementById('tab-workouts');
     const tabStatsBtn = document.getElementById('tab-stats');
+    const tabQuickBtn = document.getElementById('tab-quick');
+    const tabCreateBtn = document.getElementById('tab-create');
     if (tabWorkoutsBtn) {
         tabWorkoutsBtn.addEventListener('click', function() {
             console.log('Workouts tab button clicked (window.load)');
@@ -2727,6 +2883,22 @@ window.addEventListener('load', function() {
         tabStatsBtn.addEventListener('click', function() {
             console.log('Stats tab button clicked (window.load)');
             showTab('stats');
+        });
+    }
+    if (tabQuickBtn) {
+        tabQuickBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Quick Log action clicked (window.load)');
+            if (typeof openQuickLogModal === 'function') openQuickLogModal();
+        });
+    }
+    if (tabCreateBtn) {
+        tabCreateBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Create Plan action clicked (window.load)');
+            if (typeof openCreatePlanModal === 'function') openCreatePlanModal();
         });
     }
     console.log('Tab button event listeners attached (window.load)');
