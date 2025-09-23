@@ -440,6 +440,10 @@
             <div id="exercise-attrib" style="margin-top:8px;color:var(--text-muted);font-size:0.85em;">
                 Exercise data may include contributions from the Exercemus dataset (CC BY-SA).
             </div>
+            <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+                <div id="exercise-offline-indicator" style="color:var(--text-muted);font-size:0.9em;">Status: <span id="exercise-status-text">Unknown</span></div>
+                <button id="exercise-refresh-btn" class="btn btn-secondary" type="button" style="margin-left:auto;">Refresh</button>
+            </div>
             <button class="btn btn-secondary" type="button" id="exercise-picker-cancel" style="margin-top:16px;width:100%;">Cancel</button>
         </div>
     </div>
@@ -753,6 +757,8 @@ window.addEventListener('DOMContentLoaded', function() {
                 resetExerciseListLimit();
                 renderExerciseList(document.getElementById('exercise-search').value || '');
             }
+            // Update status indicator
+            try { const statusEl = document.getElementById('exercise-status-text'); if (statusEl) statusEl.textContent = 'Online'; } catch {}
         } catch (e) { console.warn('Post-load refresh error', e); }
     });
     // Show loading indicator briefly if dataset is being fetched
@@ -1080,6 +1086,46 @@ async function loadExternalExerciseLibrary() {
     EXERCISE_LIBRARY = Array.from(byName.values());
     return true;
 }
+// Refresh the external library explicitly (bypass local TTL and network-first)
+async function refreshExerciseLibrary() {
+    const statusEl = document.getElementById('exercise-status-text');
+    const btn = document.getElementById('exercise-refresh-btn');
+    if (statusEl) statusEl.textContent = 'Refreshing…';
+    if (btn) btn.disabled = true;
+    try {
+        // Force fetch by bypassing local cache and localStorage TTL
+        const resp = await fetch(EXTERNAL_EXERCISE_URL + '?_=' + Date.now(), { cache: 'no-cache' });
+        if (!resp.ok) throw new Error('Network error: ' + resp.status);
+        const json = await resp.json();
+        const list = normalizeExternalExercises(json);
+        if (list && list.length) {
+            localStorage.setItem(EXTERNAL_EXERCISE_CACHE_KEY, JSON.stringify(list));
+            localStorage.setItem(EXTERNAL_EXERCISE_CACHE_TS, String(Date.now()));
+            // Merge and update runtime list
+            const byName = new Map();
+            [...EXERCISE_LIBRARY, ...list].forEach(ex => { if (ex && ex.name) byName.set(ex.name, { name: ex.name, muscle: ex.muscle, demo: ex.demo || '' }); });
+            EXERCISE_LIBRARY = Array.from(byName.values());
+            // Update filter options and re-render if picker open
+            const picker = document.getElementById('exercise-picker-modal');
+            if (picker && picker.style.display === 'flex') {
+                const filter = document.getElementById('muscle-filter');
+                const muscles = Array.from(new Set(EXERCISE_LIBRARY.map(ex => ex.muscle))).sort();
+                filter.innerHTML = '<option value="">All</option>' + muscles.map(m => `<option value="${m}">${m}</option>`).join('');
+                resetExerciseListLimit();
+                renderExerciseList(document.getElementById('exercise-search').value || '');
+            }
+            if (statusEl) statusEl.textContent = 'Updated';
+        } else {
+            if (statusEl) statusEl.textContent = 'No data';
+        }
+    } catch (e) {
+        console.warn('Manual refresh failed', e);
+        if (statusEl) statusEl.textContent = 'Offline (using cache)';
+    } finally {
+        if (btn) btn.disabled = false;
+        setTimeout(() => { if (statusEl && statusEl.textContent !== 'Updated') statusEl.textContent = (navigator.onLine ? 'Online' : 'Offline'); }, 2000);
+    }
+}
 let exercisePickerCallback = null;
 function openExercisePickerModal(onSelect) {
     exercisePickerCallback = onSelect;
@@ -1213,6 +1259,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial render
     setTimeout(() => renderExerciseList(document.getElementById('exercise-search')?.value || ''), 0);
     document.getElementById('exercise-picker-cancel').addEventListener('click', closeExercisePickerModal);
+    // Wire manual refresh button
+    const refreshBtn = document.getElementById('exercise-refresh-btn');
+    if (refreshBtn) refreshBtn.addEventListener('click', refreshExerciseLibrary);
+    // Set initial status based on cached data
+    const statusEl = document.getElementById('exercise-status-text');
+    try {
+        const ts = parseInt(localStorage.getItem(EXTERNAL_EXERCISE_CACHE_TS) || '0', 10) || 0;
+        if (statusEl) statusEl.textContent = (Date.now() - ts < EXTERNAL_EXERCISE_TTL_MS) ? (navigator.onLine ? 'Online' : 'Offline') : 'Stale';
+    } catch (e) { if (statusEl) statusEl.textContent = (navigator.onLine ? 'Online' : 'Offline'); }
 });
 function clearAllData() {
     localStorage.removeItem('userDetails');
