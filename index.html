@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Advanced Fitness Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
@@ -2150,6 +2149,21 @@ function showPhase(phaseNum) {
 // --- CHARTING FUNCTIONS ---
 let exerciseCharts = {};
 let _chartsInitialized = false;
+// Dynamic Chart.js loader: loads script on-demand when charts are required
+let _chartJsLoading = null;
+function loadChartJs() {
+    if (window.Chart) return Promise.resolve();
+    if (_chartJsLoading) return _chartJsLoading;
+    _chartJsLoading = new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+        s.async = true;
+        s.onload = () => { _chartJsLoading = null; resolve(); };
+        s.onerror = (e) => { _chartJsLoading = null; reject(e); };
+        document.head.appendChild(s);
+    });
+    return _chartJsLoading;
+}
 
 function getAllExercises() {
     const exercises = {};
@@ -2185,11 +2199,34 @@ function getAllExercises() {
     return exercises;
 }
 
-// Safe stub to avoid errors in callers
-function renderExerciseProgressCharts() {
+// Render exercise progress charts (lazy-load Chart.js)
+async function renderExerciseProgressCharts() {
+    try { await loadChartJs(); } catch (e) { console.warn('Chart.js failed to load', e); return; }
     const container = document.getElementById('exercise-charts-container');
     if (!container) return;
-    // Optionally clear or populate minimal content
+    container.innerHTML = '';
+    const exercises = Object.keys(workoutData).slice().reverse();
+    exercises.forEach(exId => {
+        const ex = getAllExercises()[exId] || { name: exId };
+        const safeId = exId.replace(/[^a-z0-9]/gi,'');
+        const canvasId = `ex-chart-${safeId}`;
+        const card = document.createElement('div');
+        card.className = 'exercise-card';
+        card.innerHTML = `
+            <h3 style="margin-top:0;margin-bottom:6px;">${ex.name}</h3>
+            <div style="height:160px;">
+                <canvas id="${canvasId}"></canvas>
+            </div>
+        `;
+        container.appendChild(card);
+        try {
+            const canvasEl = document.getElementById(canvasId);
+            if (!canvasEl) return;
+            const ctx = canvasEl.getContext('2d');
+            const data = (workoutData[exId] || []).map(s => ({ x: new Date(s.date), y: (s.weights && s.weights.length ? s.weights.reduce((a,b)=>a+b,0) : (s.values || []).reduce((a,b)=>a+b,0)) }));
+            exerciseCharts[exId] = new Chart(ctx, { type: 'line', data: { datasets: [{ label: ex.name, data: data }] }, options: { parsing: false, scales: { x: { type: 'time', time: { unit: 'day' } } } } });
+        } catch (e) { console.warn('Exercise chart error', e); }
+    });
 }
 
 function renderExerciseChart(ex, chartId) {
@@ -2244,10 +2281,12 @@ function renderExerciseChart(ex, chartId) {
     });
 }
 
-function updateBodyCompChart() {
-    const ctx = document.getElementById('bodyCompChart').getContext('2d');
+async function updateBodyCompChart() {
+    try { await loadChartJs(); } catch (e) { console.warn('Chart.js failed to load', e); return; }
+    const canvasEl = document.getElementById('bodyCompChart');
+    if (!canvasEl) return;
+    const ctx = canvasEl.getContext('2d');
     if (bodyCompChart) bodyCompChart.destroy();
-    
     if (bodyData.length === 0) return;
 
     const labels = bodyData.map(d => new Date(d.date).toLocaleDateString());
@@ -2303,7 +2342,8 @@ function updateBodyCompChart() {
     });
 }
 
-function updateStrengthVolumeChart() {
+async function updateStrengthVolumeChart() {
+    try { await loadChartJs(); } catch (e) { console.warn('Chart.js failed to load', e); return; }
     const canvas = document.getElementById('strengthVolumeChart');
     if (!canvas) return; // guard: chart not present in DOM
     const ctx = canvas.getContext('2d');
@@ -2387,11 +2427,12 @@ function showTab(tab) {
     if (tab === 'stats') {
         if (!_chartsInitialized) {
             _chartsInitialized = true;
-            if (typeof renderPastWorkoutsTable === 'function') renderPastWorkoutsTable();
-            if (typeof renderWeeklyStrengthVolumeTable === 'function') renderWeeklyStrengthVolumeTable();
-            if (typeof renderMeasurementsHistoryTableAndChart === 'function') renderMeasurementsHistoryTableAndChart();
-            if (typeof renderExerciseProgressCharts === 'function') renderExerciseProgressCharts();
-            if (typeof updateBodyCompChart === 'function') updateBodyCompChart();
+            try { if (typeof renderPastWorkoutsTable === 'function') renderPastWorkoutsTable(); } catch (e) { console.warn(e); }
+            try { if (typeof renderWeeklyStrengthVolumeTable === 'function') renderWeeklyStrengthVolumeTable(); } catch (e) { console.warn(e); }
+            try { if (typeof renderMeasurementsHistoryTableAndChart === 'function') renderMeasurementsHistoryTableAndChart(); } catch (e) { console.warn(e); }
+            // Kick off async chart loads but don't block UI
+            try { if (typeof renderExerciseProgressCharts === 'function') renderExerciseProgressCharts().catch && renderExerciseProgressCharts().catch(e => console.warn(e)); } catch (e) { console.warn(e); }
+            try { if (typeof updateBodyCompChart === 'function') updateBodyCompChart().catch && updateBodyCompChart().catch(e => console.warn(e)); } catch (e) { console.warn(e); }
         }
     }
     // Always close any open modals when switching tabs to avoid overlays blocking clicks
