@@ -2,7 +2,10 @@ const CACHE_NAME = 'lifting-tracker-v2';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.webmanifest'
+  './manifest.webmanifest',
+  './icons/icon.png',
+  './icons/icon-192.svg',
+  './icons/icon-512.svg'
 ];
 
 self.addEventListener('install', (event) => {
@@ -23,6 +26,18 @@ self.addEventListener('activate', (event) => {
       }
     })()
   );
+});
+
+// Allow clients to message the SW (e.g., to skip waiting)
+self.addEventListener('message', (event) => {
+  try {
+    const data = event && event.data;
+    if (!data) return;
+    if (data.type === 'SKIP_WAITING') {
+      self.skipWaiting();
+    }
+    // Other messages can be handled here in future (e.g., CLEAR_CACHE)
+  } catch (e) {}
 });
 
 self.addEventListener('fetch', (event) => {
