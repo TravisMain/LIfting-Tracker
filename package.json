@@ -1,0 +1,26 @@
+{
+  "name": "lifting-tracker",
+  "version": "1.0.0",
+  "main": "service-worker.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TravisMain/LIfting-Tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TravisMain/LIfting-Tracker/issues"
+  },
+  "homepage": "https://github.com/TravisMain/LIfting-Tracker#readme",
+  "description": "",
+  "dependencies": {
+    "pngjs": "^6.0.0"
+  }
+}
