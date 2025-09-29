@@ -1,8 +1,9 @@
 {
   "name": "Lifting Tracker",
   "short_name": "Lifts",
-  "start_url": "/Lifting-Tracker/",
-  "scope": "/Lifting-Tracker/",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#F8FAF9",
   "theme_color": "#F8FAF9",
@@ -15,7 +16,7 @@
     { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "share_target": {
-    "action": "/Lifting-Tracker/share-target",
+    "action": "./share-target",
     "method": "POST",
     "enctype": "multipart/form-data",
     "params": {

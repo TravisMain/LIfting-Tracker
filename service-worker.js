@@ -1,4 +1,4 @@
-const CACHE_NAME = 'lifting-tracker-v2';
+const CACHE_NAME = 'lifting-tracker-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,12 @@ const ASSETS = [
   './icons/icon-192.svg',
   './icons/icon-512.svg'
 ];
+
+const scopeURL = new URL(self.registration.scope);
+const SHARE_TARGET_URL = new URL('./share-target', scopeURL);
+const SHARED_PLAN_URL = new URL('./shared-plan.json', scopeURL);
+const IMPORT_URL = new URL('./?importSharedPlan=1', scopeURL);
+const START_URL = new URL('./', scopeURL);
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -47,7 +53,11 @@ self.addEventListener('fetch', (event) => {
   const EXTERNAL_EXERCISE_PATH_CONTAINS = '/exercemus/exercises/minified/minified-exercises.json';
 
   // Handle Web Share Target POST
-  if (request.method === 'POST' && url.pathname.endsWith('/Lifting-Tracker/share-target')) {
+  if (
+    request.method === 'POST' &&
+    url.origin === SHARE_TARGET_URL.origin &&
+    url.pathname === SHARE_TARGET_URL.pathname
+  ) {
     event.respondWith((async () => {
       try {
         const formData = await request.formData();
@@ -58,13 +68,16 @@ self.addEventListener('fetch', (event) => {
           const jsonText = await file.text();
           // Put into cache for retrieval by client
           const cache = await caches.open(CACHE_NAME);
-          await cache.put('/Lifting-Tracker/shared-plan.json', new Response(jsonText, { headers: { 'Content-Type': 'application/json' } }));
-          return Response.redirect('/Lifting-Tracker/?importSharedPlan=1', 303);
+          await cache.put(
+            SHARED_PLAN_URL.toString(),
+            new Response(jsonText, { headers: { 'Content-Type': 'application/json' } })
+          );
+          return Response.redirect(IMPORT_URL.toString(), 303);
         }
       } catch (e) {
         // fall through to index
       }
-      return Response.redirect('/Lifting-Tracker/', 303);
+      return Response.redirect(START_URL.toString(), 303);
     })());
     return;
   }
