@@ -351,7 +351,7 @@
             overflow-x: auto;
             padding: 0 4px;
         }
-        canvas {
+        .chart-container canvas {
             background: var(--surface-2);
             border-radius: 8px;
             box-shadow: none;
@@ -362,7 +362,17 @@
         }
         @media (max-width: 767px) {
             .chart-container { padding: 0 2px; }
-            canvas { height: 160px !important; }
+            .chart-container canvas { height: 160px !important; }
+        }
+
+        #qr-share-container canvas,
+        #qr-share-container img {
+            max-width: min(320px, 80vw);
+            max-height: min(320px, 80vw);
+            width: auto;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            image-rendering: pixelated;
         }
 
         /* Phase navigation: clearer active state */
@@ -2728,6 +2738,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 qrShareContainer.innerHTML = '';
                 const size = Math.min(300, Math.floor(window.innerWidth * 0.7));
                 new QRCode(qrShareContainer, { text: qrText, width: size, height: size, correctLevel: QRCode.CorrectLevel.M });
+                const qrNode = qrShareContainer.querySelector('canvas, img');
+                if (qrNode) {
+                    const dimension = size;
+                    qrNode.style.width = `${dimension}px`;
+                    qrNode.style.height = `${dimension}px`;
+                    qrNode.style.maxWidth = '80vw';
+                    qrNode.style.maxHeight = '80vw';
+                    qrNode.style.aspectRatio = '1 / 1';
+                    if ('imageRendering' in qrNode.style) {
+                        qrNode.style.imageRendering = 'pixelated';
+                    }
+                }
             }
             if (qrShareModal) qrShareModal.style.display = 'flex';
             // Attach copy action
