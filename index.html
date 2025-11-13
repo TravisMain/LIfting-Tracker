@@ -2954,14 +2954,35 @@ function renderExerciseChart(ex, chartId) {
 }
 
 async function updateBodyCompChart() {
+    console.log('updateBodyCompChart called, bodyData length:', bodyData.length);
     try { await loadChartJs(); } catch (e) { console.warn('Chart.js failed to load', e); return; }
+    
+    const weightCanvasContainer = document.querySelector('#bodyWeightChart')?.parentElement;
+    const measurementsCanvasContainer = document.querySelector('#bodyMeasurementsChart')?.parentElement;
+    
+    if (!weightCanvasContainer || !measurementsCanvasContainer) {
+        console.warn('Canvas containers not found');
+        return;
+    }
+    
+    if (bodyData.length === 0) {
+        console.log('No body data to display in charts');
+        // Show empty state message
+        weightCanvasContainer.innerHTML = '<p style="text-align:center;color:var(--text-on-surface);opacity:0.6;padding:20px;">No body weight data yet. Add measurements in the Track Your Measurements section above.</p>';
+        measurementsCanvasContainer.innerHTML = '<p style="text-align:center;color:var(--text-on-surface);opacity:0.6;padding:20px;">No measurement data yet. Add measurements in the Track Your Measurements section above.</p>';
+        return;
+    }
+    
+    // Ensure canvas elements exist (restore them if they were replaced with empty state messages)
+    if (!document.getElementById('bodyWeightChart')) {
+        weightCanvasContainer.innerHTML = '<canvas id="bodyWeightChart"></canvas>';
+    }
+    if (!document.getElementById('bodyMeasurementsChart')) {
+        measurementsCanvasContainer.innerHTML = '<canvas id="bodyMeasurementsChart"></canvas>';
+    }
     
     const weightCanvas = document.getElementById('bodyWeightChart');
     const measurementsCanvas = document.getElementById('bodyMeasurementsChart');
-    
-    if (!weightCanvas || !measurementsCanvas) return;
-    
-    if (bodyData.length === 0) return;
     
     // Sort data chronologically for charts
     const sortedData = [...bodyData].sort((a,b) => new Date(a.date) - new Date(b.date));
@@ -3168,6 +3189,11 @@ async function updateBodyCompChart() {
             }
         }
     });
+    
+    console.log('Body Composition charts created successfully', { 
+        weightChart: !!window.bodyWeightChart, 
+        measurementsChart: !!window.bodyMeasurementsChart 
+    });
 }
 
 async function updateStrengthVolumeChart() {
@@ -3364,12 +3390,7 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('user-modal').style.display = 'none';
             document.querySelector('.container').style.filter = '';
             // setWelcomeMessage(); - removed
-            showPhase(1);
-            updateBodyCompChart();
-            renderExerciseProgressCharts();
-            showTab('workouts');
-            renderWeeklyStrengthVolumeTable();
-            renderMeasurementsHistoryTableAndChart();
+            showTab('quick');
         };
         return;
     }
