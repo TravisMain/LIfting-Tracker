@@ -3909,12 +3909,27 @@ function renderMeasurementsHistoryTableAndChart() {
     const sortedRows = Object.values(latestPerDay).sort((a,b) => new Date(b.date) - new Date(a.date));
     if (isNarrow) {
         let cards = '';
-        sortedRows.forEach(row => {
+        sortedRows.forEach((row, index) => {
+            // Calculate weight change from previous entry
+            let weightDisplay = row.weight ?? '-';
+            let changeIndicator = '';
+            if (row.weight && index < sortedRows.length - 1) {
+                const previousRow = sortedRows[index + 1];
+                if (previousRow && previousRow.weight) {
+                    const change = row.weight - previousRow.weight;
+                    if (change > 0) {
+                        changeIndicator = ` <span style="color:#ef4444;">▲</span>`;
+                    } else if (change < 0) {
+                        changeIndicator = ` <span style="color:#10b981;">▼</span>`;
+                    }
+                }
+            }
+            
             cards += `
                 <div class="mobile-measure-card">
                     <div style="display:flex;justify-content:space-between;align-items:center;">
                         <strong>${row.date}</strong>
-                        <span style="color:var(--text-muted);font-size:0.95em;">${row.weight ?? '-'} kg</span>
+                        <span style="color:var(--text-muted);font-size:0.95em;">${weightDisplay} kg${changeIndicator}</span>
                     </div>
                     <div class="measure-grid">
                         <div><small>Neck</small><div>${row.neck ?? '-'}</div></div>
@@ -3943,10 +3958,24 @@ function renderMeasurementsHistoryTableAndChart() {
         <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Thighs (cm)</th>
         <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Calves (cm)</th>
     </tr></thead><tbody>`;
-    sortedRows.forEach(row => {
+    sortedRows.forEach((row, index) => {
+        // Calculate weight change from previous entry
+        let weightDisplay = row.weight ?? '-';
+        if (row.weight && index < sortedRows.length - 1) {
+            const previousRow = sortedRows[index + 1];
+            if (previousRow && previousRow.weight) {
+                const change = row.weight - previousRow.weight;
+                if (change > 0) {
+                    weightDisplay = `${row.weight} <span style="color:#ef4444;">▲</span>`;
+                } else if (change < 0) {
+                    weightDisplay = `${row.weight} <span style="color:#10b981;">▼</span>`;
+                }
+            }
+        }
+        
         html += `<tr style="background:#fff;">
             <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:keep-all;white-space:nowrap;font-size:0.98em;">${row.date}</td>
-            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.weight ?? '-'}</td>
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${weightDisplay}</td>
             <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.neck ?? '-'}</td>
             <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.chest ?? '-'}</td>
             <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.biceps ?? '-'}</td>
