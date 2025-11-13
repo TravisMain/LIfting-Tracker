@@ -643,12 +643,8 @@
             </div>
             <input type="text" id="exercise-search" placeholder="Search exercises..." style="width:100%;margin-bottom:12px;padding:8px 12px;border-radius:8px;border:1px solid var(--border-color);font-size:1em;background:var(--surface-2);color:var(--text-on-surface);">
             <div id="exercise-list" style="max-height:320px;overflow-y:auto;"></div>
-            <div id="exercise-attrib" style="margin-top:8px;color:var(--text-muted);font-size:0.85em;">
+            <div id="exercise-attrib" style="margin-top:12px;color:var(--text-muted);font-size:0.85em;">
                 Exercise data may include contributions from the Exercemus dataset (CC BY-SA).
-            </div>
-            <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
-                <div id="exercise-offline-indicator" style="color:var(--text-muted);font-size:0.9em;">Status: <span id="exercise-status-text">Unknown</span></div>
-                <button id="exercise-refresh-btn" class="btn btn-secondary" type="button" style="margin-left:auto;">Refresh</button>
             </div>
             <button class="btn btn-secondary" type="button" id="exercise-picker-cancel" style="margin-top:16px;width:100%;">Cancel</button>
         </div>
@@ -783,8 +779,7 @@
                 <form id="quick-log-form">
                     <div class="input-group" style="margin-bottom:8px;">
                         <label for="quick-exercise-input">Exercise</label>
-                        <input type="text" id="quick-exercise-input" required placeholder="Select or type exercise..." style="background:var(--surface-2);cursor:pointer;" autocomplete="off">
-                        <button type="button" class="btn btn-secondary" style="margin-top:4px;" id="quick-choose-exercise-btn">Choose Exercise</button>
+                        <input type="text" id="quick-exercise-input" required placeholder="Tap to select exercise..." style="background:var(--surface-2);cursor:pointer;" autocomplete="off">
                     </div>
                     <p id="quick-suggestion" style="color:var(--text-muted);margin:4px 0 12px 0;"></p>
                     <div class="input-group">
@@ -1570,12 +1565,11 @@ function renderExerciseList(filter) {
         const ex = filtered[i];
         const nameAttr = (ex.name || '').replace(/"/g, '&quot;');
         html += `
-            <div style="height:${itemH}px;display:flex;align-items:center;justify-content:space-between;padding:8px;border-bottom:1px solid #E2E8F0;">
-                <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">
-                    <strong style="display:block;">${ex.name}</strong>
-                    <span style="color:#888;font-size:0.9em">(${ex.muscle})</span>
+            <div data-action="select-exercise" data-name="${nameAttr}" style="height:${itemH}px;display:flex;align-items:center;padding:12px;border-bottom:1px solid var(--border-color);cursor:pointer;transition:background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
+                <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;">
+                    <strong style="display:block;color:var(--text-on-surface);">${ex.name}</strong>
+                    <span style="color:var(--text-muted);font-size:0.9em">${ex.muscle}</span>
                 </div>
-                <button class="btn" data-action="select-exercise" data-name="${nameAttr}" style="padding:6px 12px;font-size:0.95em;min-width:0;">Select</button>
             </div>
         `;
     }
@@ -1611,15 +1605,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial render
     setTimeout(() => renderExerciseList(document.getElementById('exercise-search')?.value || ''), 0);
     document.getElementById('exercise-picker-cancel').addEventListener('click', closeExercisePickerModal);
-    // Wire manual refresh button
-    const refreshBtn = document.getElementById('exercise-refresh-btn');
-    if (refreshBtn) refreshBtn.addEventListener('click', refreshExerciseLibrary);
-    // Set initial status based on cached data
-    const statusEl = document.getElementById('exercise-status-text');
-    try {
-        const ts = parseInt(localStorage.getItem(EXTERNAL_EXERCISE_CACHE_TS) || '0', 10) || 0;
-        if (statusEl) statusEl.textContent = (Date.now() - ts < EXTERNAL_EXERCISE_TTL_MS) ? (navigator.onLine ? 'Online' : 'Offline') : 'Stale';
-    } catch (e) { if (statusEl) statusEl.textContent = (navigator.onLine ? 'Online' : 'Offline'); }
 });
 function clearAllData() {
     localStorage.removeItem('userDetails');
@@ -1850,7 +1835,6 @@ function closeQuickLogModal() {
 window.addEventListener('DOMContentLoaded', function() {
     // Initialize Quick Log form
     const input = document.getElementById('quick-exercise-input');
-    const chooseBtn = document.getElementById('quick-choose-exercise-btn');
     const setsEl = document.getElementById('quick-sets');
     const repsEl = document.getElementById('quick-reps');
     const setContainer = document.getElementById('quick-set-inputs-container');
@@ -1919,7 +1903,6 @@ window.addEventListener('DOMContentLoaded', function() {
         input.onclick = openPicker;
         input.oninput = function() { saveDraft(); buildQuickSetInputs(); };
     }
-    if (chooseBtn) chooseBtn.onclick = openPicker;
     if (setsEl) setsEl.oninput = function() { buildQuickSetInputs(); saveDraft(); };
     if (repsEl) repsEl.oninput = saveDraft;
     if (setContainer) setContainer.oninput = saveDraft;
@@ -1945,8 +1928,8 @@ window.addEventListener('DOMContentLoaded', function() {
         count.textContent = `${activeWorkoutSession.length} exercise${activeWorkoutSession.length !== 1 ? 's' : ''}`;
         
         list.innerHTML = activeWorkoutSession.map((ex, idx) => `
-            <div style="background:var(--surface-2);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;">
-                <div style="flex:1;">
+            <div style="background:var(--surface-2);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div onclick="editExerciseInSession(${idx})" style="flex:1;cursor:pointer;" title="Tap to edit">
                     <div style="font-weight:600;color:var(--text-on-surface);margin-bottom:4px;">${ex.name}</div>
                     <div style="font-size:0.9em;color:var(--text-muted);">
                         ${ex.sets} sets × ${ex.reps} reps • ${ex.weights.join('kg, ')}kg
@@ -1965,6 +1948,32 @@ window.addEventListener('DOMContentLoaded', function() {
             </div>
         `).join('');
     }
+    
+    window.editExerciseInSession = function(idx) {
+        const ex = activeWorkoutSession[idx];
+        if (!ex) return;
+        
+        // Load exercise data into form
+        input.value = ex.name;
+        setsEl.value = ex.sets;
+        repsEl.value = ex.reps;
+        buildQuickSetInputs();
+        
+        // Pre-fill weights
+        ex.weights.forEach((weight, i) => {
+            const weightInput = document.getElementById(`quick-set-${i+1}`);
+            if (weightInput) weightInput.value = weight;
+        });
+        
+        // Remove from session (will be re-added on submit)
+        activeWorkoutSession.splice(idx, 1);
+        localStorage.setItem('activeWorkoutSession', JSON.stringify(activeWorkoutSession));
+        renderActiveWorkout();
+        
+        // Scroll to form and focus
+        document.getElementById('quick-exercise-input').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        showToast('✏️ Edit and re-add exercise', 'success');
+    };
     
     window.removeExerciseFromSession = function(idx) {
         activeWorkoutSession.splice(idx, 1);
