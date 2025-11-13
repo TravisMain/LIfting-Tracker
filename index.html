@@ -563,6 +563,21 @@
         </header>
         <!-- Bottom Tab Bar Navigation -->
         <nav class="tab-bar">
+            <button class="tab-bar-btn" id="tab-quick" aria-label="Quick Log">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="13 2 3 14 12 14 11 22 21 10 13 10 13 2" />
+                </svg>
+                Quick Log
+            </button>
+            <button class="tab-bar-btn" id="tab-stats" aria-label="Stats">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="3" y1="20" x2="21" y2="20"/>
+                    <rect x="5" y="12" width="3" height="8" rx="1"/>
+                    <rect x="11" y="8" width="3" height="12" rx="1"/>
+                    <rect x="17" y="4" width="3" height="16" rx="1"/>
+                </svg>
+                Stats
+            </button>
             <button class="tab-bar-btn" id="tab-workouts" aria-label="Workouts">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
                     <rect x="2" y="7" width="3" height="10" rx="1"/>
@@ -571,13 +586,7 @@
                     <line x1="5" y1="12" x2="7" y2="12"/>
                     <line x1="17" y1="12" x2="19" y2="12"/>
                 </svg>
-                Workouts
-            </button>
-            <button class="tab-bar-btn" id="tab-quick" aria-label="Quick Log">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                    <polygon points="13 2 3 14 12 14 11 22 21 10 13 10 13 2" />
-                </svg>
-                Quick
+                Plans
             </button>
             <button class="tab-bar-btn" id="tab-create" aria-label="Create Plan">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
@@ -589,15 +598,6 @@
                     <line x1="10" y1="16" x2="14" y2="16"/>
                 </svg>
                 Create
-            </button>
-            <button class="tab-bar-btn" id="tab-stats" aria-label="Stats">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                    <line x1="3" y1="20" x2="21" y2="20"/>
-                    <rect x="5" y="12" width="3" height="8" rx="1"/>
-                    <rect x="11" y="8" width="3" height="12" rx="1"/>
-                    <rect x="17" y="4" width="3" height="16" rx="1"/>
-                </svg>
-                Stats
             </button>
         </nav>
         <div id="main-dashboard">
@@ -751,6 +751,7 @@ const WHATS_NEW_VERSION = 'v2';
 function showWhatsNewModal() {
     const modal = document.getElementById('whats-new-modal');
     if (modal) modal.style.display = 'flex';
+    pushNavState('whats-new');
 }
 function closeWhatsNewModal() {
     const modal = document.getElementById('whats-new-modal');
@@ -1143,21 +1144,38 @@ async function refreshExerciseLibrary() {
     }
 }
 let exercisePickerCallback = null;
-function openExercisePickerModal(onSelect) {
+let exercisePickerSource = null; // track where the picker was opened from
+function openExercisePickerModal(onSelect, source) {
     exercisePickerCallback = onSelect;
+    exercisePickerSource = source || 'unknown';
     document.getElementById('exercise-picker-modal').style.display = 'flex';
-    document.getElementById('exercise-search').value = '';
+    pushNavState('exercise-picker');
+    const searchInput = document.getElementById('exercise-search');
+    searchInput.value = '';
     // Populate muscle group filter
     const filter = document.getElementById('muscle-filter');
     const muscles = Array.from(new Set(EXERCISE_LIBRARY.map(ex => ex.muscle))).sort();
     filter.innerHTML = '<option value="">All</option>' + muscles.map(m => `<option value="${m}">${m}</option>`).join('');
     resetExerciseListLimit();
     renderExerciseList('', '');
+    // Auto-focus search when opened from Quick Log
+    if (exercisePickerSource === 'quick-log') {
+        setTimeout(() => {
+            try {
+                searchInput.focus();
+                // Optionally open virtual keyboard on mobile
+                if ('ontouchstart' in window) {
+                    searchInput.click();
+                }
+            } catch (e) {}
+        }, 100);
+    }
 }
 
 function closeExercisePickerModal() {
     document.getElementById('exercise-picker-modal').style.display = 'none';
     exercisePickerCallback = null;
+    exercisePickerSource = null;
 }
 
 // Virtualized exercise list parameters
@@ -1423,6 +1441,7 @@ function slugifyId(str) {
 function openQuickLogModal() {
     const modal = document.getElementById('quick-log-modal');
     modal.style.display = 'flex';
+    pushNavState('quick-log');
     const input = document.getElementById('quick-exercise-input');
     const chooseBtn = document.getElementById('quick-choose-exercise-btn');
     const setsEl = document.getElementById('quick-sets');
@@ -1483,7 +1502,7 @@ function openQuickLogModal() {
             input.value = name;
             saveDraft();
             buildQuickSetInputs();
-        });
+        }, 'quick-log');
     }
 
     // Wire once per open (idempotent listeners)
@@ -1635,6 +1654,7 @@ window.editPlan = function(day) {
 // --- Create Workout Plan Modal Logic ---
 function openCreatePlanModal() {
     document.getElementById('create-plan-modal').style.display = 'flex';
+    pushNavState('create-plan');
     document.getElementById('create-plan-form').reset();
     document.getElementById('exercise-fields').innerHTML = '';
     addExerciseField();
@@ -2699,9 +2719,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initial chart renders
     updateBodyCompChart();
     renderExerciseProgressCharts();
-    showTab('workouts');
     renderWeeklyStrengthVolumeTable();
     renderMeasurementsHistoryTableAndChart();
+    // Open Quick Log by default since that's the primary workflow
+    openQuickLogModal();
 
     // Attach event listeners for all buttons
     // Tab navigation
@@ -2751,7 +2772,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
             }
-            if (qrShareModal) qrShareModal.style.display = 'flex';
+            if (qrShareModal) {
+                qrShareModal.style.display = 'flex';
+                pushNavState('qr-share');
+            }
             // Attach copy action
             if (qrCopyString) {
                 qrCopyString.onclick = async () => {
@@ -2875,6 +2899,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (qrScanModal) qrScanModal.style.display = 'flex';
         if (qrScanStatus) qrScanStatus.textContent = 'Initializing camera…';
         startQrCamera();
+        pushNavState('qr-scan');
     }
 
     if (qrScanBtn) qrScanBtn.addEventListener('click', openQrScanModal);
@@ -2924,6 +2949,52 @@ if ('serviceWorker' in navigator) {
             }
         });
     });
+
+// Back button navigation for PWA - handle within-app navigation
+const navigationStack = [];
+function pushNavState(state) {
+    navigationStack.push(state);
+    history.pushState({ appNav: true, state }, '', location.href);
+}
+function popNavState() {
+    if (navigationStack.length > 0) {
+        navigationStack.pop();
+        return true;
+    }
+    return false;
+}
+window.addEventListener('popstate', (event) => {
+    if (event.state && event.state.appNav) {
+        // User pressed back button - navigate within app instead of closing
+        const state = event.state.state;
+        // Check if any modals are open and close the topmost one
+        const modals = [
+            'exercise-picker-modal',
+            'quick-log-modal',
+            'create-plan-modal',
+            'qr-share-modal',
+            'qr-scan-modal',
+            'whats-new-modal'
+        ];
+        for (const modalId of modals) {
+            const modal = document.getElementById(modalId);
+            if (modal && modal.style.display === 'flex') {
+                modal.style.display = 'none';
+                // Call appropriate close handlers
+                if (modalId === 'exercise-picker-modal' && typeof closeExercisePickerModal === 'function') closeExercisePickerModal();
+                if (modalId === 'quick-log-modal' && typeof closeQuickLogModal === 'function') closeQuickLogModal();
+                if (modalId === 'create-plan-modal' && typeof closeCreatePlanModal === 'function') closeCreatePlanModal();
+                if (modalId === 'qr-share-modal' && typeof closeQrShareModal === 'function') closeQrShareModal();
+                if (modalId === 'qr-scan-modal' && typeof closeQrScanModal === 'function') closeQrScanModal();
+                if (modalId === 'whats-new-modal' && typeof closeWhatsNewModal === 'function') closeWhatsNewModal();
+                popNavState();
+                return;
+            }
+        }
+        // If no modals open, do nothing (stay in app)
+        popNavState();
+    }
+});
 
 // Accessibility & SVG normalization: set aria labels for interactive buttons and normalize SVGs
 document.addEventListener('DOMContentLoaded', function() {
