@@ -353,9 +353,6 @@
             font-weight: 700;
         }
 
-        #dashboard-section .chart-container { margin-top: var(--spacing-24); }
-        #dashboard-section label { margin-right: var(--spacing-8); }
-
         /* Chart.js canvas tweaks */
         .chart-container {
             width: 100%;
@@ -879,21 +876,6 @@
                             </span>
                             <span>Save Measurements</span>
                         </button>
-                    </div>
-                </details>
-
-                <details open id="dashboard-section">
-                    <summary>Body Composition</summary>
-                    <div class="section-body">
-                        <h3 style="color:var(--primary);font-size:1.05em;margin:0 0 12px 0;">Body Weight Progress</h3>
-                        <div class="chart-container" style="margin-bottom:32px;">
-                            <canvas id="bodyWeightChart"></canvas>
-                        </div>
-                        
-                        <h3 style="color:var(--primary);font-size:1.05em;margin:0 0 12px 0;">Body Measurements</h3>
-                        <div class="chart-container">
-                            <canvas id="bodyMeasurementsChart"></canvas>
-                        </div>
                     </div>
                 </details>
 
@@ -2714,7 +2696,6 @@ function saveMeasurements() {
 
     localStorage.setItem('bodyTrackerData', JSON.stringify(bodyData));
     showToast('✅ Measurements saved!', 'success');
-    updateBodyCompChart();
 }
 
 function saveWorkout(day) {
@@ -3286,7 +3267,6 @@ function showTab(tab) {
             try { if (typeof renderMeasurementsHistoryTableAndChart === 'function') renderMeasurementsHistoryTableAndChart(); } catch (e) { console.warn(e); }
             // Kick off async chart loads but don't block UI
             try { if (typeof renderExerciseProgressCharts === 'function') renderExerciseProgressCharts().catch && renderExerciseProgressCharts().catch(e => console.warn(e)); } catch (e) { console.warn(e); }
-            try { if (typeof updateBodyCompChart === 'function') updateBodyCompChart().catch && updateBodyCompChart().catch(e => console.warn(e)); } catch (e) { console.warn(e); }
         }
     }
     // Always close any open modals when switching tabs to avoid overlays blocking clicks
