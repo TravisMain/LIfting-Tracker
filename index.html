@@ -84,26 +84,6 @@
             margin: 0;
         }
 
-        /* Recommended Plans: visually smaller, less prominent */
-        #recommended-plans {
-            background: var(--surface-2);
-            border: 1px dashed var(--border-color);
-            border-radius: 8px;
-            margin: 12px 0 0 0;
-            box-shadow: none;
-            opacity: 0.85;
-        }
-        #recommended-plans summary {
-            font-size: 1em;
-            font-weight: 600;
-            color: var(--primary-light);
-            padding: 10px 16px;
-        }
-        #recommended-content {
-            font-size: 0.95em;
-            color: var(--text-muted);
-        }
-
         /* Quick Log Modal: scrollable for mobile */
         #quick-log-modal .modal-scroll {
             max-height: 80vh;
@@ -780,7 +760,6 @@
         <!-- Quick Log Main Screen -->
         <div id="main-quicklog" style="display:block;padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));">
             <section class="section">
-                <h2 style="color:var(--primary);margin-top:0;">Quick Log Workout</h2>
                 <form id="quick-log-form">
                     <div class="input-group" style="margin-bottom:8px;">
                         <label for="quick-exercise-input">Exercise</label>
@@ -802,44 +781,7 @@
             </section>
         </div>
         
-        <div id="main-dashboard">
-            <section id="workout-section" class="section">
-                <div id="welcome-message" style="margin-bottom:32px;">
-                    <h2 id="welcome-title">Welcome to Your Lifting Program!</h2>
-                    <p id="welcome-motivation" style="font-size:1.15em;color:var(--primary);margin-bottom:8px;"></p>
-                </div>
-                <h2 style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                                        <span>Workout Plan</span>
-                                        <span style="display:flex;gap:8px;">
-                                                <button id="qr-share-btn" class="btn btn-secondary" type="button" title="Show plan as QR">
-                                                                                <span style="vertical-align:middle;display:inline-block;width:1.6em;height:1.6em;">
-                                                                                    <!-- QR code SVG icon -->
-                                                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" width="100%" height="100%" aria-hidden="true">
-                                                                                        <rect x="2" y="2" width="6" height="6" rx="1.5" fill="none" />
-                                                                                        <rect x="16" y="2" width="6" height="6" rx="1.5" fill="none" />
-                                                                                        <rect x="2" y="16" width="6" height="6" rx="1.5" fill="none" />
-                                                                                        <rect x="10" y="10" width="4" height="4" rx="1" fill="none" />
-                                                                                        <rect x="16" y="16" width="2" height="2" rx="0.5" fill="none" />
-                                                                                        <rect x="20" y="20" width="2" height="2" rx="0.5" fill="none" />
-                                                                                    </svg>
-                                                                                </span>
-                                                </button>
-                                                <button id="qr-scan-btn" class="btn" type="button" title="Scan a plan QR">
-                                                                                <span style="vertical-align:middle;display:inline-block;width:1.6em;height:1.6em;">
-                                                                                    <!-- Outline camera SVG icon: crisp at small sizes -->
-                                                                                    <svg viewBox="0 0 24 24" width="100%" height="100%" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                                                                                        <rect x="3" y="6" width="18" height="13" rx="2" fill="none" />
-                                                                                        <path d="M7 6l1.2-2h7.6L17 6" fill="none" />
-                                                                                        <circle cx="12" cy="13.5" r="3.5" fill="none" />
-                                                                                        <circle cx="18" cy="8" r="0.7" fill="none" stroke="currentColor" />
-                                                                                    </svg>
-                                                                                </span>
-                                                </button>
-                                        </span>
-                </h2>
-                <main>
-                </main>
-            </section>
+        <div id="main-dashboard" style="display:none;">
         </div>
         <!-- QR Share Modal -->
     <div id="qr-share-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2003;align-items:center;justify-content:center;">
@@ -2328,18 +2270,9 @@ function renderUserWorkoutPlan() {
             </details>
         `;
     }
-    // Append Recommended Plans section after user-created days
-    planHTML += `
-        <details class="workout-day" id="recommended-plans">
-            <summary>Recommended Plans</summary>
-            <div class="workout-content" id="recommended-content"></div>
-        </details>
-    `;
     mainContainer.innerHTML = planHTML;
     console.log('Injected workout plan HTML:', planHTML);
     // Event delegation is handled globally; no per-button wiring needed here
-    // Render recommended plans content
-    setTimeout(renderRecommendedPlans, 0);
 }
 
 window.addEventListener('DOMContentLoaded', renderUserWorkoutPlan);
@@ -3092,22 +3025,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // User details logic
     const userDetails = localStorage.getItem('userDetails');
-    function setWelcomeMessage() {
-        let name = '', goal = '';
-        if (userDetails) {
-            try {
-                const details = JSON.parse(localStorage.getItem('userDetails'));
-                name = details.name || '';
-                goal = details.goal || '';
-            } catch {}
-        }
-        document.getElementById('welcome-title').textContent = name ? `Welcome to Your Lifting Program, ${name}!` : 'Welcome to Your Lifting Program!';
-        // Pick a random motivational message each time
-        const msg = MOTIVATION_MESSAGES[Math.floor(Math.random() * MOTIVATION_MESSAGES.length)];
-        document.getElementById('welcome-motivation').textContent = name && goal
-            ? `Hey ${name}, your goal is "${goal}". ${msg}`
-            : msg;
-    }
+    // Removed setWelcomeMessage - no longer showing motivational message
 
     if (!userDetails) {
         document.getElementById('user-modal').style.display = 'flex';
@@ -3121,7 +3039,7 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.setItem('userDetails', JSON.stringify({ name, age, goal }));
             document.getElementById('user-modal').style.display = 'none';
             document.querySelector('.container').style.filter = '';
-            setWelcomeMessage();
+            // setWelcomeMessage(); - removed
             showPhase(1);
             updateBodyCompChart();
             renderExerciseProgressCharts();
@@ -3132,7 +3050,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    setWelcomeMessage();
+    // setWelcomeMessage(); - removed
 
     // If redirected from share target, attempt to import cached shared plan
     try {
