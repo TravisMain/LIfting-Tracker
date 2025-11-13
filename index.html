@@ -784,7 +784,7 @@
                     <p id="quick-suggestion" style="color:var(--text-muted);margin:4px 0 12px 0;"></p>
                     <div class="input-group">
                         <label for="quick-sets">Sets</label>
-                        <input type="number" id="quick-sets" min="1" max="10" required placeholder="e.g., 3" value="3">
+                        <input type="number" id="quick-sets" min="1" max="10" required placeholder="e.g., 4" value="4">
                     </div>
                     <div id="quick-set-inputs-container" class="input-grid" style="margin-top:8px;"></div>
                     <div class="input-group" style="margin-top:8px;">
@@ -1844,7 +1844,7 @@ window.addEventListener('DOMContentLoaded', function() {
     const saved = localStorage.getItem('quickLogDraft');
     let draft = saved ? JSON.parse(saved) : {};
     if (input) input.value = draft.exercise || '';
-    if (setsEl) setsEl.value = draft.sets || 3;
+    if (setsEl) setsEl.value = draft.sets || 4;
     if (repsEl) repsEl.value = draft.reps || 10;
 
     function buildQuickSetInputs() {
@@ -2070,7 +2070,7 @@ window.addEventListener('DOMContentLoaded', function() {
         // Clear form but keep defaults
         const form = document.getElementById('quick-log-form');
         if (form) form.reset();
-        if (setsEl) setsEl.value = 3;
+        if (setsEl) setsEl.value = 4;
         if (repsEl) repsEl.value = 10;
         document.getElementById('quick-exercise-input').value = '';
         buildQuickSetInputs();
@@ -2212,7 +2212,7 @@ function createExerciseField(idx) {
                 </div>
                 <div class="input-group" style="margin-bottom:8px;">
                     <label>Sets</label>
-                    <input type="number" name="sets-${idx}" min="1" max="10" value="3" required>
+                    <input type="number" name="sets-${idx}" min="1" max="10" value="4" required>
                 </div>
                 <div class="input-group" style="margin-bottom:8px;">
                     <label>Reps</label>
