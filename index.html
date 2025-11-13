@@ -2867,15 +2867,80 @@ async function renderExerciseProgressCharts() {
             const ctx = canvasEl.getContext('2d');
             // Scale drawing operations to account for DPR
             ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            const data = (workoutData[exId] || []).map(s => ({ x: new Date(s.date), y: (s.weights && s.weights.length ? s.weights.reduce((a,b)=>a+b,0) : (s.values || []).reduce((a,b)=>a+b,0)) }));
+            
+            // Calculate PR (max weight) for each workout session instead of total volume
+            const data = (workoutData[exId] || []).map(s => {
+                const weights = s.weights && s.weights.length ? s.weights : (s.values || []);
+                const validWeights = weights.filter(w => typeof w === 'number' && w > 0);
+                const maxWeight = validWeights.length > 0 ? Math.max(...validWeights) : 0;
+                return { x: new Date(s.date), y: maxWeight };
+            });
+            
             if (exerciseCharts[exId]) { try { exerciseCharts[exId].destroy(); } catch (e) {} }
             exerciseCharts[exId] = new Chart(ctx, {
                 type: 'line',
-                data: { datasets: [{ label: ex.name, data: data, borderColor: 'rgba(163, 230, 53, 1)', backgroundColor: 'rgba(163, 230, 53, 0.12)', tension: 0.2 }] },
+                data: { 
+                    datasets: [{ 
+                        label: 'PR Weight',
+                        data: data, 
+                        borderColor: 'rgba(163, 230, 53, 1)', 
+                        backgroundColor: 'rgba(163, 230, 53, 0.12)', 
+                        tension: 0.2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        pointBackgroundColor: 'rgba(163, 230, 53, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2
+                    }] 
+                },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: { x: { type: 'time', time: { unit: 'day' } } }
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 12, weight: '600' },
+                                color: getComputedStyle(document.documentElement).getPropertyValue('--text-on-surface').trim() || '#23272A'
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            padding: 12,
+                            titleFont: { size: 13, weight: '600' },
+                            bodyFont: { size: 12 },
+                            callbacks: {
+                                label: function(context) {
+                                    return `Max Weight: ${context.parsed.y} kg`;
+                                }
+                            }
+                        }
+                    },
+                    scales: { 
+                        x: { 
+                            type: 'time', 
+                            time: { unit: 'day' },
+                            ticks: {
+                                font: { size: 11 },
+                                maxRotation: 45,
+                                minRotation: 0
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Weight (kg)',
+                                font: { size: 12, weight: '600' }
+                            },
+                            ticks: {
+                                font: { size: 12 }
+                            }
+                        }
+                    }
                 }
             });
         } catch (e) { console.warn('Exercise chart error', e); }
