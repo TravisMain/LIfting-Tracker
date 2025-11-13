@@ -886,10 +886,14 @@
                     <summary>Body Composition</summary>
                     <div class="section-body">
                         <h3 style="color:var(--primary);font-size:1.05em;margin:0 0 12px 0;">Body Weight Progress</h3>
-                        <div id="body-weight-table" class="table-scroll" style="margin-bottom:24px;"></div>
+                        <div class="chart-container" style="margin-bottom:32px;">
+                            <canvas id="bodyWeightChart"></canvas>
+                        </div>
                         
                         <h3 style="color:var(--primary);font-size:1.05em;margin:0 0 12px 0;">Body Measurements</h3>
-                        <div id="body-measurements-table" class="table-scroll"></div>
+                        <div class="chart-container">
+                            <canvas id="bodyMeasurementsChart"></canvas>
+                        </div>
                     </div>
                 </details>
 
@@ -2950,120 +2954,220 @@ function renderExerciseChart(ex, chartId) {
 }
 
 async function updateBodyCompChart() {
-    // Render Body Weight Table
-    const weightTableDiv = document.getElementById('body-weight-table');
-    const measurementsTableDiv = document.getElementById('body-measurements-table');
+    try { await loadChartJs(); } catch (e) { console.warn('Chart.js failed to load', e); return; }
     
-    if (!weightTableDiv || !measurementsTableDiv) return;
+    const weightCanvas = document.getElementById('bodyWeightChart');
+    const measurementsCanvas = document.getElementById('bodyMeasurementsChart');
     
-    if (bodyData.length === 0) {
-        weightTableDiv.innerHTML = '<p style="color:var(--text-muted);padding:12px;">No body weight data recorded yet.</p>';
-        measurementsTableDiv.innerHTML = '<p style="color:var(--text-muted);padding:12px;">No measurements recorded yet.</p>';
-        return;
-    }
+    if (!weightCanvas || !measurementsCanvas) return;
     
-    const isNarrow = window.innerWidth < 640;
-    const sortedData = [...bodyData].sort((a,b) => new Date(b.date) - new Date(a.date));
+    if (bodyData.length === 0) return;
     
-    // Body Weight Table
-    if (isNarrow) {
-        // Mobile: Card view for weight
-        let weightCards = '';
-        sortedData.forEach((row, idx) => {
-            const prevWeight = idx < sortedData.length - 1 ? sortedData[idx + 1].weight : null;
-            const change = prevWeight && row.weight ? (row.weight - prevWeight).toFixed(1) : null;
-            const changeColor = change ? (change > 0 ? '#ef4444' : change < 0 ? '#10b981' : 'var(--text-muted)') : 'var(--text-muted)';
-            const changeIcon = change ? (change > 0 ? '▲' : change < 0 ? '▼' : '−') : '';
-            
-            weightCards += `
-                <div style="background:var(--surface-2);border-radius:8px;padding:12px;margin-bottom:8px;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                        <strong style="color:var(--text-on-surface);">${row.date}</strong>
-                        <div style="display:flex;align-items:center;gap:8px;">
-                            <span style="font-size:1.25em;font-weight:700;color:var(--primary);">${row.weight ?? '-'} kg</span>
-                            ${change ? `<span style="color:${changeColor};font-size:0.9em;font-weight:600;">${changeIcon} ${Math.abs(change)} kg</span>` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        weightTableDiv.innerHTML = weightCards;
-    } else {
-        // Desktop: Table view for weight
-        let weightHtml = '<table style="width:100%;border-collapse:collapse;"><thead><tr style="background:var(--surface-2);">';
-        weightHtml += '<th style="padding:10px;text-align:left;border:1px solid var(--border-color);">Date</th>';
-        weightHtml += '<th style="padding:10px;text-align:center;border:1px solid var(--border-color);">Weight (kg)</th>';
-        weightHtml += '<th style="padding:10px;text-align:center;border:1px solid var(--border-color);">Change</th>';
-        weightHtml += '</tr></thead><tbody>';
-        
-        sortedData.forEach((row, idx) => {
-            const prevWeight = idx < sortedData.length - 1 ? sortedData[idx + 1].weight : null;
-            const change = prevWeight && row.weight ? (row.weight - prevWeight).toFixed(1) : null;
-            const changeColor = change ? (change > 0 ? '#ef4444' : change < 0 ? '#10b981' : 'var(--text-muted)') : 'var(--text-muted)';
-            const changeIcon = change ? (change > 0 ? '▲' : change < 0 ? '▼' : '−') : '';
-            
-            weightHtml += '<tr style="border-bottom:1px solid var(--border-color);">';
-            weightHtml += `<td style="padding:10px;color:var(--text-on-surface);">${row.date}</td>`;
-            weightHtml += `<td style="padding:10px;text-align:center;font-weight:600;color:var(--primary);">${row.weight ?? '-'}</td>`;
-            weightHtml += `<td style="padding:10px;text-align:center;color:${changeColor};font-weight:600;">${change ? `${changeIcon} ${Math.abs(change)}` : '-'}</td>`;
-            weightHtml += '</tr>';
-        });
-        weightHtml += '</tbody></table>';
-        weightTableDiv.innerHTML = weightHtml;
-    }
+    // Sort data chronologically for charts
+    const sortedData = [...bodyData].sort((a,b) => new Date(a.date) - new Date(b.date));
+    const labels = sortedData.map(d => new Date(d.date).toLocaleDateString());
     
-    // Body Measurements Table
-    if (isNarrow) {
-        // Mobile: Card view for measurements
-        let measureCards = '';
-        sortedData.forEach(row => {
-            const hasMeasurements = row.neck || row.chest || row.biceps || row.waist || row.hips || row.thighs || row.calves;
-            if (!hasMeasurements) return;
-            
-            measureCards += `
-                <div style="background:var(--surface-2);border-radius:8px;padding:12px;margin-bottom:8px;">
-                    <strong style="color:var(--text-on-surface);display:block;margin-bottom:8px;">${row.date}</strong>
-                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-                        ${row.neck ? `<div><small style="color:var(--text-muted);">Neck</small><div style="font-weight:600;">${row.neck} cm</div></div>` : ''}
-                        ${row.chest ? `<div><small style="color:var(--text-muted);">Chest</small><div style="font-weight:600;">${row.chest} cm</div></div>` : ''}
-                        ${row.biceps ? `<div><small style="color:var(--text-muted);">Biceps</small><div style="font-weight:600;">${row.biceps} cm</div></div>` : ''}
-                        ${row.waist ? `<div><small style="color:var(--text-muted);">Waist</small><div style="font-weight:600;">${row.waist} cm</div></div>` : ''}
-                        ${row.hips ? `<div><small style="color:var(--text-muted);">Hips</small><div style="font-weight:600;">${row.hips} cm</div></div>` : ''}
-                        ${row.thighs ? `<div><small style="color:var(--text-muted);">Thighs</small><div style="font-weight:600;">${row.thighs} cm</div></div>` : ''}
-                        ${row.calves ? `<div><small style="color:var(--text-muted);">Calves</small><div style="font-weight:600;">${row.calves} cm</div></div>` : ''}
-                    </div>
-                </div>
-            `;
-        });
-        measurementsTableDiv.innerHTML = measureCards || '<p style="color:var(--text-muted);padding:12px;">No measurements recorded yet.</p>';
-    } else {
-        // Desktop: Table view for measurements
-        let measureHtml = '<table style="width:100%;border-collapse:collapse;font-size:0.95em;"><thead><tr style="background:var(--surface-2);">';
-        measureHtml += '<th style="padding:8px;text-align:left;border:1px solid var(--border-color);">Date</th>';
-        measureHtml += '<th style="padding:8px;text-align:center;border:1px solid var(--border-color);">Neck</th>';
-        measureHtml += '<th style="padding:8px;text-align:center;border:1px solid var(--border-color);">Chest</th>';
-        measureHtml += '<th style="padding:8px;text-align:center;border:1px solid var(--border-color);">Biceps</th>';
-        measureHtml += '<th style="padding:8px;text-align:center;border:1px solid var(--border-color);">Waist</th>';
-        measureHtml += '<th style="padding:8px;text-align:center;border:1px solid var(--border-color);">Hips</th>';
-        measureHtml += '<th style="padding:8px;text-align:center;border:1px solid var(--border-color);">Thighs</th>';
-        measureHtml += '<th style="padding:8px;text-align:center;border:1px solid var(--border-color);">Calves</th>';
-        measureHtml += '</tr></thead><tbody>';
-        
-        sortedData.forEach(row => {
-            measureHtml += '<tr style="border-bottom:1px solid var(--border-color);">';
-            measureHtml += `<td style="padding:8px;color:var(--text-on-surface);">${row.date}</td>`;
-            measureHtml += `<td style="padding:8px;text-align:center;">${row.neck ?? '-'}</td>`;
-            measureHtml += `<td style="padding:8px;text-align:center;">${row.chest ?? '-'}</td>`;
-            measureHtml += `<td style="padding:8px;text-align:center;">${row.biceps ?? '-'}</td>`;
-            measureHtml += `<td style="padding:8px;text-align:center;">${row.waist ?? '-'}</td>`;
-            measureHtml += `<td style="padding:8px;text-align:center;">${row.hips ?? '-'}</td>`;
-            measureHtml += `<td style="padding:8px;text-align:center;">${row.thighs ?? '-'}</td>`;
-            measureHtml += `<td style="padding:8px;text-align:center;">${row.calves ?? '-'}</td>`;
-            measureHtml += '</tr>';
-        });
-        measureHtml += '</tbody></table>';
-        measurementsTableDiv.innerHTML = measureHtml;
-    }
+    // Destroy existing charts if they exist
+    if (window.bodyWeightChart) window.bodyWeightChart.destroy();
+    if (window.bodyMeasurementsChart) window.bodyMeasurementsChart.destroy();
+    
+    // Body Weight Chart
+    const weightCtx = weightCanvas.getContext('2d');
+    window.bodyWeightChart = new Chart(weightCtx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Body Weight (kg)',
+                data: sortedData.map(d => d.weight),
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                borderWidth: 3,
+                tension: 0.3,
+                fill: true,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#8b5cf6',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        font: { size: 13, weight: '600' },
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--text-on-surface').trim() || '#23272A'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 12,
+                    titleFont: { size: 14, weight: '600' },
+                    bodyFont: { size: 13 },
+                    callbacks: {
+                        label: function(context) {
+                            return `Weight: ${context.parsed.y} kg`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        font: { size: 11 },
+                        maxRotation: 45,
+                        minRotation: 0
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Weight (kg)',
+                        font: { size: 12, weight: '600' }
+                    },
+                    ticks: {
+                        font: { size: 12 }
+                    }
+                }
+            }
+        }
+    });
+    
+    // Body Measurements Chart
+    const measurementsCtx = measurementsCanvas.getContext('2d');
+    window.bodyMeasurementsChart = new Chart(measurementsCtx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Neck (cm)',
+                    data: sortedData.map(d => d.neck),
+                    borderColor: '#ef4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    hidden: false
+                },
+                {
+                    label: 'Chest (cm)',
+                    data: sortedData.map(d => d.chest),
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    hidden: false
+                },
+                {
+                    label: 'Biceps (cm)',
+                    data: sortedData.map(d => d.biceps),
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    hidden: false
+                },
+                {
+                    label: 'Waist (cm)',
+                    data: sortedData.map(d => d.waist),
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    hidden: false
+                },
+                {
+                    label: 'Hips (cm)',
+                    data: sortedData.map(d => d.hips),
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    hidden: false
+                },
+                {
+                    label: 'Thighs (cm)',
+                    data: sortedData.map(d => d.thighs),
+                    borderColor: '#ec4899',
+                    backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    hidden: false
+                },
+                {
+                    label: 'Calves (cm)',
+                    data: sortedData.map(d => d.calves),
+                    borderColor: '#14b8a6',
+                    backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    hidden: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    labels: {
+                        font: { size: 12 },
+                        color: getComputedStyle(document.documentElement).getPropertyValue('--text-on-surface').trim() || '#23272A',
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    padding: 10,
+                    titleFont: { size: 13, weight: '600' },
+                    bodyFont: { size: 12 },
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.parsed.y || '-'} cm`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        font: { size: 11 },
+                        maxRotation: 45,
+                        minRotation: 0
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Measurement (cm)',
+                        font: { size: 12, weight: '600' }
+                    },
+                    ticks: {
+                        font: { size: 11 }
+                    }
+                }
+            }
+        }
+    });
 }
 
 async function updateStrengthVolumeChart() {
