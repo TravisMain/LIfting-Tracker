@@ -3400,12 +3400,8 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch {}
     // Removed inappropriate easter egg that changed title text
 
-    // Initial chart renders
-    updateBodyCompChart();
-    renderExerciseProgressCharts();
-    renderWeeklyStrengthVolumeTable();
-    renderMeasurementsHistoryTableAndChart();
     // Show Quick Log tab by default since that's the primary workflow
+    // Charts will be lazily initialized when stats tab is first shown
     showTab('quick');
 
     // Attach event listeners for all buttons
