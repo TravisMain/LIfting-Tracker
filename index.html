@@ -734,36 +734,6 @@
         </div>
     </div>
 
-    <!-- Quick Log Modal (Bottom Sheet) -->
-
-    <div id="quick-log-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2001;align-items:flex-end;justify-content:center;">
-        <div style="background:var(--surface-1);padding:20px 16px calc(16px + env(safe-area-inset-bottom, 0px));border-radius:14px 14px 0 0;max-width:640px;width:100vw;margin:0;box-shadow:0 -6px 24px rgba(44,62,80,0.16);display:flex;flex-direction:column;max-height:90vh;overflow-y:auto;">
-            <div class="modal-drag-handle"></div>
-            <h2 style="color:var(--primary);margin-top:0;">Quick Log</h2>
-            <div class="modal-scroll">
-                <form id="quick-log-form">
-                    <div class="input-group" style="margin-bottom:8px;">
-                        <label for="quick-exercise-input">Exercise</label>
-                        <input type="text" id="quick-exercise-input" required placeholder="Select or type exercise..." style="background:#f3f4f6;cursor:pointer;" autocomplete="off">
-                        <button type="button" class="btn btn-secondary" style="margin-top:4px;" id="quick-choose-exercise-btn">Choose</button>
-                    </div>
-                    <p id="quick-suggestion" style="color:var(--text-muted);margin:4px 0 12px 0;"></p>
-                    <div class="input-group">
-                        <label for="quick-sets">Sets</label>
-                        <input type="number" id="quick-sets" min="1" max="10" required placeholder="e.g., 3" value="3">
-                    </div>
-                    <div id="quick-set-inputs-container" class="input-grid" style="margin-top:8px;"></div>
-                    <div class="input-group" style="margin-top:8px;">
-                        <label for="quick-reps">Reps</label>
-                        <input type="number" id="quick-reps" min="1" max="50" required placeholder="e.g., 10" value="10">
-                    </div>
-                    <button class="btn" type="submit" style="margin-top:16px;width:100%;">Save Quick Log</button>
-                    <button class="btn btn-secondary" type="button" style="margin-top:8px;width:100%;" onclick="closeQuickLogModal()">Cancel</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <!-- Floating Quick Log Button removed in favor of action bar -->
     <div class="container">
         <header>
@@ -790,7 +760,7 @@
         </header>
         <!-- Bottom Tab Bar Navigation -->
         <nav class="tab-bar">
-            <button class="tab-bar-btn" id="tab-quick" aria-label="Quick Log">
+            <button class="tab-bar-btn active" id="tab-quick" aria-label="Quick Log">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
                     <polygon points="13 2 3 14 12 14 11 22 21 10 13 10 13 2" />
                 </svg>
@@ -805,28 +775,33 @@
                 </svg>
                 Stats
             </button>
-            <button class="tab-bar-btn" id="tab-workouts" aria-label="Workouts">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="7" width="3" height="10" rx="1"/>
-                    <rect x="19" y="7" width="3" height="10" rx="1"/>
-                    <rect x="7" y="9" width="10" height="6" rx="1"/>
-                    <line x1="5" y1="12" x2="7" y2="12"/>
-                    <line x1="17" y1="12" x2="19" y2="12"/>
-                </svg>
-                Plans
-            </button>
-            <button class="tab-bar-btn" id="tab-create" aria-label="Create Plan">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="3" y="4" width="18" height="18" rx="4"/>
-                    <line x1="16" y1="2" x2="16" y2="6"/>
-                    <line x1="8" y1="2" x2="8" y2="6"/>
-                    <line x1="3" y1="10" x2="21" y2="10"/>
-                    <line x1="12" y1="14" x2="12" y2="18"/>
-                    <line x1="10" y1="16" x2="14" y2="16"/>
-                </svg>
-                Create
-            </button>
         </nav>
+        
+        <!-- Quick Log Main Screen -->
+        <div id="main-quicklog" style="display:block;padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));">
+            <section class="section">
+                <h2 style="color:var(--primary);margin-top:0;">Quick Log Workout</h2>
+                <form id="quick-log-form">
+                    <div class="input-group" style="margin-bottom:8px;">
+                        <label for="quick-exercise-input">Exercise</label>
+                        <input type="text" id="quick-exercise-input" required placeholder="Select or type exercise..." style="background:var(--surface-2);cursor:pointer;" autocomplete="off">
+                        <button type="button" class="btn btn-secondary" style="margin-top:4px;" id="quick-choose-exercise-btn">Choose Exercise</button>
+                    </div>
+                    <p id="quick-suggestion" style="color:var(--text-muted);margin:4px 0 12px 0;"></p>
+                    <div class="input-group">
+                        <label for="quick-sets">Sets</label>
+                        <input type="number" id="quick-sets" min="1" max="10" required placeholder="e.g., 3" value="3">
+                    </div>
+                    <div id="quick-set-inputs-container" class="input-grid" style="margin-top:8px;"></div>
+                    <div class="input-group" style="margin-top:8px;">
+                        <label for="quick-reps">Reps</label>
+                        <input type="number" id="quick-reps" min="1" max="50" required placeholder="e.g., 10" value="10">
+                    </div>
+                    <button class="btn" type="submit" style="margin-top:16px;width:100%;">💪 Save Workout</button>
+                </form>
+            </section>
+        </div>
+        
         <div id="main-dashboard">
             <section id="workout-section" class="section">
                 <div id="welcome-message" style="margin-bottom:32px;">
@@ -1064,7 +1039,6 @@ let isDragging = false;
 function initModalGestures() {
     const modals = [
         'exercise-picker-modal',
-        'quick-log-modal',
         'create-plan-modal',
         'whats-new-modal'
     ];
@@ -1108,7 +1082,6 @@ function initModalGestures() {
                     modalContent.style.transform = '';
                     // Call appropriate close handler
                     if (modalId === 'exercise-picker-modal' && typeof closeExercisePickerModal === 'function') closeExercisePickerModal();
-                    if (modalId === 'quick-log-modal' && typeof closeQuickLogModal === 'function') closeQuickLogModal();
                     if (modalId === 'create-plan-modal' && typeof closeCreatePlanModal === 'function') closeCreatePlanModal();
                     if (modalId === 'whats-new-modal' && typeof closeWhatsNewModal === 'function') closeWhatsNewModal();
                 }, 300);
@@ -1913,6 +1886,87 @@ function closeQuickLogModal() {
 }
 
 window.addEventListener('DOMContentLoaded', function() {
+    // Initialize Quick Log form
+    const input = document.getElementById('quick-exercise-input');
+    const chooseBtn = document.getElementById('quick-choose-exercise-btn');
+    const setsEl = document.getElementById('quick-sets');
+    const repsEl = document.getElementById('quick-reps');
+    const setContainer = document.getElementById('quick-set-inputs-container');
+    const suggestionEl = document.getElementById('quick-suggestion');
+
+    // Restore saved state if present
+    const saved = localStorage.getItem('quickLogDraft');
+    let draft = saved ? JSON.parse(saved) : {};
+    if (input) input.value = draft.exercise || '';
+    if (setsEl) setsEl.value = draft.sets || 3;
+    if (repsEl) repsEl.value = draft.reps || 10;
+
+    function buildQuickSetInputs() {
+        if (!setContainer) return;
+        setContainer.innerHTML = '';
+        const sets = Math.max(1, Math.min(10, parseInt(setsEl.value) || 1));
+        // Try to pull last session max for suggestion and prefill
+        const exName = (input.value || '').trim();
+        let lastMax = null;
+        if (exName && workoutData[exName] && workoutData[exName].length > 0) {
+            const last = workoutData[exName][workoutData[exName].length - 1];
+            const weights = (last.weights && last.weights.length ? last.weights : (last.values || [])).filter(v => typeof v === 'number' && v > 0);
+            if (weights.length) lastMax = Math.max(...weights);
+        }
+        if (suggestionEl) suggestionEl.textContent = lastMax != null ? `Suggestion: Last max was ${lastMax}. Try for ${lastMax + 2.5}.` : 'Log a workout to get suggestions.';
+        for (let i = 0; i < sets; i++) {
+            const div = document.createElement('div');
+            div.className = 'input-group';
+            const id = `quick-set-${i+1}`;
+            let value = '';
+            if (draft.weights && typeof draft.weights[i] !== 'undefined') value = draft.weights[i];
+            else if (lastMax != null) value = lastMax;
+            div.innerHTML = `
+                <label for="${id}">Set ${i+1} Weight</label>
+                <input type="number" id="${id}" min="0" step="0.5" placeholder="kg/lbs" value="${value}">
+            `;
+            setContainer.appendChild(div);
+        }
+    }
+
+    function saveDraft() {
+        const weights = [];
+        const sets = Math.max(1, Math.min(10, parseInt(setsEl.value) || 1));
+        for (let i = 0; i < sets; i++) {
+            const val = parseFloat(document.getElementById(`quick-set-${i+1}`)?.value);
+            weights.push(isNaN(val) ? '' : val);
+        }
+        localStorage.setItem('quickLogDraft', JSON.stringify({
+            exercise: input.value,
+            sets: setsEl.value,
+            reps: repsEl.value,
+            weights
+        }));
+    }
+
+    function openPicker() {
+        openExercisePickerModal(function(name){
+            input.value = name;
+            saveDraft();
+            buildQuickSetInputs();
+        }, 'quick-log');
+    }
+
+    // Wire listeners
+    if (input) {
+        input.onclick = openPicker;
+        input.oninput = function() { saveDraft(); buildQuickSetInputs(); };
+    }
+    if (chooseBtn) chooseBtn.onclick = openPicker;
+    if (setsEl) setsEl.oninput = function() { buildQuickSetInputs(); saveDraft(); };
+    if (repsEl) repsEl.oninput = saveDraft;
+    if (setContainer) setContainer.oninput = saveDraft;
+    
+    // Initial render
+    buildQuickSetInputs();
+    saveDraft();
+    
+    // Form submission
     document.getElementById('quick-log-form').onsubmit = function(e) {
         e.preventDefault();
         const name = (document.getElementById('quick-exercise-input').value || '').trim();
@@ -1937,9 +1991,13 @@ window.addEventListener('DOMContentLoaded', function() {
         });
         localStorage.setItem('workoutTrackerData', JSON.stringify(workoutData));
         showToast('💪 Workout logged!', 'success');
-        // Clear draft ONLY on save
+        // Clear draft and reset form
         localStorage.removeItem('quickLogDraft');
-        closeQuickLogModal();
+        const form = document.getElementById('quick-log-form');
+        if (form) form.reset();
+        if (setsEl) setsEl.value = 3;
+        if (repsEl) repsEl.value = 10;
+        buildQuickSetInputs();
         updateSuggestions();
         updateStrengthVolumeChart();
         renderExerciseProgressCharts();
@@ -2928,14 +2986,14 @@ function showStrengthTab(tab) {
 // --- INITIALIZATION ---
 function showTab(tab) {
     // Defensive: ensure tab content exists
-    const dashboard = document.getElementById('main-dashboard');
+    const quicklog = document.getElementById('main-quicklog');
     const stats = document.getElementById('main-pastworkouts');
-    if (dashboard) dashboard.style.display = tab === 'workouts' ? '' : 'none';
-    if (stats) stats.style.display = tab === 'stats' ? '' : 'none';
+    if (quicklog) quicklog.style.display = tab === 'quick' ? 'block' : 'none';
+    if (stats) stats.style.display = tab === 'stats' ? 'block' : 'none';
     // Tab bar active state
-    const tabWorkouts = document.getElementById('tab-workouts');
+    const tabQuick = document.getElementById('tab-quick');
     const tabStats = document.getElementById('tab-stats');
-    if (tabWorkouts) tabWorkouts.classList.toggle('active', tab === 'workouts');
+    if (tabQuick) tabQuick.classList.toggle('active', tab === 'quick');
     if (tabStats) tabStats.classList.toggle('active', tab === 'stats');
     if (tab === 'stats') {
         if (!_chartsInitialized) {
@@ -2949,7 +3007,7 @@ function showTab(tab) {
         }
     }
     // Always close any open modals when switching tabs to avoid overlays blocking clicks
-    const modals = ['create-plan-modal','quick-log-modal','exercise-picker-modal','user-modal','qr-share-modal','qr-scan-modal'];
+    const modals = ['create-plan-modal','exercise-picker-modal','user-modal','qr-share-modal','qr-scan-modal'];
     modals.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = 'none';
@@ -3105,8 +3163,8 @@ document.addEventListener('DOMContentLoaded', function() {
     renderExerciseProgressCharts();
     renderWeeklyStrengthVolumeTable();
     renderMeasurementsHistoryTableAndChart();
-    // Open Quick Log by default since that's the primary workflow
-    openQuickLogModal();
+    // Show Quick Log tab by default since that's the primary workflow
+    showTab('quick');
 
     // Attach event listeners for all buttons
     // Tab navigation
@@ -3298,7 +3356,6 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll("button[type='button']").forEach(btn => {
         if (btn.textContent.trim().toLowerCase().includes('cancel')) {
             if (btn.closest('#create-plan-modal')) btn.addEventListener('click', closeCreatePlanModal);
-            if (btn.closest('#quick-log-modal')) btn.addEventListener('click', closeQuickLogModal);
         }
     });
 });
@@ -3354,7 +3411,6 @@ window.addEventListener('popstate', (event) => {
         // Check if any modals are open and close the topmost one
         const modals = [
             'exercise-picker-modal',
-            'quick-log-modal',
             'create-plan-modal',
             'qr-share-modal',
             'qr-scan-modal',
@@ -3366,7 +3422,6 @@ window.addEventListener('popstate', (event) => {
                 modal.style.display = 'none';
                 // Call appropriate close handlers
                 if (modalId === 'exercise-picker-modal' && typeof closeExercisePickerModal === 'function') closeExercisePickerModal();
-                if (modalId === 'quick-log-modal' && typeof closeQuickLogModal === 'function') closeQuickLogModal();
                 if (modalId === 'create-plan-modal' && typeof closeCreatePlanModal === 'function') closeCreatePlanModal();
                 if (modalId === 'qr-share-modal' && typeof closeQrShareModal === 'function') closeQrShareModal();
                 if (modalId === 'qr-scan-modal' && typeof closeQrScanModal === 'function') closeQrScanModal();
@@ -3593,36 +3648,18 @@ function renderMeasurementsHistoryTableAndChart() {
 // Attach tab button event listeners after everything is loaded
 window.addEventListener('load', function() {
     console.log('window.load event fired, attaching tab button listeners...');
-    const tabWorkoutsBtn = document.getElementById('tab-workouts');
-    const tabStatsBtn = document.getElementById('tab-stats');
     const tabQuickBtn = document.getElementById('tab-quick');
-    const tabCreateBtn = document.getElementById('tab-create');
-    if (tabWorkoutsBtn) {
-        tabWorkoutsBtn.addEventListener('click', function() {
-            console.log('Workouts tab button clicked (window.load)');
-            showTab('workouts');
+    const tabStatsBtn = document.getElementById('tab-stats');
+    if (tabQuickBtn) {
+        tabQuickBtn.addEventListener('click', function() {
+            console.log('Quick Log tab button clicked (window.load)');
+            showTab('quick');
         });
     }
     if (tabStatsBtn) {
         tabStatsBtn.addEventListener('click', function() {
             console.log('Stats tab button clicked (window.load)');
             showTab('stats');
-        });
-    }
-    if (tabQuickBtn) {
-        tabQuickBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Quick Log action clicked (window.load)');
-            if (typeof openQuickLogModal === 'function') openQuickLogModal();
-        });
-    }
-    if (tabCreateBtn) {
-        tabCreateBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            console.log('Create Plan action clicked (window.load)');
-            if (typeof openCreatePlanModal === 'function') openCreatePlanModal();
         });
     }
     console.log('Tab button event listeners attached (window.load)');
