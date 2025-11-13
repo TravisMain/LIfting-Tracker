@@ -841,8 +841,16 @@
                                 <input type="number" id="body-weight" placeholder="e.g., 95.5" inputmode="decimal" step="0.1" min="0">
                             </div>
                             <div class="input-group">
+                                <label for="neck-measure">Neck (cm)</label>
+                                <input type="number" id="neck-measure" placeholder="e.g., 40" inputmode="decimal" step="0.1" min="0">
+                            </div>
+                            <div class="input-group">
                                 <label for="chest-measure">Chest (cm)</label>
                                 <input type="number" id="chest-measure" placeholder="e.g., 110" inputmode="decimal" step="0.1" min="0">
+                            </div>
+                            <div class="input-group">
+                                <label for="biceps-measure">Biceps (cm)</label>
+                                <input type="number" id="biceps-measure" placeholder="e.g., 40" inputmode="decimal" step="0.1" min="0">
                             </div>
                             <div class="input-group">
                                 <label for="waist-measure">Waist (cm)</label>
@@ -853,16 +861,8 @@
                                 <input type="number" id="hips-measure" placeholder="e.g., 105" inputmode="decimal" step="0.1" min="0">
                             </div>
                             <div class="input-group">
-                                <label for="biceps-measure">Biceps (cm)</label>
-                                <input type="number" id="biceps-measure" placeholder="e.g., 40" inputmode="decimal" step="0.1" min="0">
-                            </div>
-                            <div class="input-group">
                                 <label for="thighs-measure">Thighs (cm)</label>
                                 <input type="number" id="thighs-measure" placeholder="e.g., 60" inputmode="decimal" step="0.1" min="0">
-                            </div>
-                            <div class="input-group">
-                                <label for="neck-measure">Neck (cm)</label>
-                                <input type="number" id="neck-measure" placeholder="e.g., 40" inputmode="decimal" step="0.1" min="0">
                             </div>
                             <div class="input-group">
                                 <label for="calves-measure">Calves (cm)</label>
@@ -3693,12 +3693,12 @@ function renderMeasurementsHistoryTableAndChart() {
                         <span style="color:var(--text-muted);font-size:0.95em;">${row.weight ?? '-'} kg</span>
                     </div>
                     <div class="measure-grid">
+                        <div><small>Neck</small><div>${row.neck ?? '-'}</div></div>
                         <div><small>Chest</small><div>${row.chest ?? '-'}</div></div>
+                        <div><small>Biceps</small><div>${row.biceps ?? '-'}</div></div>
                         <div><small>Waist</small><div>${row.waist ?? '-'}</div></div>
                         <div><small>Hips</small><div>${row.hips ?? '-'}</div></div>
-                        <div><small>Biceps</small><div>${row.biceps ?? '-'}</div></div>
                         <div><small>Thighs</small><div>${row.thighs ?? '-'}</div></div>
-                        <div><small>Neck</small><div>${row.neck ?? '-'}</div></div>
                         <div><small>Calves</small><div>${row.calves ?? '-'}</div></div>
                     </div>
                 </div>
@@ -3711,24 +3711,24 @@ function renderMeasurementsHistoryTableAndChart() {
     html += `<thead><tr style="background:#f3f4f6;">
         <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Date</th>
         <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Weight (kg)</th>
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Neck (cm)</th>
         <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Chest (cm)</th>
+        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Biceps (cm)</th>
         <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Waist (cm)</th>
         <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Hips (cm)</th>
-        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Biceps (cm)</th>
         <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Thighs (cm)</th>
-        <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Neck (cm)</th>
         <th style="padding:8px 4px;border:1px solid #e2e8f0;position:sticky;top:0;z-index:2;min-width:80px;">Calves (cm)</th>
     </tr></thead><tbody>`;
     sortedRows.forEach(row => {
         html += `<tr style="background:#fff;">
             <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:keep-all;white-space:nowrap;font-size:0.98em;">${row.date}</td>
             <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.weight ?? '-'}</td>
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.neck ?? '-'}</td>
             <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.chest ?? '-'}</td>
+            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.biceps ?? '-'}</td>
             <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.waist ?? '-'}</td>
             <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.hips ?? '-'}</td>
-            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.biceps ?? '-'}</td>
             <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.thighs ?? '-'}</td>
-            <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.neck ?? '-'}</td>
             <td style="padding:6px 4px;border:1px solid #e2e8f0;word-break:break-word;max-width:80px;overflow:hidden;text-overflow:ellipsis;">${row.calves ?? '-'}</td>
         </tr>`;
     });
