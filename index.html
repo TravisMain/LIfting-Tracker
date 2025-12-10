@@ -903,7 +903,10 @@
                 <details id="measurements-history-section">
                     <summary>Measurements & Body Weight History</summary>
                     <div class="section-body">
-                        <div id="measurements-history-table" class="table-scroll"></div>
+                            <div class="chart-container" style="margin-bottom:12px;">
+                                <canvas id="measure-weight-chart" style="width:100%;height:220px;display:block;"></canvas>
+                            </div>
+                            <div id="measurements-history-table" class="table-scroll"></div>
                     </div>
                 </details>
             </section>
@@ -3001,6 +3004,8 @@ function saveMeasurements() {
 
     localStorage.setItem('bodyTrackerData', JSON.stringify(bodyData));
     showToast('✅ Measurements saved!', 'success');
+    try { renderMeasurementsHistoryTableAndChart(); } catch (e) { console.warn('renderMeasurementsHistoryTableAndChart failed', e); }
+    try { updateMeasurementWeightChart(); } catch (e) { /* will attempt when chart lib available */ }
 }
 
 function saveWorkout(day) {
@@ -4249,6 +4254,7 @@ function renderMeasurementsHistoryTableAndChart() {
             `;
         });
         tableDiv.innerHTML = cards || '<p style="color:var(--text-muted);">No measurements recorded yet.</p>';
+        try { updateMeasurementWeightChart(); } catch (e) { console.warn('updateMeasurementWeightChart (narrow) failed', e); }
         return;
     }
     let html = `<table class="mobile-measurements-table" style="width:100%;border-collapse:collapse;font-size:0.95em;min-width:420px;">`;
@@ -4292,6 +4298,92 @@ function renderMeasurementsHistoryTableAndChart() {
     });
     html += '</tbody></table>';
     tableDiv.innerHTML = html;
+    try { updateMeasurementWeightChart(); } catch (e) { console.warn('updateMeasurementWeightChart failed', e); }
+}
+
+// Render a weight history line chart (chronological left->right)
+async function updateMeasurementWeightChart() {
+    try { await loadChartJs(); } catch (e) { console.warn('Chart.js failed to load for weight chart', e); return; }
+
+    const chartContainer = document.querySelector('#measurements-history-section .section-body .chart-container');
+    if (!chartContainer) return;
+
+    // Ensure canvas exists (in case container was replaced by a message)
+    let canvas = document.getElementById('measure-weight-chart');
+    if (!canvas) {
+        chartContainer.innerHTML = '<canvas id="measure-weight-chart" style="width:100%;height:220px;display:block;"></canvas>';
+        canvas = document.getElementById('measure-weight-chart');
+        if (!canvas) return;
+    }
+
+    // Prepare data: chronological ascending
+    const rows = (bodyData || []).slice().sort((a,b) => new Date(a.date) - new Date(b.date));
+    const points = rows.filter(r => r && typeof r.weight !== 'undefined' && r.weight !== null).map(r => ({ x: r.date, y: r.weight }));
+
+    if (!points || points.length === 0) {
+        // Show empty-state message in container but keep canvas available for later
+        chartContainer.innerHTML = '<p style="color:var(--text-muted);margin:6px 0;">No weight data to display yet.</p>' +
+            '<canvas id="measure-weight-chart" style="width:100%;height:220px;display:block;visibility:hidden;"></canvas>';
+        return;
+    }
+
+    // Restore visible canvas (if previously hidden)
+    if (!document.getElementById('measure-weight-chart')) {
+        chartContainer.innerHTML = '<canvas id="measure-weight-chart" style="width:100%;height:220px;display:block;"></canvas>';
+        canvas = document.getElementById('measure-weight-chart');
+    }
+
+    const ctx = canvas.getContext('2d');
+    // Destroy previous chart instance if present
+    try { if (window.measureWeightChart && window.measureWeightChart.destroy) window.measureWeightChart.destroy(); } catch (e) { /* ignore */ }
+
+    // Read theme colors from CSS variables
+    const css = getComputedStyle(document.documentElement);
+    const lineColor = (css.getPropertyValue('--primary') || '#475569').trim() || '#475569';
+    const pointColor = (css.getPropertyValue('--accent') || '#a3e635').trim() || '#a3e635';
+    const gridColor = (css.getPropertyValue('--border-color') || '#e2e8f0').trim() || '#e2e8f0';
+    const textColor = (css.getPropertyValue('--text-muted') || '#6B7280').trim() || '#6B7280';
+
+    // Setup Chart.js dataset
+    const dataset = {
+        label: 'Body Weight (kg)',
+        data: points,
+        fill: false,
+        borderColor: lineColor,
+        backgroundColor: pointColor,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.15
+    };
+
+    const cfg = {
+        type: 'line',
+        data: { datasets: [dataset] },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: {
+                    type: 'time',
+                    time: { unit: 'day', tooltipFormat: 'PP' },
+                    ticks: { color: textColor }
+                },
+                y: {
+                    beginAtZero: false,
+                    ticks: { color: textColor }
+                }
+            },
+            elements: { line: { borderWidth: 2 } },
+            interaction: { mode: 'index', intersect: false }
+        }
+    };
+
+    try {
+        window.measureWeightChart = new Chart(ctx, cfg);
+    } catch (e) {
+        console.warn('Failed to create measureWeightChart', e);
+    }
 }
 </script>
 <script>
