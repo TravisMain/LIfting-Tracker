@@ -600,12 +600,217 @@
         .pull-refresh-indicator.visible {
             top: 20px;
         }
+
+        /* Weight input with +/- buttons */
+        .weight-input-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .weight-input-wrapper input {
+            flex: 1;
+            text-align: center;
+        }
+        .weight-btn {
+            min-width: 36px;
+            min-height: 36px;
+            padding: 0;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--surface-2);
+            color: var(--primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .weight-btn:active {
+            background: var(--accent);
+            transform: scale(0.95);
+        }
+
+        /* Favorites star button */
+        .favorite-btn {
+            background: none;
+            border: none;
+            font-size: 1.3em;
+            cursor: pointer;
+            padding: 4px;
+            color: var(--text-muted);
+        }
+        .favorite-btn.active {
+            color: #facc15;
+        }
+        .favorite-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* Recent exercises section */
+        .recent-exercises-section {
+            background: var(--surface-2);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 12px;
+        }
+        .recent-exercises-section h4 {
+            margin: 0 0 8px 0;
+            font-size: 0.9em;
+            color: var(--text-muted);
+        }
+        .recent-exercise-chip {
+            display: inline-block;
+            background: var(--surface-1);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 6px 12px;
+            margin: 2px 4px 2px 0;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .recent-exercise-chip:hover {
+            background: var(--accent);
+            color: var(--primary);
+        }
+
+        /* Streak counter badge */
+        .streak-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.95em;
+            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
+        }
+        .streak-badge .streak-icon {
+            font-size: 1.2em;
+        }
+
+        /* Weekly summary card */
+        .weekly-summary-card {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .summary-stat {
+            background: var(--surface-2);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+        .summary-stat .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        .summary-stat .stat-label {
+            font-size: 0.85em;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Rest timer overlay */
+        .rest-timer-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 3100;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .rest-timer-display {
+            font-size: 6em;
+            font-weight: bold;
+            color: var(--accent);
+            font-family: 'Montserrat', sans-serif;
+        }
+        .rest-timer-label {
+            font-size: 1.5em;
+            color: white;
+            margin-top: 16px;
+        }
+        .rest-timer-skip {
+            margin-top: 32px;
+            padding: 12px 32px;
+        }
+
+        /* Undo toast with action button */
+        .toast.with-action {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-right: 12px;
+        }
+        .toast .undo-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .toast .undo-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Delete button in tables */
+        .delete-entry-btn {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+        .delete-entry-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* PR badge */
+        .pr-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            color: #1f2937;
+            font-size: 0.75em;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-left: 6px;
+        }
+
+        /* Export button in stats */
+        .export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
 
     <!-- Toast Notification Container -->
     <div id="toast-container"></div>
+
+    <!-- Rest Timer Overlay -->
+    <div class="rest-timer-overlay" id="rest-timer-overlay">
+        <div class="rest-timer-display" id="rest-timer-display">90</div>
+        <div class="rest-timer-label">Rest Time</div>
+        <button class="btn rest-timer-skip" onclick="skipRestTimer()">Skip</button>
+    </div>
 
     <!-- Update Snackbar (non-blocking) -->
     <div id="update-snackbar" style="display:none;position:fixed;left:50%;transform:translateX(-50%);bottom:80px;background:#111;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.2);z-index:2200;align-items:center;gap:8px;">
@@ -632,6 +837,16 @@
         <div style="background:var(--surface-1);padding:20px 16px calc(16px + env(safe-area-inset-bottom, 0px));border-radius:14px 14px 0 0;max-width:640px;width:100vw;margin:0;box-shadow:0 -6px 24px rgba(44,62,80,0.16);max-height:90vh;overflow-y:auto;">
             <div class="modal-drag-handle"></div>
             <h2 style="color:var(--primary);margin-top:0;margin-bottom:12px;">Select Exercise</h2>
+            <!-- Favorites Section -->
+            <div id="favorites-section" class="recent-exercises-section" style="display:none;">
+                <h4>⭐ Favorites</h4>
+                <div id="favorites-list"></div>
+            </div>
+            <!-- Recent Exercises Section -->
+            <div id="recent-exercises-section" class="recent-exercises-section" style="display:none;">
+                <h4>🕐 Recent</h4>
+                <div id="recent-exercises-list"></div>
+            </div>
             <div style="margin-bottom:12px;">
                 <label for="muscle-filter" style="font-weight:600;color:var(--primary);">Filter by Muscle Group:</label>
                 <select id="muscle-filter" style="width:100%;margin-top:4px;padding:8px;border-radius:8px;border:1px solid var(--border-color);background:var(--surface-2);color:var(--text-on-surface);">
@@ -754,6 +969,16 @@
         
         <!-- Quick Log Main Screen -->
         <div id="main-quicklog" style="display:block;padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));">
+            <!-- Quick Actions Bar -->
+            <div style="display:flex;gap:8px;margin-bottom:16px;">
+                <button class="btn btn-secondary" onclick="copyLastWorkout()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                    Copy Last Workout
+                </button>
+            </div>
+            
             <!-- Active Workout Session Display -->
             <div id="active-workout-container" style="display:none;margin-bottom:16px;">
                 <section class="section">
@@ -824,10 +1049,29 @@
         </div>
         <div id="main-pastworkouts" style="display:none;">
             <section class="section stats-accordion">
-                <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;">
                     <h2 style="margin:0;">Stats</h2>
-                    <button class="btn" style="background:#ef4444;color:#fff;" onclick="clearAllData()">Clear All Data & Restart</button>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <button class="btn btn-secondary export-btn" onclick="exportToCSV()" title="Export workouts to CSV">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export CSV
+                        </button>
+                        <button class="btn" style="background:#ef4444;color:#fff;" onclick="clearAllData()">Clear All</button>
+                    </div>
                 </div>
+
+                <!-- Weekly Summary & Streak -->
+                <details open id="weekly-summary-section">
+                    <summary>Weekly Summary & Streak</summary>
+                    <div class="section-body">
+                        <div id="streak-display" style="margin-bottom:16px;"></div>
+                        <div id="weekly-summary-display" class="weekly-summary-card"></div>
+                    </div>
+                </details>
 
                 <details open id="measurements-section">
                     <summary>Track Your Measurements</summary>
@@ -1078,6 +1322,436 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // ========== END MOBILE UI ENHANCEMENTS ==========
+
+// ========== QoL FEATURES ==========
+
+// Favorites Management
+let favoriteExercises = JSON.parse(localStorage.getItem('favoriteExercises') || '[]');
+
+function toggleFavorite(exerciseName) {
+    const index = favoriteExercises.indexOf(exerciseName);
+    if (index > -1) {
+        favoriteExercises.splice(index, 1);
+        showToast(`⭐ ${exerciseName} removed from favorites`);
+    } else {
+        favoriteExercises.push(exerciseName);
+        showToast(`⭐ ${exerciseName} added to favorites!`);
+    }
+    localStorage.setItem('favoriteExercises', JSON.stringify(favoriteExercises));
+    renderFavoritesSection();
+    // Re-render exercise list to update star state
+    renderExerciseList(document.getElementById('exercise-search')?.value || '');
+}
+
+function renderFavoritesSection() {
+    const section = document.getElementById('favorites-section');
+    const list = document.getElementById('favorites-list');
+    if (!section || !list) return;
+    
+    if (favoriteExercises.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+    
+    section.style.display = 'block';
+    list.innerHTML = favoriteExercises.map(name => 
+        `<span class="recent-exercise-chip" onclick="selectExerciseFromPicker('${name.replace(/'/g, "\\'")}')">${name}</span>`
+    ).join('');
+}
+
+// Recent Exercises Management
+let recentExercises = JSON.parse(localStorage.getItem('recentExercises') || '[]');
+
+function addToRecentExercises(exerciseName) {
+    // Remove if already exists
+    recentExercises = recentExercises.filter(e => e !== exerciseName);
+    // Add to front
+    recentExercises.unshift(exerciseName);
+    // Keep only last 5
+    recentExercises = recentExercises.slice(0, 5);
+    localStorage.setItem('recentExercises', JSON.stringify(recentExercises));
+}
+
+function renderRecentExercisesSection() {
+    const section = document.getElementById('recent-exercises-section');
+    const list = document.getElementById('recent-exercises-list');
+    if (!section || !list) return;
+    
+    if (recentExercises.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+    
+    section.style.display = 'block';
+    list.innerHTML = recentExercises.map(name => 
+        `<span class="recent-exercise-chip" onclick="selectExerciseFromPicker('${name.replace(/'/g, "\\'")}')">${name}</span>`
+    ).join('');
+}
+
+// Workout Streak Calculator
+function calculateStreak() {
+    const workoutDates = new Set();
+    
+    // Collect all workout dates
+    for (const exercise in workoutData) {
+        if (workoutData[exercise] && Array.isArray(workoutData[exercise])) {
+            workoutData[exercise].forEach(entry => {
+                if (entry.date) workoutDates.add(entry.date);
+            });
+        }
+    }
+    
+    if (workoutDates.size === 0) return { current: 0, best: 0 };
+    
+    // Sort dates
+    const sortedDates = Array.from(workoutDates).sort((a, b) => new Date(b) - new Date(a));
+    
+    // Calculate current streak
+    let currentStreak = 0;
+    let today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    for (let i = 0; i < sortedDates.length; i++) {
+        const date = new Date(sortedDates[i]);
+        date.setHours(0, 0, 0, 0);
+        
+        const diffDays = Math.floor((today - date) / (1000 * 60 * 60 * 24));
+        
+        if (diffDays === i || diffDays === i + 1) {
+            currentStreak++;
+        } else {
+            break;
+        }
+    }
+    
+    // Calculate best streak (simplified - counts consecutive days in history)
+    let bestStreak = currentStreak;
+    let tempStreak = 1;
+    
+    for (let i = 1; i < sortedDates.length; i++) {
+        const prev = new Date(sortedDates[i - 1]);
+        const curr = new Date(sortedDates[i]);
+        const diff = Math.floor((prev - curr) / (1000 * 60 * 60 * 24));
+        
+        if (diff === 1) {
+            tempStreak++;
+            bestStreak = Math.max(bestStreak, tempStreak);
+        } else {
+            tempStreak = 1;
+        }
+    }
+    
+    return { current: currentStreak, best: bestStreak, totalDays: workoutDates.size };
+}
+
+function renderStreakDisplay() {
+    const container = document.getElementById('streak-display');
+    if (!container) return;
+    
+    const streak = calculateStreak();
+    
+    if (streak.totalDays === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted);">No workouts logged yet. Start your streak today! 💪</p>';
+        return;
+    }
+    
+    const emoji = streak.current >= 7 ? '🔥' : streak.current >= 3 ? '💪' : '⚡';
+    
+    container.innerHTML = `
+        <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <div class="streak-badge">
+                <span class="streak-icon">${emoji}</span>
+                <span>${streak.current} day${streak.current !== 1 ? 's' : ''} streak</span>
+            </div>
+            <span style="color:var(--text-muted);font-size:0.9em;">Best: ${streak.best} days</span>
+        </div>
+    `;
+}
+
+// Weekly Summary Calculator
+function calculateWeeklySummary() {
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - now.getDay()); // Start of week (Sunday)
+    weekStart.setHours(0, 0, 0, 0);
+    
+    let totalSets = 0;
+    let totalReps = 0;
+    let totalVolume = 0;
+    let exerciseCount = 0;
+    let workoutDays = new Set();
+    
+    for (const exercise in workoutData) {
+        if (workoutData[exercise] && Array.isArray(workoutData[exercise])) {
+            workoutData[exercise].forEach(entry => {
+                const entryDate = new Date(entry.date);
+                if (entryDate >= weekStart) {
+                    workoutDays.add(entry.date);
+                    exerciseCount++;
+                    const sets = entry.sets || (entry.weights ? entry.weights.length : 0);
+                    const reps = entry.reps || 10;
+                    totalSets += sets;
+                    totalReps += sets * reps;
+                    
+                    // Calculate volume (sets × reps × weight)
+                    const weights = entry.weights || entry.values || [];
+                    weights.forEach(w => {
+                        if (w > 0) totalVolume += reps * w;
+                    });
+                }
+            });
+        }
+    }
+    
+    return {
+        workoutDays: workoutDays.size,
+        exerciseCount,
+        totalSets,
+        totalReps,
+        totalVolume: Math.round(totalVolume)
+    };
+}
+
+function renderWeeklySummary() {
+    const container = document.getElementById('weekly-summary-display');
+    if (!container) return;
+    
+    const summary = calculateWeeklySummary();
+    
+    container.innerHTML = `
+        <div class="summary-stat">
+            <div class="stat-value">${summary.workoutDays}</div>
+            <div class="stat-label">Days Active</div>
+        </div>
+        <div class="summary-stat">
+            <div class="stat-value">${summary.exerciseCount}</div>
+            <div class="stat-label">Exercises</div>
+        </div>
+        <div class="summary-stat">
+            <div class="stat-value">${summary.totalSets}</div>
+            <div class="stat-label">Total Sets</div>
+        </div>
+        <div class="summary-stat">
+            <div class="stat-value">${summary.totalVolume > 1000 ? (summary.totalVolume / 1000).toFixed(1) + 'k' : summary.totalVolume}</div>
+            <div class="stat-label">Volume (kg)</div>
+        </div>
+    `;
+}
+
+// Rest Timer
+let restTimerInterval = null;
+let restTimeRemaining = 0;
+let restTimerEnabled = localStorage.getItem('restTimerEnabled') !== 'false';
+let restTimerDuration = parseInt(localStorage.getItem('restTimerDuration')) || 90;
+
+function startRestTimer(duration = restTimerDuration) {
+    if (!restTimerEnabled) return;
+    
+    restTimeRemaining = duration;
+    const overlay = document.getElementById('rest-timer-overlay');
+    const display = document.getElementById('rest-timer-display');
+    
+    if (!overlay || !display) return;
+    
+    overlay.style.display = 'flex';
+    display.textContent = restTimeRemaining;
+    
+    restTimerInterval = setInterval(() => {
+        restTimeRemaining--;
+        display.textContent = restTimeRemaining;
+        
+        if (restTimeRemaining <= 0) {
+            skipRestTimer();
+            showToast('⏰ Rest time complete! Get after it!', 'success');
+            // Play sound or vibrate
+            if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
+        }
+    }, 1000);
+}
+
+function skipRestTimer() {
+    if (restTimerInterval) {
+        clearInterval(restTimerInterval);
+        restTimerInterval = null;
+    }
+    const overlay = document.getElementById('rest-timer-overlay');
+    if (overlay) overlay.style.display = 'none';
+}
+
+// Undo System
+let lastAction = null;
+
+function saveForUndo(type, data) {
+    lastAction = { type, data, timestamp: Date.now() };
+}
+
+function showUndoToast(message, undoCallback) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast with-action';
+    toast.innerHTML = `
+        <span>${message}</span>
+        <button class="undo-btn" onclick="this.parentElement.undoCallback()">Undo</button>
+    `;
+    toast.undoCallback = () => {
+        undoCallback();
+        toast.remove();
+    };
+    
+    container.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
+// Export to CSV
+function exportToCSV() {
+    if (!workoutData || Object.keys(workoutData).length === 0) {
+        showToast('No workout data to export', 'error');
+        return;
+    }
+    
+    let csv = 'Date,Exercise,Sets,Reps,Weights\n';
+    
+    for (const exercise in workoutData) {
+        workoutData[exercise].forEach(entry => {
+            const weights = (entry.weights || entry.values || []).join(';');
+            csv += `"${entry.date}","${exercise}",${entry.sets || ''},${entry.reps || ''},"${weights}"\n`;
+        });
+    }
+    
+    // Create and download file
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `workout-history-${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    showToast('📥 Workout history exported!', 'success');
+}
+
+// Delete individual workout entry
+function deleteWorkoutEntry(exercise, dateIndex) {
+    if (!workoutData[exercise]) return;
+    
+    const entry = workoutData[exercise][dateIndex];
+    if (!entry) return;
+    
+    // Save for undo
+    const deletedEntry = { ...entry };
+    const deletedExercise = exercise;
+    const deletedIndex = dateIndex;
+    
+    // Remove entry
+    workoutData[exercise].splice(dateIndex, 1);
+    
+    // Clean up empty exercise arrays
+    if (workoutData[exercise].length === 0) {
+        delete workoutData[exercise];
+    }
+    
+    localStorage.setItem('workoutTrackerData', JSON.stringify(workoutData));
+    
+    // Show undo toast
+    showUndoToast(`🗑️ Deleted ${deletedExercise} entry`, () => {
+        // Undo: restore the entry
+        if (!workoutData[deletedExercise]) workoutData[deletedExercise] = [];
+        workoutData[deletedExercise].splice(deletedIndex, 0, deletedEntry);
+        localStorage.setItem('workoutTrackerData', JSON.stringify(workoutData));
+        renderPastWorkoutsTable();
+        showToast('↩️ Entry restored!', 'success');
+    });
+    
+    renderPastWorkoutsTable();
+}
+
+// PR Detection
+function checkForPR(exerciseName, newWeight) {
+    if (!workoutData[exerciseName] || workoutData[exerciseName].length === 0) {
+        return true; // First entry is always a PR
+    }
+    
+    let maxWeight = 0;
+    workoutData[exerciseName].forEach(entry => {
+        const weights = entry.weights || entry.values || [];
+        weights.forEach(w => {
+            if (w > maxWeight) maxWeight = w;
+        });
+    });
+    
+    return newWeight > maxWeight;
+}
+
+// Copy Last Workout
+function copyLastWorkout() {
+    // Get yesterday's date
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    
+    // Find workouts from yesterday or most recent
+    let lastWorkoutDate = null;
+    let workoutDates = new Set();
+    
+    for (const exercise in workoutData) {
+        workoutData[exercise].forEach(entry => {
+            workoutDates.add(entry.date);
+        });
+    }
+    
+    if (workoutDates.size === 0) {
+        showToast('No previous workouts to copy', 'error');
+        return;
+    }
+    
+    // Find most recent date
+    const sortedDates = Array.from(workoutDates).sort((a, b) => new Date(b) - new Date(a));
+    lastWorkoutDate = sortedDates[0];
+    
+    // Get exercises from that date
+    let activeWorkoutSession = JSON.parse(localStorage.getItem('activeWorkoutSession')) || [];
+    let copiedCount = 0;
+    
+    for (const exercise in workoutData) {
+        workoutData[exercise].forEach(entry => {
+            if (entry.date === lastWorkoutDate) {
+                activeWorkoutSession.push({
+                    name: exercise,
+                    sets: entry.sets || (entry.weights ? entry.weights.length : 4),
+                    reps: entry.reps || 10,
+                    weights: entry.weights || entry.values || []
+                });
+                copiedCount++;
+            }
+        });
+    }
+    
+    localStorage.setItem('activeWorkoutSession', JSON.stringify(activeWorkoutSession));
+    
+    showToast(`📋 Copied ${copiedCount} exercises from ${lastWorkoutDate}`, 'success');
+    
+    // Trigger UI update if function exists
+    if (typeof renderActiveWorkout === 'function') {
+        // Will be called via event listener
+        window.dispatchEvent(new Event('workoutSessionUpdated'));
+    }
+    
+    // Reload to show the copied workout
+    location.reload();
+}
+
+// ========== END QoL FEATURES ==========
 
 window.addEventListener('DOMContentLoaded', function() {
     // Load external exercise dataset in background and refresh related UI
@@ -1843,6 +2517,11 @@ function setupVirtualExerciseList() {
 function renderExerciseList(filter) {
     const listDiv = document.getElementById('exercise-list');
     if (!listDiv) return;
+    
+    // Also render favorites and recent sections
+    renderFavoritesSection();
+    renderRecentExercisesSection();
+    
     const searchValue = typeof filter === 'string' ? filter : '';
     const muscleFilter = document.getElementById('muscle-filter') ? document.getElementById('muscle-filter').value : '';
     const filterLower = searchValue.toLowerCase();
@@ -1852,12 +2531,21 @@ function renderExerciseList(filter) {
     );
     if (searchValue.length === 0 && !muscleFilter) filtered = EXERCISE_LIBRARY.slice();
 
-    // Sort: previously-logged exercises first, then alphabetically within each group
+    // Sort: favorites first, then previously-logged, then alphabetically
     const loggedExercises = workoutData && typeof workoutData === 'object' ? Object.keys(workoutData) : [];
     const loggedSet = new Set(loggedExercises);
+    const favSet = new Set(favoriteExercises || []);
+    
     filtered.sort((a, b) => {
+        const aFav = favSet.has(a.name);
+        const bFav = favSet.has(b.name);
         const aLogged = loggedSet.has(a.name);
         const bLogged = loggedSet.has(b.name);
+        
+        // Favorites first
+        if (aFav && !bFav) return -1;
+        if (!aFav && bFav) return 1;
+        // Then logged
         if (aLogged && !bLogged) return -1;
         if (!aLogged && bLogged) return 1;
         return a.name.localeCompare(b.name);
@@ -1889,13 +2577,17 @@ function renderExerciseList(filter) {
         const ex = filtered[i];
         const nameAttr = (ex.name || '').replace(/"/g, '&quot;');
         const isPreviouslyLogged = loggedSet.has(ex.name);
+        const isFavorite = favSet.has(ex.name);
         const recentBadge = isPreviouslyLogged ? '<span style="background:var(--accent);color:var(--primary);font-size:0.7em;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle;">✓ Done</span>' : '';
+        const starIcon = isFavorite ? '★' : '☆';
+        const starClass = isFavorite ? 'active' : '';
         html += `
-            <div data-action="select-exercise" data-name="${nameAttr}" style="height:${itemH}px;display:flex;align-items:center;padding:12px;border-bottom:1px solid var(--border-color);cursor:pointer;transition:background-color 0.2s;${isPreviouslyLogged ? 'background:var(--surface-2);' : ''}" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='${isPreviouslyLogged ? 'var(--surface-2)' : 'transparent'}'">
-                <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;">
+            <div style="height:${itemH}px;display:flex;align-items:center;padding:12px 8px 12px 12px;border-bottom:1px solid var(--border-color);${isPreviouslyLogged || isFavorite ? 'background:var(--surface-2);' : ''}">
+                <div data-action="select-exercise" data-name="${nameAttr}" style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;">
                     <strong style="display:block;color:var(--text-on-surface);">${ex.name}${recentBadge}</strong>
                     <span style="color:var(--text-muted);font-size:0.9em">${ex.muscle}</span>
                 </div>
+                <button class="favorite-btn ${starClass}" onclick="event.stopPropagation();toggleFavorite('${nameAttr}')" title="${isFavorite ? 'Remove from favorites' : 'Add to favorites'}">${starIcon}</button>
             </div>
         `;
     }
@@ -1904,6 +2596,9 @@ function renderExerciseList(filter) {
 }
 
 function selectExerciseFromPicker(name) {
+    // Track recent exercise
+    addToRecentExercises(name);
+    
     if (exercisePickerCallback) exercisePickerCallback(name);
     closeExercisePickerModal();
 }
@@ -2180,26 +2875,47 @@ window.addEventListener('DOMContentLoaded', function() {
         // Try to pull last session max for suggestion and prefill
         const exName = (input.value || '').trim();
         let lastMax = null;
+        let lastWeights = [];
         if (exName && workoutData[exName] && workoutData[exName].length > 0) {
             const last = workoutData[exName][workoutData[exName].length - 1];
             const weights = (last.weights && last.weights.length ? last.weights : (last.values || [])).filter(v => typeof v === 'number' && v > 0);
-            if (weights.length) lastMax = Math.max(...weights);
+            if (weights.length) {
+                lastMax = Math.max(...weights);
+                lastWeights = last.weights || last.values || [];
+            }
         }
-        if (suggestionEl) suggestionEl.textContent = lastMax != null ? `Suggestion: Last max was ${lastMax}. Try for ${lastMax + 2.5}.` : 'Log a workout to get suggestions.';
+        if (suggestionEl) suggestionEl.textContent = lastMax != null ? `💡 Last max was ${lastMax}kg. Try for ${lastMax + 2.5}kg!` : 'Log a workout to get suggestions.';
         for (let i = 0; i < sets; i++) {
             const div = document.createElement('div');
             div.className = 'input-group';
             const id = `quick-set-${i+1}`;
             let value = '';
-            if (draft.weights && typeof draft.weights[i] !== 'undefined') value = draft.weights[i];
+            if (draft.weights && typeof draft.weights[i] !== 'undefined' && draft.weights[i] !== '') value = draft.weights[i];
+            else if (lastWeights[i] != null) value = lastWeights[i];
             else if (lastMax != null) value = lastMax;
             div.innerHTML = `
                 <label for="${id}">Set ${i+1} Weight</label>
-                <input type="number" id="${id}" min="0" step="0.5" placeholder="kg/lbs" value="${value}">
+                <div class="weight-input-wrapper">
+                    <button type="button" class="weight-btn" onclick="adjustWeight('${id}', -2.5)">−</button>
+                    <input type="number" id="${id}" min="0" step="0.5" placeholder="kg/lbs" value="${value}">
+                    <button type="button" class="weight-btn" onclick="adjustWeight('${id}', 2.5)">+</button>
+                </div>
             `;
             setContainer.appendChild(div);
         }
     }
+
+    // Global function to adjust weight
+    window.adjustWeight = function(inputId, delta) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+        let val = parseFloat(input.value) || 0;
+        val = Math.max(0, val + delta);
+        input.value = val;
+        saveDraft();
+        // Trigger haptic feedback
+        if (navigator.vibrate) navigator.vibrate(10);
+    };
 
     function saveDraft() {
         const weights = [];
@@ -2315,9 +3031,16 @@ window.addEventListener('DOMContentLoaded', function() {
         }
         
         const today = new Date().toISOString().split('T')[0];
+        let prCount = 0;
         
         // Add all exercises to workout data
         activeWorkoutSession.forEach(ex => {
+            // Check for PR before adding new entry
+            const maxWeight = Math.max(...ex.weights.filter(w => w > 0));
+            if (maxWeight > 0 && checkForPR(ex.name, maxWeight)) {
+                prCount++;
+            }
+            
             if (!workoutData[ex.name]) workoutData[ex.name] = [];
             workoutData[ex.name].push({
                 date: today,
@@ -2339,10 +3062,22 @@ window.addEventListener('DOMContentLoaded', function() {
         
         // Update UI
         renderActiveWorkout();
-        showToast(`💪 Workout saved! ${exerciseCount} exercises logged`, 'success');
+        
+        // Show appropriate message
+        if (prCount > 0) {
+            showToast(`🏆 ${prCount} NEW PR${prCount > 1 ? 's' : ''}! ${exerciseCount} exercises logged`, 'success', 4000);
+            // Extra celebration vibration
+            if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+        } else {
+            showToast(`💪 Workout saved! ${exerciseCount} exercises logged`, 'success');
+        }
+        
         updateStrengthVolumeChart();
         renderExerciseProgressCharts();
         renderUserWorkoutPlan();
+        
+        // Start rest timer after saving
+        startRestTimer();
     };
     
     window.cancelWorkout = function() {
@@ -3648,6 +4383,10 @@ function showTab(tab) {
     if (tabQuick) tabQuick.classList.toggle('active', tab === 'quick');
     if (tabStats) tabStats.classList.toggle('active', tab === 'stats');
     if (tab === 'stats') {
+        // Always update streak and weekly summary
+        try { if (typeof renderStreakDisplay === 'function') renderStreakDisplay(); } catch (e) { console.warn(e); }
+        try { if (typeof renderWeeklySummary === 'function') renderWeeklySummary(); } catch (e) { console.warn(e); }
+        
         if (!_chartsInitialized) {
             _chartsInitialized = true;
             try { if (typeof renderPastWorkoutsTable === 'function') renderPastWorkoutsTable(); } catch (e) { console.warn(e); }
@@ -3673,23 +4412,44 @@ function renderPastWorkoutsTable() {
     const tableDiv = document.getElementById('past-workouts-table');
     if (!tableDiv) return;
     const isNarrow = window.innerWidth < 640;
-    if (isNarrow) {
-        // Render stacked cards for mobile
-        const exercises = getAllExercises();
-        let rows = [];
-        for (const exId in workoutData) {
-            const ex = exercises[exId] || { name: exId, type: 'weight' };
-            workoutData[exId].forEach(entry => {
-                const mergedValues = (entry.weights && entry.weights.length ? entry.weights : (entry.values || []));
-                rows.push({ date: entry.date, exercise: ex.name, type: ex.type, values: mergedValues });
+    
+    // Build rows with exercise keys for delete functionality
+    const exercises = getAllExercises();
+    let rows = [];
+    for (const exId in workoutData) {
+        const ex = exercises[exId] || { name: exId, type: 'weight' };
+        workoutData[exId].forEach((entry, idx) => {
+            const mergedValues = (entry.weights && entry.weights.length ? entry.weights : (entry.values || []));
+            rows.push({
+                date: entry.date,
+                exercise: ex.name,
+                exerciseKey: exId,
+                entryIndex: idx,
+                type: ex.type,
+                values: mergedValues
             });
-        }
-        rows.sort((a,b) => new Date(b.date) - new Date(a.date));
+        });
+    }
+    // Sort by date descending
+    rows.sort((a,b) => new Date(b.date) - new Date(a.date));
+    
+    if (isNarrow) {
+        // Render stacked cards for mobile with delete button
         let cards = '';
         rows.forEach(row => {
             cards += `
                 <div class="mobile-pw-card">
-                    <div class="pw-top"><strong>${row.exercise}</strong><span style="font-size:0.92em;color:var(--text-muted);">${row.date}</span></div>
+                    <div class="pw-top">
+                        <strong>${row.exercise}</strong>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <span style="font-size:0.92em;color:var(--text-muted);">${row.date}</span>
+                            <button class="delete-entry-btn" onclick="deleteWorkoutEntry('${row.exerciseKey.replace(/'/g, "\\'")}', ${row.entryIndex})" title="Delete entry">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                     <div class="pw-meta"><span>${row.type}</span><span>${row.values.map(v => v ? v : '-').join(', ')}</span></div>
                 </div>
             `;
@@ -3703,30 +4463,22 @@ function renderPastWorkoutsTable() {
         <th style="padding:8px 4px;border:1px solid var(--border-color);position:sticky;top:0;z-index:2;min-width:100px;">Exercise</th>
         <th style="padding:8px 4px;border:1px solid var(--border-color);position:sticky;top:0;z-index:2;min-width:60px;">Type</th>
         <th style="padding:8px 4px;border:1px solid var(--border-color);position:sticky;top:0;z-index:2;min-width:120px;">Values</th>
+        <th style="padding:8px 4px;border:1px solid var(--border-color);position:sticky;top:0;z-index:2;width:40px;"></th>
     </tr></thead><tbody>`;
-    const exercises = getAllExercises();
-    // Gather all workout entries
-    let rows = [];
-    for (const exId in workoutData) {
-        const ex = exercises[exId] || { name: exId, type: 'weight' };
-        workoutData[exId].forEach(entry => {
-            const mergedValues = (entry.weights && entry.weights.length ? entry.weights : (entry.values || []));
-            rows.push({
-                date: entry.date,
-                exercise: ex.name,
-                type: ex.type,
-                values: mergedValues
-            });
-        });
-    }
-    // Sort by date descending
-    rows.sort((a,b) => new Date(b.date) - new Date(a.date));
+    
     rows.forEach(row => {
         html += `<tr style="background:var(--surface-1);">
             <td style="padding:6px 4px;border:1px solid var(--border-color);word-break:keep-all;white-space:nowrap;font-size:0.98em;">${row.date}</td>
             <td style="padding:6px 4px;border:1px solid var(--border-color);word-break:break-word;max-width:120px;overflow:hidden;text-overflow:ellipsis;">${row.exercise}</td>
             <td style="padding:6px 4px;border:1px solid var(--border-color);word-break:keep-all;white-space:nowrap;">${row.type}</td>
             <td style="padding:6px 4px;border:1px solid var(--border-color);word-break:break-word;max-width:160px;overflow:hidden;text-overflow:ellipsis;">${row.values.map(v => v ? v : '-').join(', ')}</td>
+            <td style="padding:6px 4px;border:1px solid var(--border-color);text-align:center;">
+                <button class="delete-entry-btn" onclick="deleteWorkoutEntry('${row.exerciseKey.replace(/'/g, "\\'")}', ${row.entryIndex})" title="Delete entry">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+                    </svg>
+                </button>
+            </td>
         </tr>`;
     });
     html += '</tbody></table>';
