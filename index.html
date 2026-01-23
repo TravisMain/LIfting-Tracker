@@ -1852,6 +1852,17 @@ function renderExerciseList(filter) {
     );
     if (searchValue.length === 0 && !muscleFilter) filtered = EXERCISE_LIBRARY.slice();
 
+    // Sort: previously-logged exercises first, then alphabetically within each group
+    const loggedExercises = workoutData && typeof workoutData === 'object' ? Object.keys(workoutData) : [];
+    const loggedSet = new Set(loggedExercises);
+    filtered.sort((a, b) => {
+        const aLogged = loggedSet.has(a.name);
+        const bLogged = loggedSet.has(b.name);
+        if (aLogged && !bLogged) return -1;
+        if (!aLogged && bLogged) return 1;
+        return a.name.localeCompare(b.name);
+    });
+
     CURRENT_FILTERED_EXERCISES = filtered;
     const total = filtered.length;
 
@@ -1877,10 +1888,12 @@ function renderExerciseList(filter) {
     for (let i = startIndex; i < endIndex; i++) {
         const ex = filtered[i];
         const nameAttr = (ex.name || '').replace(/"/g, '&quot;');
+        const isPreviouslyLogged = loggedSet.has(ex.name);
+        const recentBadge = isPreviouslyLogged ? '<span style="background:var(--accent);color:var(--primary);font-size:0.7em;padding:2px 6px;border-radius:4px;margin-left:6px;vertical-align:middle;">✓ Done</span>' : '';
         html += `
-            <div data-action="select-exercise" data-name="${nameAttr}" style="height:${itemH}px;display:flex;align-items:center;padding:12px;border-bottom:1px solid var(--border-color);cursor:pointer;transition:background-color 0.2s;" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='transparent'">
+            <div data-action="select-exercise" data-name="${nameAttr}" style="height:${itemH}px;display:flex;align-items:center;padding:12px;border-bottom:1px solid var(--border-color);cursor:pointer;transition:background-color 0.2s;${isPreviouslyLogged ? 'background:var(--surface-2);' : ''}" onmouseover="this.style.backgroundColor='var(--surface-2)'" onmouseout="this.style.backgroundColor='${isPreviouslyLogged ? 'var(--surface-2)' : 'transparent'}'">
                 <div style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;">
-                    <strong style="display:block;color:var(--text-on-surface);">${ex.name}</strong>
+                    <strong style="display:block;color:var(--text-on-surface);">${ex.name}${recentBadge}</strong>
                     <span style="color:var(--text-muted);font-size:0.9em">${ex.muscle}</span>
                 </div>
             </div>
