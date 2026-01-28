@@ -3026,10 +3026,12 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('exercise-picker-cancel').addEventListener('click', closeExercisePickerModal);
 });
 function clearAllData() {
-    localStorage.removeItem('userDetails');
-    localStorage.removeItem('bodyTrackerData');
-    localStorage.removeItem('workoutTrackerData');
-    location.reload();
+    if (confirm('⚠️ WARNING: This will permanently delete ALL your data including workouts, body measurements, and user details. This action cannot be undone!\n\nAre you absolutely sure you want to continue?')) {
+        localStorage.removeItem('userDetails');
+        localStorage.removeItem('bodyTrackerData');
+        localStorage.removeItem('workoutTrackerData');
+        location.reload();
+    }
 }
 const MOTIVATION_MESSAGES = [
     "Every rep brings you closer to your goal.",
@@ -5162,7 +5164,7 @@ document.addEventListener('DOMContentLoaded', function() {
 // Register Service Worker for PWA (if supported)
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('service-worker.js').catch(() => {});
+        navigator.serviceWorker.register('service-worker.js', { updateViaCache: 'none' }).catch(() => {});
         navigator.serviceWorker.addEventListener('message', (event) => {
             if (event && event.data && event.data.type === 'SW_UPDATED') {
                 try {
