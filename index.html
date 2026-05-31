@@ -18,57 +18,88 @@
     <style>
         html { -webkit-text-size-adjust: 100%; }
         :root {
-            --finisher-bg: #fff1f0;
-            --finisher-border: #f87171;
-            --finisher-text: #b91c1c;
-            --suggestion-red: #ef4444;
-            --success: #10b981; /* green-500 */
-            --background: #F8FAF9;
-            --surface-1: #FDFDFD;
-            --surface-2: #F3F4F6;
-            --primary: #475569; /* slate-600 */
-            --primary-light: #94a3b8; /* slate-400 */
-            --secondary: #64748b; /* slate-500 */
-            --accent: #a3e635; /* lime-400, subtle accent */
-            --text-on-bg: #23272A;
-            --text-on-surface: #23272A;
-            --text-muted: #6B7280;
-            --border-color: #E2E8F0;
-            --shadow: 0 2px 8px rgba(44, 62, 80, 0.04);
+            /* Spacing Grid (Rule of 8) */
+            --spacing-4: 4px;
             --spacing-8: 8px;
+            --spacing-12: 12px;
             --spacing-16: 16px;
+            --spacing-20: 20px;
             --spacing-24: 24px;
             --spacing-32: 32px;
-            --border-radius: 10px;
+            --spacing-40: 40px;
+            --spacing-48: 48px;
+            --spacing-56: 56px;
+            --spacing-64: 64px;
+
+            /* Radii system */
+            --radius-4: 4px;
+            --radius-8: 8px;
+            --radius-12: 12px;
+            --radius-16: 16px;
+            --radius-24: 24px;
+
+            /* Premium Light Theme (Athletic minimalist) */
+            --background: #F8FAFC;
+            --surface-1: #FFFFFF;
+            --surface-2: #F1F5F9;
+            --border-color: #E2E8F0;
+            --primary: #4F46E5;         /* Premium Royal Blue/Indigo */
+            --primary-light: #C7D2FE;
+            --secondary: #4338CA;
+            --accent: #F97316;          /* High energy Gym Orange */
+            --accent-hover: #EA580C;
+            --text-on-bg: #0F172A;
+            --text-on-surface: #1E293B;
+            --text-muted: #64748B;
+            
+            --success: #10B981;
+            --finisher-bg: #FEF2F2;
+            --finisher-border: #FCA5A5;
+            --finisher-text: #991B1B;
+            --suggestion-red: #EF4444;
+
+            --shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.05);
+            --shadow-md: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.08);
+            --shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.1), 0 10px 10px -5px rgba(15, 23, 42, 0.04);
+            --border-radius: 12px;
         }
 
         /* Dark mode color scheme */
         [data-theme="dark"] {
-            --finisher-bg: #4C1D1D;
-            --finisher-border: #DC2626;
-            --finisher-text: #FCA5A5;
+            --background: #080C14;
+            --surface-1: #0F1626;
+            --surface-2: #192239;
+            --border-color: #263352;
+            --primary: #6366F1;         /* Electric Indigo Glow */
+            --primary-light: #312E81;
+            --secondary: #818CF8;
+            --accent: #FF7A00;          /* Glowing Gym Orange */
+            --accent-hover: #F97316;
+            --text-on-bg: #F8FAFC;
+            --text-on-surface: #E2E8F0;
+            --text-muted: #94A3B8;
+            
+            --success: #34D399;
+            --finisher-bg: #31121F;
+            --finisher-border: #9F1239;
+            --finisher-text: #FDA4AF;
             --suggestion-red: #F87171;
-            --success: #34D399; /* green-400 for dark mode */
-            --background: #0F1419;
-            --surface-1: #1A1F2E;
-            --surface-2: #252B3B;
-            --primary: #94A3B8;
-            --primary-light: #64748B;
-            --secondary: #94A3B8;
-            --accent: #A3E635;
-            --text-on-bg: #E5E7EB;
-            --text-on-surface: #E5E7EB;
-            --text-muted: #9CA3AF;
-            --border-color: #374151;
-            --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.25), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
         }
         
-        /* Smooth color transitions for theme switching */
+        /* Smooth transitions for high-end look */
         * {
-            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+            transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                        color 0.2s cubic-bezier(0.4, 0, 0.2, 1), 
+                        border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        /* Prevent transition on animations and transforms */
-        *:is(.btn, .tab-bar-btn)::after,
+        
+        /* Disable hover delays on action-packed buttons */
+        *:is(.btn, .tab-bar-btn, .weight-btn)::after,
         .toast,
         .skeleton {
             transition: none;
@@ -82,297 +113,412 @@
             font-family: 'Nunito', Arial, sans-serif;
             background: var(--background);
             color: var(--text-on-bg);
-            line-height: 1.7;
+            line-height: 1.6;
             margin: 0;
+            overscroll-behavior-y: contain;
         }
 
-        /* Quick Log Modal: scrollable for mobile */
-        #quick-log-modal .modal-scroll {
-            max-height: 80vh;
-            overflow-y: auto;
-            padding-bottom: 8px;
-        }
-        @media (max-width: 480px) {
-            #quick-log-modal .modal-scroll { max-height: 70vh; }
-        }
-
-        /* What's New Modal Styles */
-        #whats-new-modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.25);
-            z-index: 2100;
-            align-items: flex-end;
-            justify-content: center;
-        }
-        #whats-new-modal .modal-content {
-            background: #fff;
-            padding: 20px 16px calc(16px + env(safe-area-inset-bottom, 0px));
-            border-radius: 14px 14px 0 0;
-            max-width: 640px;
-            width: 100vw;
-            margin: 0;
-            box-shadow: 0 -6px 24px rgba(44,62,80,0.16);
-            text-align: left;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        #whats-new-modal h2 {
-            margin-top: 0;
-            color: var(--primary);
-            font-size: 1.35em;
-        }
-        #whats-new-modal ul {
-            margin: 16px 0 0 0;
-            padding-left: 20px;
-        }
-        #whats-new-modal button {
-            margin-top: 24px;
-            width: 100%;
-        }
-
-        /* Base layout */
+        /* Base layout container */
         .container {
             max-width: 960px;
             margin: 0 auto;
-            padding: 16px;
+            padding: var(--spacing-16);
         }
+
+        /* Sleek PWA Navigation and header spacing */
         header {
-            position: static;
-            padding: 12px 16px;
-            background: var(--surface-1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: var(--spacing-12) var(--spacing-16);
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border-color);
-            box-shadow: none;
+            border-radius: 0;
+            margin-bottom: var(--spacing-24);
         }
+        [data-theme="dark"] header {
+            background: rgba(15, 22, 38, 0.8);
+        }
+        
         header h1 {
             font-family: 'Bebas Neue', 'Montserrat', Arial, sans-serif;
             font-weight: 400;
-            font-size: 1.95em;
-            letter-spacing: 1px;
+            font-size: 2em;
+            letter-spacing: 1.5px;
             text-transform: uppercase;
-            margin: 8px 0 16px 0;
+            margin: 0;
             color: var(--primary);
-            line-height: 1;
+            line-height: 1.1;
         }
+
+        /* Strict Spacing Sections and Cards */
         .section {
             background: var(--surface-1);
             border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            padding: var(--spacing-16);
+            border-radius: var(--radius-16);
+            padding: var(--spacing-20);
             margin-bottom: var(--spacing-24);
             box-shadow: var(--shadow);
         }
+
+        .workout-day {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-16);
+            margin-bottom: var(--spacing-24);
+            background: var(--surface-1);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .workout-day summary {
+            padding: var(--spacing-16) var(--spacing-20);
+            font-size: 1.25em;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--text-on-bg);
+            font-family: 'Montserrat', Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .workout-day[open] summary { 
+            border-bottom: 1px solid var(--border-color); 
+        }
+
+        .workout-content {
+            padding: var(--spacing-20);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-20);
+            background: var(--surface-1);
+        }
+
+        .exercise-card {
+            background: var(--surface-2);
+            border-radius: var(--radius-12);
+            padding: var(--spacing-20);
+            box-shadow: none;
+            border: 1px solid transparent;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .exercise-card:hover {
+            border-color: var(--border-color);
+        }
+        .exercise-card.finisher {
+            background: var(--finisher-bg);
+            border: 1px solid var(--finisher-border);
+            color: var(--finisher-text);
+        }
+        
+        .exercise-card h3 {
+            margin-top: 0;
+            margin-bottom: var(--spacing-8);
+            color: var(--text-on-surface);
+            font-size: 1.2em;
+        }
+
+        /* Inputs & Form layout aligned to the grid */
         .input-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: var(--spacing-16);
         }
         @media (max-width: 640px) {
-            .input-grid { grid-template-columns: 1fr; }
+            .input-grid { grid-template-columns: 1fr; gap: var(--spacing-12); }
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
+            margin-bottom: var(--spacing-12);
         }
 
         .input-group label {
-            font-size: 1em;
-            color: var(--primary);
+            font-size: 0.9em;
+            color: var(--text-muted);
             margin-bottom: var(--spacing-8);
-            font-weight: 600;
+            font-weight: 700;
             letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         input[type="number"], input[type="text"], select {
             width: 100%;
-            padding: var(--spacing-8) var(--spacing-16);
+            min-height: 48px;
+            padding: var(--spacing-12) var(--spacing-16);
             background-color: var(--surface-2);
             border: 1px solid var(--border-color);
             color: var(--text-on-bg);
-            border-radius: 8px;
-            font-size: 1.1em;
+            border-radius: var(--radius-12);
+            font-size: 1em;
             font-family: 'Nunito', Arial, sans-serif;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
         }
         input:focus, select:focus {
+            background-color: var(--surface-1);
             border-color: var(--primary);
-            box-shadow: 0 0 0 2px var(--primary-light);
+            box-shadow: 0 0 0 3px var(--primary-light);
             outline: none;
         }
 
+        /* Premium Buttons and Interactive States */
         .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             background: var(--primary);
             color: #fff;
             border: none;
-            padding: var(--spacing-8) var(--spacing-16);
-            font-size: 1.1em;
-            font-weight: bold;
-            border-radius: 6px;
+            padding: var(--spacing-12) var(--spacing-24);
+            font-size: 1em;
+            font-weight: 700;
+            border-radius: var(--radius-12);
             cursor: pointer;
-            transition: background 0.2s, box-shadow 0.2s;
+            box-shadow: var(--shadow);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             text-align: center;
-            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.06);
+            min-height: 48px;
         }
+        
         .btn:hover {
             background: var(--secondary);
             color: #fff;
-            box-shadow: 0 4px 16px rgba(44, 62, 80, 0.08);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn:active {
+            transform: scale(0.96);
+            box-shadow: var(--shadow);
         }
 
         .btn-secondary {
-            background: var(--accent);
-            color: var(--primary);
+            background: var(--surface-2);
+            color: var(--text-on-bg);
+            border: 1px solid var(--border-color);
         }
+        
         .btn-secondary:hover {
-            background: #d9f99d;
-            color: var(--primary);
+            background: var(--border-color);
+            color: var(--text-on-bg);
+            box-shadow: var(--shadow);
         }
 
         #measurements-section .btn { margin-top: var(--spacing-16); }
 
-        /* Remove old nav button styles for tab navigation */
-
-    /* Bottom tab bar styles */
+        /* Bottom PWA Tab Bar Layout */
         .tab-bar {
             position: fixed;
             left: 0;
             bottom: 0;
             width: 100%;
-            background: var(--surface-2);
+            background: rgba(241, 245, 249, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            height: calc(60px + env(safe-area-inset-bottom, 0px));
+            height: calc(64px + env(safe-area-inset-bottom, 0px));
             padding-bottom: env(safe-area-inset-bottom, 0px);
             z-index: 100;
-            box-shadow: 0 -2px 8px rgba(44,62,80,0.04);
+            box-shadow: 0 -4px 12px rgba(15,23,42,0.03);
         }
+        [data-theme="dark"] .tab-bar {
+            background: rgba(25, 34, 57, 0.85);
+            box-shadow: 0 -4px 12px rgba(0,0,0,0.15);
+        }
+        
         .tab-bar-btn {
             flex: 1;
             text-align: center;
             background: none;
             border: none;
-            color: var(--primary);
+            color: var(--text-muted);
             font-family: 'Montserrat', Arial, sans-serif;
-            font-size: 1em;
+            font-size: 0.85em;
             font-weight: 700;
-            padding: 0;
+            padding: var(--spacing-4) 0;
             cursor: pointer;
             height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s, color 0.2s;
+            transition: color 0.15s ease, transform 0.1s ease;
+            position: relative;
+            min-height: 56px;
         }
+        
+        .tab-bar-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: var(--accent);
+            border-radius: 0 0 3px 3px;
+            transition: width 0.2s ease;
+        }
+
         .tab-bar-btn.active {
-            color: var(--accent);
-            background: rgba(163,230,53,0.10);
-            border-radius: 10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            color: var(--primary);
         }
-        .tab-bar-btn svg {
-            display: block;
-            margin: 0 auto 2px auto;
-            height: 24px;
+        [data-theme="dark"] .tab-bar-btn.active {
+            color: var(--text-on-bg);
+        }
+        
+        .tab-bar-btn.active::before {
             width: 24px;
         }
-        /* Increase tap target for bottom nav on phones */
-        .tab-bar-btn { min-height: 56px; }
-        @media (min-width: 768px) {
-            .tab-bar { max-width: 900px; left: 50%; transform: translateX(-50%); }
+        
+        .tab-bar-btn svg {
+            display: block;
+            margin: 0 auto var(--spacing-4) auto;
+            height: 22px;
+            width: 22px;
+            stroke-width: 2.2;
+        }
+        
+        .tab-bar-btn:active {
+            transform: scale(0.94);
         }
 
-        /* (Removed) Bottom Action Bar styles */
+        @media (min-width: 768px) {
+            .tab-bar { max-width: 900px; left: 50%; transform: translateX(-50%); border-radius: var(--radius-16) var(--radius-16) 0 0; }
+        }
+
         .phase-content.active { display: block; }
 
-        .workout-day {
+        /* Stats & Scrollable Grid tables */
+        .table-scroll { 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; 
+            border-radius: var(--radius-12);
             border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            margin-bottom: var(--spacing-24);
             background: var(--surface-1);
-            box-shadow: none;
         }
-        .workout-day summary {
-            padding: var(--spacing-16);
-            font-size: 1.3em;
-            font-weight: bold;
-            cursor: pointer;
-            color: var(--primary);
+        
+        .table-scroll table { 
+            width: 100%;
+            min-width: 640px; 
+            border-collapse: collapse;
+            text-align: left;
+        }
+        
+        .table-scroll th { 
             font-family: 'Montserrat', Arial, sans-serif;
+            font-weight: 700;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            padding: var(--spacing-12) var(--spacing-16);
+            border-bottom: 2px solid var(--border-color);
+            background: var(--surface-2);
         }
-        .workout-day[open] summary { border-bottom: 2px solid var(--primary); }
-        .workout-content {
-            padding: var(--spacing-16);
-            display: flex;
-            flex-direction: column;
-            gap: var(--spacing-16);
+        
+        .table-scroll td {
+            padding: var(--spacing-12) var(--spacing-16);
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-on-surface);
+            font-size: 0.95em;
         }
-
-        /* Stats: mobile-friendly tables */
-        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .table-scroll table { min-width: 640px; }
-        .table-scroll thead th { position: sticky; top: 0; background: #f3f4f6; z-index: 1; }
+        
+        .table-scroll tr:last-child td {
+            border-bottom: none;
+        }
 
         /* Collapsible section styling */
-        .stats-accordion details { border: 1px solid var(--border-color); border-radius: var(--border-radius); background: var(--surface-1); margin-bottom: var(--spacing-16); }
-        .stats-accordion summary { list-style: none; cursor: pointer; padding: var(--spacing-16); font-weight: 700; font-size: 1.1em; display: flex; align-items: center; gap: 8px; color: var(--primary); }
-        .stats-accordion summary::before { content: '\25B6'; display: inline-block; transform: rotate(0deg); transition: transform 0.2s; color: var(--primary); }
-        .stats-accordion details[open] summary::before { transform: rotate(90deg); }
-        .stats-accordion .section-body { padding: 0 var(--spacing-16) var(--spacing-16); }
+        .stats-accordion details { 
+            border: 1px solid var(--border-color); 
+            border-radius: var(--radius-12); 
+            background: var(--surface-1); 
+            margin-bottom: var(--spacing-16); 
+            overflow: hidden;
+        }
+        
+        .stats-accordion summary { 
+            list-style: none; 
+            cursor: pointer; 
+            padding: var(--spacing-16); 
+            font-weight: 700; 
+            font-size: 1.1em; 
+            display: flex; 
+            align-items: center; 
+            gap: var(--spacing-8); 
+            color: var(--text-on-bg); 
+            user-select: none;
+        }
+        
+        .stats-accordion summary::-webkit-details-marker {
+            display: none;
+        }
+        
+        .stats-accordion summary::before { 
+            content: '→'; 
+            font-family: monospace;
+            display: inline-block; 
+            transform: rotate(0deg); 
+            transition: transform 0.2s ease; 
+            color: var(--accent); 
+            font-weight: bold;
+        }
+        
+        .stats-accordion details[open] summary::before { 
+            transform: rotate(90deg); 
+        }
+        
+        .stats-accordion .section-body { 
+            padding: 0 var(--spacing-20) var(--spacing-20) var(--spacing-20); 
+            border-top: 1px solid var(--border-color);
+            padding-top: var(--spacing-16);
+        }
 
         @media (max-width: 480px) {
             h2 { font-size: 1.25em; }
             h3 { font-size: 1.1em; }
             .table-scroll table { min-width: 520px; }
-            /* Hide Type column in past workouts for narrower screens */
             #past-workouts-table table th:nth-child(3),
             #past-workouts-table table td:nth-child(3) { display: none; }
         }
 
-        .exercise-card {
-            background: var(--surface-2);
-            border-radius: var(--border-radius);
-            padding: var(--spacing-24);
-            box-shadow: none;
-        }
-        .exercise-card.finisher {
-            background: var(--finisher-bg);
-            border: 2px solid var(--finisher-border);
-            color: var(--finisher-text);
-        }
-
         .suggestion {
-            font-size: 1em;
-            color: var(--suggestion-red);
+            font-size: 0.95em;
+            color: var(--accent);
             margin-top: var(--spacing-8);
             font-style: italic;
             font-weight: 700;
         }
 
-        /* Chart.js canvas tweaks */
+        /* Premium Chart Tweaks */
         .chart-container {
             width: 100%;
             max-width: 100vw;
             min-width: 0;
             overflow-x: auto;
-            padding: 0 4px;
+            padding: 0 var(--spacing-4);
         }
         .chart-container canvas {
             background: var(--surface-2);
-            border-radius: 8px;
-            box-shadow: none;
+            border-radius: var(--radius-12);
+            border: 1px solid var(--border-color);
             width: 100% !important;
             height: 220px !important;
             max-width: 100vw;
             min-width: 0;
+            padding: var(--spacing-8);
         }
         @media (max-width: 767px) {
-            .chart-container { padding: 0 2px; }
-            .chart-container canvas { height: 160px !important; }
+            .chart-container { padding: 0 var(--spacing-4); }
+            .chart-container canvas { height: 180px !important; }
         }
 
         #qr-share-container canvas,
@@ -385,93 +531,82 @@
             image-rendering: pixelated;
         }
 
-        /* Phase navigation: clearer active state */
-        .phase-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--spacing-8); margin: var(--spacing-16) 0; }
-        .phase-btn { background: var(--surface-2); color: var(--primary); border: 1px solid var(--border-color); border-radius: 10px; }
-    .phase-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        /* Phase navigation */
+        .phase-nav { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: var(--spacing-8); 
+            margin: var(--spacing-16) 0; 
+        }
+        .phase-btn { 
+            background: var(--surface-2); 
+            color: var(--text-on-surface); 
+            border: 1px solid var(--border-color); 
+            border-radius: var(--radius-12); 
+            font-weight: 600;
+        }
+        .phase-btn.active { 
+            background: var(--primary); 
+            color: #fff; 
+            border-color: var(--primary); 
+        }
 
-    /* More noticeable pastel green backgrounds for phases */
-    #workout-section.phase-1 { background: #fafcf7; /* ultra subtle green tint */ }
-    #workout-section.phase-2 { background: #f7fcfa; /* ultra subtle mint tint */ }
-    #workout-section.phase-3 { background: #f7fbfc; /* ultra subtle aqua tint */ }
+        /* Phase styles */
+        #workout-section.phase-1 { background: rgba(99, 102, 241, 0.02); }
+        #workout-section.phase-2 { background: rgba(16, 185, 129, 0.02); }
+        #workout-section.phase-3 { background: rgba(249, 115, 22, 0.02); }
 
-        /* Mobile: allow tables to scroll horizontally */
-        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        .table-scroll table { min-width: 640px; }
-        /* Mobile card styles for small screens */
+        /* Mobile cards */
         .mobile-pw-card, .mobile-measure-card {
-            background: #fff;
+            background: var(--surface-1);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 10px 12px;
-            margin-bottom: 10px;
-            box-shadow: 0 2px 8px rgba(44,62,80,0.04);
+            border-radius: var(--radius-12);
+            padding: var(--spacing-16);
+            margin-bottom: var(--spacing-12);
+            box-shadow: var(--shadow);
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: var(--spacing-8);
         }
-        .mobile-pw-card .pw-top { display:flex;justify-content:space-between;align-items:center;gap:8px; }
-        .mobile-pw-card .pw-meta { display:flex;gap:8px;flex-wrap:wrap;color:var(--text-muted);font-size:0.95em }
-        .mobile-measure-card .measure-grid { display:flex;gap:8px;flex-wrap:wrap; }
+        .mobile-pw-card .pw-top { display:flex;justify-content:space-between;align-items:center;gap:var(--spacing-8); }
+        .mobile-pw-card .pw-meta { display:flex;gap:var(--spacing-8);flex-wrap:wrap;color:var(--text-muted);font-size:0.9em }
+        .mobile-measure-card .measure-grid { display:flex;gap:var(--spacing-8);flex-wrap:wrap; }
+        
         @media (max-width: 767px) {
-            .table-scroll table { font-size: 0.9em; }
-            .table-scroll th, .table-scroll td { padding: 4px 8px; }
+            .table-scroll table { font-size: 0.85em; }
+            .table-scroll th, .table-scroll td { padding: var(--spacing-8) var(--spacing-12); }
         }
 
-        /* Improve tap targets on mobile */
+        /* Improved touch targets & accessibility features */
         .btn, .tab-bar-btn, .phase-btn { min-height: 48px; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        input, select { min-height: 44px; }
-    /* Avoid content sitting under fixed tab bar */
-    /* Ensure content does not sit behind action + tab bars */
-    #main-pastworkouts { padding-bottom: 92px; }
-    #main-dashboard { padding-bottom: 92px; }
+        input, select { min-height: 48px; }
+        
+        #main-pastworkouts { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
+        #main-dashboard { padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px)); }
         body { overscroll-behavior-y: contain; }
         summary { -webkit-tap-highlight-color: transparent; }
 
-        /* Enhanced touch feedback - ripple effect on buttons */
-        @keyframes ripple {
-            0% { transform: scale(0); opacity: 0.6; }
-            100% { transform: scale(2.5); opacity: 0; }
+        /* Enhanced button touch scale animations */
+        .btn:active, .phase-btn:active, .recent-exercise-chip:active {
+            transform: scale(0.96) !important;
         }
-        .btn { position: relative; overflow: hidden; }
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.5);
-            border-radius: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            pointer-events: none;
-        }
-        .btn:active::after {
-            animation: ripple 0.6s ease-out;
-        }
-        
-        /* Tab bar enhanced touch feedback */
-        .tab-bar-btn:active {
-            transform: scale(0.95);
-            transition: transform 0.1s ease;
-        }
-        
+
         /* Toast notification system */
         .toast {
             position: fixed;
             bottom: calc(80px + env(safe-area-inset-bottom, 0px));
             left: 50%;
             transform: translateX(-50%) translateY(100px);
-            background: #1F2937;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 24px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+            background: #1E293B;
+            color: #F8FAFC;
+            padding: var(--spacing-12) var(--spacing-24);
+            border-radius: var(--radius-24);
+            box-shadow: var(--shadow-lg);
             z-index: 3000;
             font-size: 0.95em;
             font-weight: 600;
             opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
             pointer-events: none;
             max-width: 90vw;
             text-align: center;
@@ -480,75 +615,70 @@
             transform: translateX(-50%) translateY(0);
             opacity: 1;
         }
-        .toast.success { background: #059669; }
-        .toast.error { background: #DC2626; }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--finisher-text); }
         
-        /* Loading spinner */
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 0.8s linear infinite;
-        }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Skeleton loading states */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s ease-in-out infinite;
-            border-radius: 8px;
-        }
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-        .skeleton-text {
-            height: 16px;
-            margin: 8px 0;
-        }
-        .skeleton-card {
-            height: 100px;
-            margin: 12px 0;
-        }
-        
-        /* Modal drag handle */
+        /* Modal drag indicator sheet styles */
         .modal-drag-handle {
-            width: 36px;
-            height: 4px;
-            background: #D1D5DB;
-            border-radius: 2px;
-            margin: 0 auto 16px;
+            width: 40px;
+            height: 5px;
+            background: var(--border-color);
+            border-radius: 3px;
+            margin: 0 auto var(--spacing-16) auto;
             cursor: grab;
         }
         .modal-drag-handle:active {
             cursor: grabbing;
         }
         
-        /* Smooth modal animations */
+        /* Modal Bottom Sheet visual overlays */
+        #whats-new-modal,
         #exercise-picker-modal,
-        #quick-log-modal,
         #create-plan-modal,
         #qr-share-modal,
         #qr-scan-modal,
-        #whats-new-modal {
+        #user-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(9, 13, 22, 0.4);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: flex-end;
+            justify-content: center;
             animation: fadeIn 0.2s ease-out;
         }
+        
+        #whats-new-modal .modal-content,
         #exercise-picker-modal > div,
-        #quick-log-modal > div,
         #create-plan-modal > div,
-        #whats-new-modal > div {
+        #user-modal > div {
+            background: var(--surface-1);
+            padding: var(--spacing-24) var(--spacing-20) calc(var(--spacing-24) + env(safe-area-inset-bottom, 0px));
+            border-radius: var(--radius-24) var(--radius-24) 0 0;
+            max-width: 640px;
+            width: 100vw;
+            margin: 0;
+            box-shadow: var(--shadow-lg);
+            text-align: left;
+            max-height: 88vh;
+            overflow-y: auto;
             animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+        
         #qr-share-modal > div,
         #qr-scan-modal > div {
-            animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: var(--surface-1);
+            padding: var(--spacing-24);
+            border-radius: var(--radius-24);
+            max-width: 440px;
+            width: 90vw;
+            margin: auto;
+            box-shadow: var(--shadow-lg);
+            animation: scaleIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
+        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -558,473 +688,192 @@
             to { transform: translateY(0); }
         }
         @keyframes scaleIn {
-            from { transform: scale(0.8); opacity: 0; }
+            from { transform: scale(0.85); opacity: 0; }
             to { transform: scale(1); opacity: 1; }
         }
         
-        /* Improved form validation feedback */
-        input:invalid:not(:placeholder-shown) {
-            border-color: #EF4444;
-            background: #FEF2F2;
-        }
-        input:valid:not(:placeholder-shown) {
-            border-color: #10B981;
-        }
-        
-        /* Better focus states for accessibility */
-        input:focus, select:focus, button:focus {
-            outline: 2px solid var(--accent);
-            outline-offset: 2px;
-        }
-        
-        /* Improve exercise list item touch targets */
-        #exercise-list button {
-            min-height: 56px;
-            padding: 12px 16px;
-            touch-action: manipulation;
-        }
-        
-        /* Pull to refresh indicator */
-        .pull-refresh-indicator {
-            position: absolute;
-            top: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: top 0.3s ease;
-        }
-        .pull-refresh-indicator.visible {
-            top: 20px;
-        }
-
-        /* Weight input with +/- buttons */
+        /* Weight selectors and controllers */
         .weight-input-wrapper {
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: var(--spacing-8);
         }
         .weight-input-wrapper input {
             flex: 1;
             text-align: center;
+            font-weight: 700;
         }
         .weight-btn {
-            min-width: 36px;
-            min-height: 36px;
+            width: 44px;
+            height: 44px;
             padding: 0;
-            font-size: 1.2em;
-            font-weight: bold;
-            border-radius: 8px;
+            font-size: 1.25em;
+            font-weight: 700;
+            border-radius: 50%;
             border: 1px solid var(--border-color);
             background: var(--surface-2);
-            color: var(--primary);
+            color: var(--text-on-surface);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.15s ease;
         }
         .weight-btn:active {
-            background: var(--accent);
-            transform: scale(0.95);
+            background: var(--primary);
+            color: #fff;
+            transform: scale(0.9);
+            border-color: var(--primary);
         }
 
-        /* Favorites star button */
+        /* Favorites and chips styling */
         .favorite-btn {
             background: none;
             border: none;
-            font-size: 1.3em;
+            font-size: 1.4em;
             cursor: pointer;
-            padding: 4px;
+            padding: var(--spacing-8);
             color: var(--text-muted);
+            transition: transform 0.15s ease;
+            min-width: 44px;
+            min-height: 44px;
         }
         .favorite-btn.active {
-            color: #facc15;
+            color: #FBBF24; /* Rich Gym gold star */
         }
-        .favorite-btn:hover {
-            transform: scale(1.1);
-        }
-
-        /* Recent exercises section */
+        
         .recent-exercises-section {
             background: var(--surface-2);
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-bottom: 12px;
+            border-radius: var(--radius-12);
+            padding: var(--spacing-12) var(--spacing-16);
+            margin-bottom: var(--spacing-16);
         }
+        
         .recent-exercises-section h4 {
-            margin: 0 0 8px 0;
-            font-size: 0.9em;
+            margin: 0 0 var(--spacing-8) 0;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             color: var(--text-muted);
         }
+        
         .recent-exercise-chip {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
             background: var(--surface-1);
             border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 6px 12px;
-            margin: 2px 4px 2px 0;
+            border-radius: var(--radius-24);
+            padding: var(--spacing-8) var(--spacing-16);
+            margin: var(--spacing-4) var(--spacing-8) var(--spacing-4) 0;
             font-size: 0.9em;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.15s ease;
+            min-height: 36px;
         }
         .recent-exercise-chip:hover {
-            background: var(--accent);
+            border-color: var(--primary);
             color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
         }
 
-        /* Streak counter badge */
+        /* Pulse and Badge visuals */
         .streak-badge {
             display: inline-flex;
             align-items: center;
-            gap: 6px;
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.95em;
-            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.3);
-        }
-        .streak-badge .streak-icon {
-            font-size: 1.2em;
+            gap: var(--spacing-8);
+            background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+            color: #fff;
+            padding: var(--spacing-8) var(--spacing-16);
+            border-radius: var(--radius-24);
+            font-weight: 800;
+            font-size: 0.9em;
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.25);
         }
 
-        /* Weekly summary card */
         .weekly-summary-card {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 12px;
-            margin-bottom: 16px;
+            gap: var(--spacing-12);
+            margin-bottom: var(--spacing-16);
         }
+        
         .summary-stat {
             background: var(--surface-2);
-            border-radius: 12px;
-            padding: 16px;
+            border-radius: var(--radius-16);
+            padding: var(--spacing-16);
             text-align: center;
+            border: 1px solid transparent;
+            transition: border-color 0.2s ease;
         }
+        .summary-stat:hover {
+            border-color: var(--border-color);
+        }
+        
         .summary-stat .stat-value {
             font-size: 1.8em;
-            font-weight: bold;
+            font-weight: 800;
             color: var(--primary);
+            font-family: 'Montserrat', Arial, sans-serif;
+            line-height: 1.2;
         }
+        
         .summary-stat .stat-label {
-            font-size: 0.85em;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
             color: var(--text-muted);
-            margin-top: 4px;
+            margin-top: var(--spacing-4);
         }
 
-        /* Rest timer overlay */
+        /* Rest timer overlay elements */
         .rest-timer-overlay {
             display: none;
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(9, 13, 22, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 3100;
             align-items: center;
             justify-content: center;
             flex-direction: column;
         }
         .rest-timer-display {
-            font-size: 6em;
-            font-weight: bold;
+            font-size: 6.5em;
+            font-weight: 900;
             color: var(--accent);
             font-family: 'Montserrat', sans-serif;
+            letter-spacing: -2px;
+            animation: pulse-countdown 1s infinite alternate;
         }
+        @keyframes pulse-countdown {
+            from { transform: scale(0.96); opacity: 0.9; }
+            to { transform: scale(1.04); opacity: 1; }
+        }
+        
         .rest-timer-label {
             font-size: 1.5em;
-            color: white;
-            margin-top: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #fff;
+            margin-top: var(--spacing-8);
         }
         .rest-timer-skip {
-            margin-top: 32px;
-            padding: 12px 32px;
+            margin-top: var(--spacing-32);
+            padding: var(--spacing-16) var(--spacing-48);
+            border-radius: var(--radius-24);
         }
 
-        /* Undo toast with action button */
-        .toast.with-action {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding-right: 12px;
-        }
-        .toast .undo-btn {
-            background: rgba(255,255,255,0.2);
-            border: none;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        .toast .undo-btn:hover {
-            background: rgba(255,255,255,0.3);
-        }
-
-        /* Delete button in tables */
-        .delete-entry-btn {
-            background: none;
-            border: none;
-            color: #ef4444;
-            cursor: pointer;
-            padding: 4px;
-            border-radius: 4px;
-        }
-        .delete-entry-btn:hover {
-            background: rgba(239, 68, 68, 0.1);
-        }
-
-        /* PR badge */
-        .pr-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
-            color: #1f2937;
-            font-size: 0.75em;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: bold;
-            margin-left: 6px;
-        }
-
-        /* Export button in stats */
-        .export-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.9em;
-        }
-
-        /* ========== MOBILE OPTIMIZATIONS FOR 720p+ PHONES ========== */
-        
-        /* Larger touch targets for all interactive elements */
-        @media (max-width: 767px) {
-            /* Increase base font size for better readability on HD+ screens */
-            html {
-                font-size: 17px;
-            }
-            
-            /* Larger input fields */
-            input[type="number"], input[type="text"], select {
-                min-height: 52px;
-                font-size: 1.1em;
-                padding: 12px 16px;
-            }
-            
-            /* Larger buttons with better touch targets */
-            .btn {
-                min-height: 52px;
-                padding: 14px 20px;
-                font-size: 1.05em;
-            }
-            
-            /* Larger weight +/- buttons */
-            .weight-btn {
-                min-width: 48px;
-                min-height: 48px;
-                font-size: 1.5em;
-            }
-            
-            /* More spacing in input grid for thumb-friendly tapping */
-            .input-grid {
-                gap: 16px;
-            }
-            
-            /* Larger exercise list items */
-            #exercise-list > div {
-                min-height: 64px !important;
-                padding: 14px 12px !important;
-            }
-            
-            /* Bigger favorite stars */
-            .favorite-btn {
-                font-size: 1.6em;
-                padding: 8px;
-                min-width: 44px;
-                min-height: 44px;
-            }
-            
-            /* Larger recent exercise chips */
-            .recent-exercise-chip {
-                padding: 10px 16px;
-                font-size: 1em;
-                min-height: 44px;
-                display: inline-flex;
-                align-items: center;
-            }
-            
-            /* Better header layout */
-            header h1 {
-                font-size: 1.6em;
-                margin: 4px 0 8px 0;
-            }
-            
-            /* Compact header on mobile */
-            header {
-                padding: 8px 12px;
-            }
-            
-            /* Remove margin from container on mobile for more space */
-            .container {
-                padding: 12px;
-            }
-            
-            /* Sections with better mobile padding */
-            .section {
-                padding: 14px;
-                margin-bottom: 16px;
-                border-radius: 12px;
-            }
-            
-            /* Larger tab bar for easier thumb reach */
-            .tab-bar {
-                height: calc(70px + env(safe-area-inset-bottom, 0px));
-            }
-            .tab-bar-btn {
-                min-height: 70px;
-                font-size: 0.85em;
-            }
-            .tab-bar-btn svg {
-                height: 28px;
-                width: 28px;
-                margin-bottom: 4px;
-            }
-            
-            /* Adjust content padding for larger tab bar */
-            #main-quicklog {
-                padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
-            }
-            #main-pastworkouts {
-                padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
-            }
-            
-            /* Larger summary stat cards */
-            .summary-stat {
-                padding: 14px 12px;
-            }
-            .summary-stat .stat-value {
-                font-size: 1.6em;
-            }
-            .summary-stat .stat-label {
-                font-size: 0.8em;
-            }
-            
-            /* Bigger streak badge */
-            .streak-badge {
-                padding: 10px 18px;
-                font-size: 1em;
-            }
-            
-            /* Mobile cards with more padding */
-            .mobile-pw-card, .mobile-measure-card {
-                padding: 14px 16px;
-                gap: 10px;
-            }
-            
-            /* Delete button larger touch target */
-            .delete-entry-btn {
-                padding: 10px;
-                min-width: 44px;
-                min-height: 44px;
-            }
-            .delete-entry-btn svg {
-                width: 20px;
-                height: 20px;
-            }
-            
-            /* Toast positioned better on mobile */
-            .toast {
-                bottom: calc(90px + env(safe-area-inset-bottom, 0px));
-                padding: 14px 20px;
-                font-size: 1em;
-                max-width: 92vw;
-            }
-            
-            /* Rest timer bigger on mobile */
-            .rest-timer-display {
-                font-size: 5em;
-            }
-            .rest-timer-label {
-                font-size: 1.3em;
-            }
-            .rest-timer-skip {
-                min-height: 56px;
-                padding: 16px 40px;
-                font-size: 1.1em;
-            }
-        }
-        
-        /* Extra small phones (under 360px width) */
-        @media (max-width: 360px) {
-            html {
-                font-size: 15px;
-            }
-            .weekly-summary-card {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        
-        /* Landscape orientation adjustments */
-        @media (max-height: 500px) and (orientation: landscape) {
-            .tab-bar {
-                height: 56px;
-            }
-            .tab-bar-btn {
-                min-height: 56px;
-                flex-direction: row;
-                gap: 8px;
-            }
-            .tab-bar-btn svg {
-                margin-bottom: 0;
-            }
-            #main-quicklog, #main-pastworkouts {
-                padding-bottom: 70px !important;
-            }
-        }
-        
-        /* Smooth scrolling for exercise list */
-        #exercise-list {
-            scroll-behavior: smooth;
-            -webkit-overflow-scrolling: touch;
-        }
-        
-        /* Better active states for mobile (visual feedback) */
-        @media (hover: none) and (pointer: coarse) {
-            .btn:active {
-                transform: scale(0.97);
-                opacity: 0.9;
-            }
-            .weight-btn:active {
-                transform: scale(0.9);
-            }
-            .recent-exercise-chip:active {
-                transform: scale(0.95);
-                background: var(--accent);
-            }
-            .favorite-btn:active {
-                transform: scale(1.2);
-            }
-            .delete-entry-btn:active {
-                background: rgba(239, 68, 68, 0.2);
-            }
-            /* Remove hover states on touch devices */
-            .btn:hover {
-                background: var(--primary);
-            }
-            .btn-secondary:hover {
-                background: var(--accent);
-            }
-        }
-        
-        /* Floating action indicator for active workout */
+        /* Float workout active pulse button */
         .workout-active-indicator {
             position: fixed;
             bottom: calc(80px + env(safe-area-inset-bottom, 0px));
-            right: 16px;
+            right: var(--spacing-16);
             background: var(--success);
             color: white;
             width: 56px;
@@ -1034,50 +883,120 @@
             align-items: center;
             justify-content: center;
             font-size: 1.5em;
-            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
             z-index: 99;
-            animation: pulse-glow 2s infinite;
+            cursor: pointer;
+            animation: pulse-glow-success 2s infinite;
+            transition: all 0.2s ease;
         }
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4); }
-            50% { box-shadow: 0 4px 24px rgba(16, 185, 129, 0.6); }
+        .workout-active-indicator:active {
+            transform: scale(0.9);
         }
         
-        @media (max-width: 767px) {
-            .workout-active-indicator {
-                bottom: calc(90px + env(safe-area-inset-bottom, 0px));
-                width: 52px;
-                height: 52px;
+        @keyframes pulse-glow-success {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 15px rgba(16, 185, 129, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
             }
         }
-        
-        /* Swipe hint animation for modals */
-        .modal-drag-handle {
-            animation: swipe-hint 2s ease-in-out 1s 2;
-        }
-        @keyframes swipe-hint {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(4px); }
-        }
-        
-        /* Input group spacing improvements */
-        .input-group {
-            margin-bottom: 4px;
-        }
-        .input-group label {
-            margin-bottom: 6px;
-            font-size: 0.95em;
-        }
-        
-        /* Quick action button improvements */
-        .quick-action-btn {
+
+        /* Toast action undo items */
+        .toast.with-action {
             display: flex;
             align-items: center;
+            gap: var(--spacing-12);
+            padding-right: var(--spacing-12);
+        }
+        .toast .undo-btn {
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: white;
+            padding: var(--spacing-4) var(--spacing-12);
+            border-radius: var(--radius-12);
+            font-weight: 700;
+            font-size: 0.85em;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+        .toast .undo-btn:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .delete-entry-btn {
+            background: none;
+            border: none;
+            color: var(--suggestion-red);
+            cursor: pointer;
+            padding: var(--spacing-8);
+            border-radius: var(--radius-8);
+            transition: all 0.15s ease;
+            min-height: 40px;
+            min-width: 40px;
+            display: inline-flex;
+            align-items: center;
             justify-content: center;
-            gap: 8px;
-            padding: 14px 16px;
-            border-radius: 12px;
-            font-weight: 600;
+        }
+        .delete-entry-btn:hover {
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        .pr-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FBBF24, #F59E0B);
+            color: #1E293B;
+            font-size: 0.75em;
+            padding: var(--spacing-4) var(--spacing-8);
+            border-radius: var(--radius-8);
+            font-weight: 800;
+            margin-left: var(--spacing-8);
+            box-shadow: 0 2px 4px rgba(245, 158, 11, 0.2);
+        }
+
+        .export-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-8);
+            font-size: 0.9em;
+        }
+
+        /* QoL modifications for mobile spacing layouts */
+        @media (max-width: 767px) {
+            html {
+                font-size: 16px;
+            }
+            input[type="number"], input[type="text"], select {
+                min-height: 48px;
+                padding: var(--spacing-12) var(--spacing-16);
+            }
+            .btn {
+                min-height: 52px;
+                padding: var(--spacing-12) var(--spacing-20);
+            }
+            .weight-btn {
+                width: 48px;
+                height: 48px;
+            }
+            .tab-bar {
+                height: calc(72px + env(safe-area-inset-bottom, 0px));
+            }
+            .tab-bar-btn {
+                min-height: 72px;
+            }
+            .tab-bar-btn svg {
+                height: 24px;
+                width: 24px;
+            }
+            #main-quicklog {
+                padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
+            }
+            #main-pastworkouts {
+                padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)) !important;
+            }
         }
     </style>
 </head>
@@ -1119,8 +1038,8 @@
         </div>
     </div>
     <!-- Exercise Picker Modal (Bottom Sheet) -->
-    <div id="exercise-picker-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:2002;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);">
-        <div style="background:var(--surface-1);padding:20px 16px calc(20px + env(safe-area-inset-bottom, 0px));border-radius:20px 20px 0 0;max-width:640px;width:100vw;margin:0;box-shadow:0 -8px 32px rgba(44,62,80,0.2);max-height:88vh;overflow-y:auto;">
+    <div id="exercise-picker-modal" style="display:none;">
+        <div>
             <div class="modal-drag-handle"></div>
             <h2 style="color:var(--primary);margin-top:0;margin-bottom:14px;font-size:1.4em;text-align:center;">Select Exercise</h2>
             <!-- Favorites Section -->
@@ -1153,8 +1072,8 @@
         </div>
     </div>
     <!-- Create Workout Plan Modal (Bottom Sheet) -->
-    <div id="create-plan-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2001;align-items:flex-end;justify-content:center;">
-        <div style="background:var(--surface-1);padding:20px 16px calc(16px + env(safe-area-inset-bottom, 0px));border-radius:14px 14px 0 0;max-width:640px;width:100vw;margin:0;box-shadow:0 -6px 24px rgba(44,62,80,0.16);max-height:90vh;overflow-y:auto;">
+    <div id="create-plan-modal" style="display:none;">
+        <div>
             <div class="modal-drag-handle"></div>
             <h2 style="color:var(--primary);margin-top:0;margin-bottom:18px;">Create Workout Plan</h2>
             <form id="create-plan-form">
@@ -1182,8 +1101,8 @@
         </div>
     </div>
     
-    <div id="user-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2000;align-items:center;justify-content:center;">
-        <div style="background:#fff;padding:32px 24px;border-radius:12px;max-width:350px;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);">
+    <div id="user-modal" style="display:none;align-items:center;">
+        <div>
             <h2 style="color:var(--primary);margin-top:0;">Welcome!</h2>
             <p style="color:var(--text-muted);margin-bottom:16px;">Let's get started on your fitness journey! Please tell us a bit about yourself so we can tailor your program to your goals and preferences.</p>
             <form id="user-details-form">
@@ -1338,8 +1257,8 @@
         <div id="main-dashboard" style="display:none;">
         </div>
         <!-- QR Share Modal -->
-    <div id="qr-share-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2003;align-items:center;justify-content:center;">
-            <div style="background:#fff;padding:24px;border-radius:12px;max-width:420px;width:90vw;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);text-align:center;">
+    <div id="qr-share-modal" style="display:none;">
+            <div style="text-align:center;">
                 <h2 style="margin-top:0;color:var(--primary);">Scan This QR</h2>
                 <p style="color:var(--text-muted);margin:0 0 12px 0;">Shares your current workout plan offline.</p>
                 <div id="qr-share-container" style="display:flex;align-items:center;justify-content:center;min-height:260px;"></div>
@@ -1350,8 +1269,8 @@
             </div>
         </div>
         <!-- QR Scan Modal -->
-    <div id="qr-scan-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.25);z-index:2003;align-items:center;justify-content:center;">
-            <div style="background:#fff;padding:24px;border-radius:12px;max-width:480px;width:92vw;margin:auto;box-shadow:0 4px 24px rgba(44,62,80,0.12);">
+    <div id="qr-scan-modal" style="display:none;">
+            <div>
                 <h2 style="margin-top:0;color:var(--primary);">Scan Plan QR</h2>
                 <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
                     <video id="qr-video" autoplay playsinline style="width:100%;max-height:300px;background:#000;border-radius:8px;"></video>
